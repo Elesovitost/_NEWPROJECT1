@@ -18,6 +18,13 @@
         .header-btn { background:rgba(255,255,255,0.03); border:1px solid var(--border-color); color:#c9d1d9; padding:4px 12px; font-size:11px; cursor:pointer; border-radius:3px; font-weight:600; transition:all 0.1s; }
         .header-btn:hover:not(:disabled) { border-color:#8b949e; color:#fff; }
         .header-btn.selected { background-color:var(--accent-selected); border-color:#58a6ff; color:#fff; }
+        .dropdown-container { position:relative; display:inline-flex; }
+        .dropdown-content { display:none; position:absolute; top:calc(100% + 4px); left:0; margin-left:-5px; background-color:var(--panel-bg); border:1px solid var(--border-color); padding:4px; border-radius:4px; z-index:100; flex-direction:column; gap:2px; box-shadow:0 6px 12px rgba(0,0,0,0.4); min-width:calc(100% + 10px); }
+        .dropdown-content::before { content:""; position:absolute; top:-6px; left:0; width:100%; height:6px; background:transparent; }
+        .dropdown-container:hover .dropdown-content { display:flex; }
+        .dropdown-content .header-btn { text-align:left; width:100%; border-color:transparent; }
+        .dropdown-content .header-btn:hover { border-color:#8b949e; }
+        .dropdown-content .header-btn.selected { border-color:#58a6ff; background-color:var(--accent-selected); }
         @keyframes flash-red { 0%, 100% { background-color:transparent; } 50% { background-color:rgba(255, 70, 70, 0.25); } }
         .flash-error { animation:flash-red 0.4s ease 3; border:1px solid #ff7b72; }
 
@@ -118,11 +125,24 @@
             <button class="header-btn" data-action="set-exam" data-type="tomo">MR</button>
         </div>
         <div class="exam-divider"></div>
-        <div class="exam-group" id="region-selector" style="padding: 0;">
+        <div class="exam-group" id="region-selector" style="padding: 0; gap: 8px;">
             <span class="exam-label">Oblast:</span>
-            <button class="header-btn region-btn" data-action="toggle-region" data-region="KRK">KRK</button>
-            <button class="header-btn region-btn" data-action="toggle-region" data-region="HRUDNÍK">HRUDNÍK</button>
-            <button class="header-btn region-btn" data-action="toggle-region" data-region="BŘICHO">BŘICHO</button>
+            <div class="dropdown-container">
+                <button class="header-btn" id="main-head-btn">HLAVA</button>
+                <div class="dropdown-content">
+                    <button class="header-btn region-btn" data-action="toggle-region" data-region="MOZEK">MOZEK</button>
+                    <button class="header-btn region-btn" data-action="toggle-region" data-region="ORBITY">ORBITY</button>
+                    <button class="header-btn region-btn" data-action="toggle-region" data-region="VDN">VDN</button>
+                </div>
+            </div>
+            <div class="dropdown-container">
+                <button class="header-btn" id="main-region-btn">TRUP</button>
+                <div class="dropdown-content">
+                    <button class="header-btn region-btn" data-action="toggle-region" data-region="KRK">KRK</button>
+                    <button class="header-btn region-btn" data-action="toggle-region" data-region="HRUDNÍK">HRUDNÍK</button>
+                    <button class="header-btn region-btn" data-action="toggle-region" data-region="BŘICHO">BŘICHO</button>
+                </div>
+            </div>
         </div>
         <div class="exam-group" style="gap: 6px; padding: 0 0 0 15px; border-left: 1px solid var(--border-color);">
             <span class="exam-label">Indikace:</span>
@@ -148,7 +168,9 @@
                 <input type="text" class="global-input field-suv" data-val="20.0" value="20.0" >
             </div>
             <div>
-            <button class="attr-btn static-text recist-btn" data-default-text="RECIST" data-states='["active"]' data-state-index="-1" onclick="advanceState(event,this)" oncontextmenu="revertState(event,this)"><span>RECIST</span></button>
+            <div>
+                <button class="header-btn recist-btn" data-action="toggle-recist">RECIST</button>
+            </div>
             </div>
         </div>
         
@@ -162,6 +184,20 @@
     <main class="panel" id="findings-panel">
         <h2>FINDINGS</h2>
         <div class="content-area level-group">
+            <div id="hlava-findings-group" class="level-group" style="display:none; width: 100%;">
+                <button class="btn lvl1" id="btn-hlava-main" data-action="toggle-sub" data-target="hlava-sub">HLAVA</button>
+                <div id="hlava-sub" class="hidden lvl2-container">
+                    <button class="btn lvl2 finding-btn" data-action="add-finding" data-container="loziska-hlava-container" data-region="hlava" data-type="lozisko">Ložisko</button>
+                    <div id="loziska-hlava-container" class="lvl3-container"></div>
+                    <button class="btn lvl2" id="btn-hlava-organy" data-action="toggle-sub" data-target="hlava-organy-sub">Orgány</button>
+                    <div id="hlava-organy-sub" class="hidden lvl3-container">
+                        <button class="btn lvl3" id="btn-mozek" data-action="show-details" data-target="form-mozek">Mozek</button>
+                        <button class="btn lvl3" id="btn-orbity" data-action="show-details" data-target="form-orbity">Orbity</button>
+                        <button class="btn lvl3" id="btn-vdn" data-action="show-details" data-target="form-vdn">VDN</button>
+                    </div>
+                </div>
+            </div>
+
             <button class="btn lvl1" id="btn-krk" data-action="toggle-sub" data-target="krk-sub">KRK</button>
             <div id="krk-sub" class="hidden lvl2-container">
                 <button class="btn lvl2 finding-btn" data-action="add-finding" data-container="loziska-krk-container" data-region="krk" data-type="lozisko">Ložisko</button>
@@ -207,6 +243,9 @@
     <section class="panel" id="details-panel">
         <h2>DETAILS</h2>
         <div class="content-area" id="details-container">
+            <div id="form-mozek" class="detail-form" data-menu-id="btn-mozek" data-region="HLAVA" data-category="MOZEK">Formulář Mozek...</div>
+            <div id="form-orbity" class="detail-form" data-menu-id="btn-orbity" data-region="HLAVA" data-category="ORBITY">Formulář Orbity...</div>
+            <div id="form-vdn" class="detail-form" data-menu-id="btn-vdn" data-region="HLAVA" data-category="VDN">Formulář VDN...</div>
             <div id="form-siny" class="detail-form" data-menu-id="btn-siny" data-region="KRK" data-category="SINY"><div class="flex-wrapper" id="siny-grid"></div></div>
             <div id="form-slinne-zlazy" class="detail-form" data-menu-id="btn-slinne-zlazy" data-region="KRK" data-category="SLINNÉ ŽLÁZY"><div class="flex-wrapper" id="slinne-zlazy-grid"></div></div>
             <div id="form-thyroidea" class="detail-form" data-menu-id="btn-thyroidea" data-region="KRK" data-category="THYROIDEA"><div class="flex-wrapper" id="thyroidea-grid"></div></div>
@@ -220,6 +259,13 @@
     <aside class="panel" id="report-panel">
         <h2 id="btn-generate-report">REPORT</h2>
         <div class="content-area">
+            <div class="category-section main-region" data-region="HLAVA" style="display:none;">
+                <div class="category-header">HLAVA</div>
+                <div class="placeholder-text pato-empty">Bez patrné ložiskové patologie.</div>
+                <div class="category-items"></div>
+                <div class="placeholder-text organ-empty" style="margin-top:6px;">Orgány bez signifikantní patologie.</div>
+                <div class="organ-items"></div>
+            </div>
             <div class="category-section main-region" data-region="KRK">
                 <div class="category-header">KRK</div>
                 <div class="placeholder-text pato-empty">Bez patrné ložiskové patologie.</div>
@@ -525,7 +571,7 @@
         // 3. GENERÁTOR NÁLEZŮ - LOŽISKA A UZLINY
         // ==========================================
         function buildFindingContent(data, type) {
-            const isLymf = type === 'lymf', locTitle = isLymf ? 'Lokalizace Krk' : 'Lokalizace ORL';
+            const isLymf = type === 'lymf', locTitle = isLymf ? 'Lokalizace' : 'Lokalizace';
             let html = '<div class="lozisko-main-container">';
             html += `<div class="lozisko-row row-pocet exclusive-group"><span class="lead-col">Počet:</span>${createDynamicButton(['active'], 'solitární', 'static-text default-active')}${createDynamicButton(['active'], 'dvě', 'static-text')}${createDynamicButton(['active'], 'vícečetné', 'static-text')}${createDynamicButton(['active'], 'mnohočetné', 'static-text')}</div>`;
             html += `<div class="lozisko-row row-druh exclusive-group"><span class="lead-col">Druh:</span>${createDynamicButton(['active'], isLymf ? 'uzlina' : 'ložisko', 'static-text default-active')}${createDynamicButton(['active'], isLymf ? 'paket uzlin' : 'expanze', 'static-text')}${isLymf ? '' : createDynamicButton(['active'], 'infiltrace', 'static-text')+createDynamicButton(['active'], 'kolekce', 'static-text')}${createDynamicButton(['active'], 'vlastní', 'static-text trigger-text-inline')}<input type="text" class="global-input field-text hidden" placeholder="Specifikujte druh..." oninput="triggerFormUpdate(this)"></div>`;
@@ -546,45 +592,90 @@
         // 4. CORE ENGINE & DELEGATION 
         // ==========================================
         function getGenitive(w, dict = 'nouns') { return CZECH_GRAMMAR[dict][w.toLowerCase()]?.['2s'] || w; }
-        function applyGrammar(pocet, druh) { if (!druh) return pocet; if (!pocet) return druh; const n = CZECH_GRAMMAR.nouns[druh.toLowerCase()], a = CZECH_GRAMMAR.adjectives[pocet.toLowerCase()]; return (!n || !a) ? `${pocet} ${druh}` : `${a[n.g]} ${a.num === 'S' ? n['1s'] : n['1p']}`; }
+        function applyGrammar(pocet, druh) { 
+            if (!druh) return pocet === 'solitární' ? '' : pocet; 
+            if (!pocet) return druh; 
+            const n = CZECH_GRAMMAR.nouns[druh.toLowerCase()], a = CZECH_GRAMMAR.adjectives[pocet.toLowerCase()]; 
+            if (!n || !a) return pocet.toLowerCase() === 'solitární' ? druh : `${pocet} ${druh}`; 
+            return pocet.toLowerCase() === 'solitární' ? n['1s'] : `${a[n.g]} ${a.num === 'S' ? n['1s'] : n['1p']}`; 
+        }
         function capitalize(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
 
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-action]');
-            if (btn && !btn.disabled) {
-                const a = btn.dataset.action;
-                if (a === 'set-exam') { const t = btn.dataset.type; if (btn.classList.contains('selected')) { btn.classList.remove('selected'); EXAM_STATE[t] = null; } else { document.querySelectorAll(`.header-btn[data-type="${t}"]`).forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); EXAM_STATE[t] = btn.textContent; } if (t === 'tomo' && EXAM_STATE.tomo) document.getElementById('tomo-group').classList.remove('flash-error'); saveExamState(); applyExamVisibilityRules(); }
-                else if (a === 'toggle-region') { btn.classList.toggle('selected'); const reg = btn.dataset.region, i = EXAM_STATE.regions.indexOf(reg); if (i > -1) EXAM_STATE.regions.splice(i, 1); else EXAM_STATE.regions.push(reg); saveExamState(); applyExamVisibilityRules(); }
-                else if (a === 'toggle-sub') { const el = document.getElementById(btn.dataset.target); if(el) el.classList.toggle('hidden'); }
-                else if (a === 'show-details') { document.querySelectorAll('.detail-form').forEach(f => f.classList.remove('active')); const form = document.getElementById(btn.dataset.target); if(form) form.classList.add('active'); }
-                else if (a === 'add-finding') addFinding(btn.dataset.container, btn.dataset.region, btn.dataset.type);
-                else if (a === 'open-settings') toggleModal('settings-modal', true);
+            if (!btn || btn.disabled) return;
+            
+            switch (btn.dataset.action) {
+                case 'set-exam':
+                    const t = btn.dataset.type;
+                    if (btn.classList.contains('selected')) { btn.classList.remove('selected'); EXAM_STATE[t] = null; } 
+                    else { document.querySelectorAll(`.header-btn[data-type="${t}"]`).forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); EXAM_STATE[t] = btn.textContent; }
+                    if (t === 'tomo' && EXAM_STATE.tomo) document.getElementById('tomo-group').classList.remove('flash-error');
+                    saveExamState(); applyExamVisibilityRules();
+                    break;
+                case 'toggle-region':
+                    const reg = btn.dataset.region;
+                    const headRegs = ['MOZEK', 'ORBITY', 'VDN'];
+                    
+                    if (headRegs.includes(reg)) {
+                        const wasSelected = EXAM_STATE.regions.includes(reg);
+                        EXAM_STATE.regions = EXAM_STATE.regions.filter(r => !headRegs.includes(r)); // Smaže celou hlavu
+                        if (!wasSelected) EXAM_STATE.regions.push(reg); // Přidá jen pokud nebyla předtím aktivní
+                    } else {
+                        const i = EXAM_STATE.regions.indexOf(reg);
+                        if (i > -1) EXAM_STATE.regions.splice(i, 1); else EXAM_STATE.regions.push(reg);
+                    }
+                    saveExamState(); applyExamVisibilityRules();
+                    break;
+                case 'toggle-sub':
+                    const el = document.getElementById(btn.dataset.target);
+                    if (el) el.classList.toggle('hidden');
+                    break;
+                case 'show-details':
+                    document.querySelectorAll('.detail-form').forEach(f => f.classList.remove('active'));
+                    const form = document.getElementById(btn.dataset.target);
+                    if (form) form.classList.add('active');
+                    break;
+                case 'add-finding':
+                    addFinding(btn.dataset.container, btn.dataset.region, btn.dataset.type);
+                    break;
+                case 'open-settings':
+                    toggleModal('settings-modal', true);
+                    break;
+                case 'toggle-recist':
+                    btn.classList.toggle('selected');
+                    document.querySelectorAll('.detail-form').forEach(f => triggerFormUpdate(f));
+                    break;
             }
         });
 
         document.addEventListener('contextmenu', (e) => {
-                    const btn = e.target.closest('.header-btn');
-                    if (btn && btn.classList.contains('selected')) {
-                        e.preventDefault(); // Zabrání zobrazení výchozího menu prohlížeče
-                        const a = btn.dataset.action;
-                        
-                        if (a === 'set-exam') {
-                            btn.classList.remove('selected');
-                            EXAM_STATE[btn.dataset.type] = null;
-                        } else if (a === 'toggle-region') {
-                            btn.classList.remove('selected');
-                            const reg = btn.dataset.region, i = EXAM_STATE.regions.indexOf(reg);
-                            if (i > -1) EXAM_STATE.regions.splice(i, 1);
-                        }
-                        
-                        saveExamState(); 
-                        applyExamVisibilityRules();
-                    }
-                });
+            if (e.target.tagName === 'INPUT') return;           
+            if (e.target.closest('#main-header, .dropdown-content')) {
+                e.preventDefault();
+            }
+            const mainHeadBtn = e.target.closest('#main-head-btn');
+            if (mainHeadBtn) {
+                EXAM_STATE.regions = EXAM_STATE.regions.filter(r => !['MOZEK', 'ORBITY', 'VDN'].includes(r));
+                saveExamState(); applyExamVisibilityRules();
+                return;
+            }
+            const mainRegionBtn = e.target.closest('#main-region-btn');
+            if (mainRegionBtn) {
+                EXAM_STATE.regions = EXAM_STATE.regions.filter(r => !['KRK', 'HRUDNÍK', 'BŘICHO'].includes(r));
+                saveExamState(); applyExamVisibilityRules();
+                return;
+            }
+            const btn = e.target.closest('.header-btn');
+            if (btn && btn.classList.contains('selected') && btn.dataset.action) {
+                btn.click();
+            }
+        });
 
         // --- HLAVNÍ TRIGGER PRO ZPRACOVÁNÍ FORMULÁŘŮ ---
         function triggerFormUpdate(el) {
-            const form = el.closest('.detail-form'); if (!form) return;
+            const form = el.closest('.detail-form') || (el.classList.contains('detail-form') ? el : null); 
+            if (!form) return;
             const category = form.getAttribute('data-category') || 'OSTATNÍ', region = form.getAttribute('data-region') || category;
             
             if (form.id.startsWith('lozisko-') || form.id.startsWith('lymf-')) {
@@ -684,8 +775,110 @@
             if (reportStr.length > 0) reportStr = capitalize(reportStr.replace(/\s+,/g, ',')) + '.';
 
             let conclStr = [druhAPocet, lokalizace, aktivitaText].filter(Boolean).join(' ');
-            if (finalEtio) conclStr += `: ${finalEtio}`; if (conclStr.length > 0) conclStr = capitalize(conclStr) + '.';
+            let diffCombinedText = "";
+            
+            if (hasMinuleDate) {
+                const recistActive = document.querySelector('.recist-btn')?.classList.contains('selected');
+                let sState = null; // Stav rozměru
+                let aState = null; // Stav akumulace
+                
+                // 1. Změna rozměru
+                if (size && minSize) {
+                    const getMaxDim = (s) => { const n = s.match(/\d+(\.\d+)?/g); return n ? Math.max(...n.map(Number)) : null; };
+                    const currVal = getMaxDim(size);
+                    const minVal = getMaxDim(minSize);
+                    
+                    if (currVal !== null && minVal !== null && minVal > 0) {
+                        const pct = ((currVal - minVal) / minVal) * 100;
+                        const absPct = Math.abs(pct);
+                        sState = { trend: 0, mod: "", pctStr: "" };
+                        
+                        if (absPct > 10) {
+                            sState.trend = pct > 0 ? 1 : -1;
+                            if (absPct < 20) sState.mod = "mírné";
+                            else if (absPct <= 50) sState.mod = "";
+                            else sState.mod = "výrazné";
+                            
+                            if (absPct >= 20 && recistActive) {
+                                const rPct = Math.round(pct / 10) * 10;
+                                sState.pctStr = ` (${pct > 0 ? '+' : '-'}${Math.abs(rPct)}%)`;
+                            }
+                        }
+                    }
+                }
 
+                // 2. Změna SUV
+                if (suv && minSuv) {
+                    const currSuv = parseFloat(suv.replace(',', '.'));
+                    const minSuvVal = parseFloat(minSuv.replace(',', '.'));
+                    
+                    if (!isNaN(currSuv) && !isNaN(minSuvVal) && minSuvVal > 0) {
+                        const liverInputs = document.querySelectorAll('#ref-jatra input.field-suv');
+                        const currLiver = liverInputs[0] ? parseFloat(liverInputs[0].value.replace(',', '.')) : NaN;
+                        const minLiver = liverInputs[1] ? parseFloat(liverInputs[1].value.replace(',', '.')) : NaN;
+                        
+                        const currMetric = (currLiver > 0) ? (currSuv / currLiver) : currSuv;
+                        const minMetric = (minLiver > 0) ? (minSuvVal / minLiver) : minSuvVal;
+                        
+                        const pct = ((currMetric - minMetric) / minMetric) * 100;
+                        const absPct = Math.abs(pct);
+                        aState = { trend: 0, mod: "" };
+                        
+                        if (absPct >= 20) {
+                            aState.trend = pct > 0 ? 1 : -1;
+                            if (absPct < 50) aState.mod = "mírné";
+                            else if (absPct < 100) aState.mod = "";
+                            else aState.mod = "výrazné";
+                        }
+                    }
+                }
+
+                // 3. Skládání textu
+                const getTrendWord = (t) => t === 1 ? "progresi" : "regresi";
+                const prependV = (t) => t.startsWith("výrazn") ? `ve ${t}` : `v ${t}`;
+                
+                const buildSingleSize = (st) => {
+                    if (st.trend === 0) return "rozměrově stacionární";
+                    const t = (st.mod ? `${st.mod} ` : "") + `rozměrové${st.pctStr} ${getTrendWord(st.trend)}`;
+                    return prependV(t);
+                };
+                
+                const buildSingleAkum = (st) => {
+                    if (st.trend === 0) return "akumulačně přibližně stacionární";
+                    const t = (st.mod ? `${st.mod} ` : "") + `akumulační ${getTrendWord(st.trend)}`;
+                    return prependV(t);
+                };
+
+                if (sState && aState) {
+                    if (sState.trend === 0 && aState.trend === 0) {
+                        diffCombinedText = "rozměrově i metabolicky přibližně stacionární";
+                    } else if (sState.trend === aState.trend && sState.trend !== 0) {
+                        // Změna obou parametrů stejným směrem
+                        const trWord = getTrendWord(sState.trend);
+                        if (sState.mod === aState.mod) {
+                            const m = sState.mod ? `${sState.mod} ` : "";
+                            diffCombinedText = prependV(`${m}rozměrové${sState.pctStr} i akumulační ${trWord}`);
+                        } else {
+                            const m1 = sState.mod ? `${sState.mod} ` : "";
+                            const m2 = aState.mod ? `${aState.mod} ` : "";
+                            diffCombinedText = prependV(`${m1}rozměrové${sState.pctStr} a ${m2}akumulační ${trWord}`);
+                        }
+                    } else {
+                        // Parametry se mění protichůdně, nebo se mění jen jeden
+                        diffCombinedText = `${buildSingleSize(sState)} a ${buildSingleAkum(aState)}`;
+                    }
+                } else if (sState) {
+                    diffCombinedText = buildSingleSize(sState);
+                } else if (aState) {
+                    diffCombinedText = buildSingleAkum(aState);
+                }
+            }
+            
+            if (diffCombinedText) conclStr += conclStr ? `, ${diffCombinedText}` : diffCombinedText;
+            
+            if (finalEtio) conclStr += `: ${finalEtio}`; 
+            if (conclStr.length > 0) conclStr = capitalize(conclStr) + '.';
+            
             const menuBtn = document.querySelector(`.dynamic-item[data-form-link="${form.id}"]`);
             if (menuBtn) {
                 let nameTitle = druhRaw ? capitalize(druhRaw) : "";
@@ -734,8 +927,14 @@
         }
 
         function updateHierarchy() {
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active-parent'));
-            document.querySelectorAll('.detail-form').forEach(form => { if(form.querySelectorAll('.selected').length > 0) { const menuId = form.getAttribute('data-menu-id'); if(menuId) { let menuBtn = document.getElementById(menuId); while(menuBtn && menuBtn.classList.contains('btn')) { menuBtn.classList.add('active-parent'); let container = menuBtn.closest('div[id$="-sub"]'); menuBtn = container ? container.previousElementSibling : null; } } } });
+            document.querySelectorAll('.btn.active-parent').forEach(b => b.classList.remove('active-parent'));
+            document.querySelectorAll('.detail-form:has(.selected)').forEach(form => {
+                let menuBtn = document.getElementById(form.getAttribute('data-menu-id'));
+                while (menuBtn?.classList.contains('btn')) {
+                    menuBtn.classList.add('active-parent');
+                    menuBtn = menuBtn.closest('div[id$="-sub"]')?.previousElementSibling;
+                }
+            });
         }
 
         function addFinding(containerId, region, type) {
@@ -746,7 +945,12 @@
             const textSpan = document.createElement('span'); textSpan.className = 'item-text';
             const delBtn = document.createElement('span'); delBtn.textContent = '×'; delBtn.className = 'delete-btn';
             
-            const formDiv = document.createElement('div'); formDiv.id = uniqueId; formDiv.className = 'detail-form'; formDiv.setAttribute('data-region', region.toUpperCase()); formDiv.setAttribute('data-category', region.toUpperCase());
+            const regionMap = { 'krk': 'KRK', 'hrudnik': 'HRUDNÍK', 'bricho': 'BŘICHO' };
+            const displayRegion = regionMap[region] || region.toUpperCase();
+
+            const formDiv = document.createElement('div'); formDiv.id = uniqueId; formDiv.className = 'detail-form'; 
+            formDiv.setAttribute('data-region', displayRegion); 
+            formDiv.setAttribute('data-category', displayRegion);
             formDiv.innerHTML = buildFindingContent((isLymf ? LYMF_DATA : LOZISKO_DATA)[region] || [], type);
             detailsContainer.appendChild(formDiv);
             formDiv.querySelectorAll('.default-active').forEach(btn => applyBtnState(btn, 0, JSON.parse(btn.getAttribute('data-states'))));
@@ -812,8 +1016,10 @@
 
             let title = `${EXAM_STATE.pet ? EXAM_STATE.pet + '-PET / ' : ''}${EXAM_STATE.tomo || 'Neuvedeno'} oblasti ${EXAM_STATE.regions.join(', ')}`, reportHtml = ""; 
             
-            ['KRK', 'HRUDNÍK', 'BŘICHO'].forEach(reg => {
-                const isSelected = EXAM_STATE.regions.includes(reg), isNeighbor = !isSelected && ((reg === 'KRK' && EXAM_STATE.regions.includes('HRUDNÍK')) || (reg === 'HRUDNÍK' && (EXAM_STATE.regions.includes('KRK') || EXAM_STATE.regions.includes('BŘICHO'))) || (reg === 'BŘICHO' && EXAM_STATE.regions.includes('HRUDNÍK')));
+            ['HLAVA', 'KRK', 'HRUDNÍK', 'BŘICHO'].forEach(reg => {
+                const headRegions = ['MOZEK', 'ORBITY', 'VDN'];
+                const isSelected = reg === 'HLAVA' ? EXAM_STATE.regions.some(r => headRegions.includes(r)) : EXAM_STATE.regions.includes(reg);
+                const isNeighbor = !isSelected && ((reg === 'KRK' && EXAM_STATE.regions.includes('HRUDNÍK')) || (reg === 'HRUDNÍK' && (EXAM_STATE.regions.includes('KRK') || EXAM_STATE.regions.includes('BŘICHO'))) || (reg === 'BŘICHO' && EXAM_STATE.regions.includes('HRUDNÍK')));
                 if (isSelected || isNeighbor) {
                     const label = isSelected ? `${capitalize(reg.toLowerCase())}:` : `${capitalize(reg.toLowerCase())} v zachyceném rozsahu:`, regionEl = document.querySelector(`.main-region[data-region="${reg}"]`); let regionParts = [];
                     if (regionEl) {
@@ -852,33 +1058,55 @@
         document.getElementById('btn-generate-report').onclick = generateFullReportText; document.getElementById('btn-generate-conclusion').onclick = generateFullReportText;
 
         function applyExamVisibilityRules() {
+            const toggleVis = (sel, cond, d = '') => document.querySelectorAll(sel).forEach(el => el.style.display = cond ? d : 'none');
             const showPet = !!EXAM_STATE.pet, isCT = EXAM_STATE.tomo === 'CT', isMR = EXAM_STATE.tomo === 'MR', hasTomo = !!EXAM_STATE.tomo;
+            const trupRegs = ['KRK', 'HRUDNÍK', 'BŘICHO'], headRegs = ['MOZEK', 'ORBITY', 'VDN'];
+            const selTrup = EXAM_STATE.regions.filter(r => trupRegs.includes(r)), selHead = EXAM_STATE.regions.filter(r => headRegs.includes(r));
+
+            document.querySelectorAll('.region-btn').forEach(b => b.classList.toggle('selected', EXAM_STATE.regions.includes(b.dataset.region)));
+
+            const setBtn = (id, selArr, def, allTxt) => {
+                const btn = document.getElementById(id); if (!btn) return;
+                btn.textContent = selArr.length === 0 ? def : (selArr.length === 3 ? allTxt : selArr.join(', '));
+                btn.classList.toggle('selected', selArr.length > 0);
+            };
+            setBtn('main-region-btn', selTrup, 'TRUP', 'CELOTĚLO');
+            setBtn('main-head-btn', selHead, 'HLAVA', selHead[0]);
+
+            toggleVis('#findings-panel .content-area, #report-panel .content-area, #conclusion-panel .content-area', EXAM_STATE.regions.length > 0);
+            toggleVis('#ref-jatra', showPet, 'flex'); toggleVis('#ref-parotidy', EXAM_STATE.pet === 'PSMA', 'flex'); toggleVis('#ref-slezina', EXAM_STATE.pet === 'DOTATOC', 'flex');
+            toggleVis('.minule-specific, .minule-ref-specific', !!document.getElementById('input-minule')?.value, 'flex');
             
-            // Nová logika pro referenční SUV
-            const refJatra = document.getElementById('ref-jatra');
-            const refParotidy = document.getElementById('ref-parotidy');
-            const refSlezina = document.getElementById('ref-slezina');
-            if (refJatra) refJatra.style.display = showPet ? 'flex' : 'none';
-            if (refParotidy) refParotidy.style.display = (EXAM_STATE.pet === 'PSMA') ? 'flex' : 'none';
-            if (refSlezina) refSlezina.style.display = (EXAM_STATE.pet === 'DOTATOC') ? 'flex' : 'none';
+            document.querySelectorAll('.finding-btn, [data-action="show-details"], #btn-organy, #btn-hrudnik-organy, #btn-bricho-organy, #btn-hlava-organy').forEach(b => b.disabled = !hasTomo);
+            
+            const visibleRegions = [];
+            if (selHead.length > 0) visibleRegions.push('HLAVA');
 
-            // Zobrazení polí "Minule"
-            const hasMinule = !!document.getElementById('input-minule')?.value;
-            document.querySelectorAll('.minule-specific').forEach(el => el.style.display = hasMinule ? 'flex' : 'none');
-            document.querySelectorAll('.minule-ref-specific').forEach(el => el.style.display = hasMinule ? 'flex' : 'none');
-
-            document.querySelectorAll('.finding-btn, [data-action="show-details"], #btn-organy, #btn-hrudnik-organy, #btn-bricho-organy').forEach(btn => btn.disabled = !hasTomo);
-            document.querySelectorAll('.main-region').forEach(regionEl => {
-                const regName = regionEl.getAttribute('data-region'); let isVisible = true;
-                if (EXAM_STATE.regions.length > 0) { if (EXAM_STATE.regions.length === 1 && EXAM_STATE.regions.includes('KRK') && regName === 'BŘICHO') isVisible = false; else if (EXAM_STATE.regions.length === 1 && EXAM_STATE.regions.includes('BŘICHO') && regName === 'KRK') isVisible = false; }
-                regionEl.style.display = isVisible ? 'block' : 'none';
-                const fBtn = document.getElementById(`btn-${regName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`); if (fBtn) fBtn.style.display = isVisible ? 'block' : 'none';
-                const sub = document.getElementById(`${regName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}-sub`); if (!isVisible && sub) sub.classList.add('hidden');
+            trupRegs.forEach(reg => {
+                let vis = selTrup.length > 0 && !(selTrup.length === 1 && ((selTrup[0] === 'KRK' && reg === 'BŘICHO') || (selTrup[0] === 'BŘICHO' && reg === 'KRK')));
+                if (vis) visibleRegions.push(reg);
+                
+                const idBase = reg.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                toggleVis(`.main-region[data-region="${reg}"], #btn-${idBase}`, vis, 'block');
+                toggleVis(`#${idBase}-sub`, vis);
             });
-            document.querySelectorAll('.pet-specific').forEach(el => el.style.display = showPet ? '' : 'none');
-            document.querySelectorAll('.tomo-ct-specific').forEach(el => el.style.display = isCT ? 'flex' : 'none');
-            document.querySelectorAll('.tomo-mr-specific').forEach(el => el.style.display = isMR ? 'flex' : 'none');
-            document.querySelectorAll('.detail-form').forEach(form => triggerFormUpdate(form));
+
+            // Automatické zavření tabulek v DETAILS panelu, pokud jejich domovský region zmizel z FINDINGS
+            document.querySelectorAll('.detail-form.active').forEach(form => {
+                const fReg = form.getAttribute('data-region');
+                if (fReg && !visibleRegions.includes(fReg)) {
+                    form.classList.remove('active');
+                    // Odstranění aktivního zvýraznění i z případného dynamického tlačítka (Ložisko/Uzlina)
+                    const linkBtn = document.querySelector(`.dynamic-item[data-form-link="${form.id}"]`);
+                    if (linkBtn) linkBtn.classList.remove('active-item');
+                }
+            });
+
+            toggleVis(`.main-region[data-region="HLAVA"], #hlava-findings-group`, selHead.length > 0, 'block');
+            toggleVis('.pet-specific', showPet); toggleVis('.tomo-ct-specific', isCT, 'flex'); toggleVis('.tomo-mr-specific', isMR, 'flex');
+            
+            document.querySelectorAll('.detail-form').forEach(f => triggerFormUpdate(f));
+            applyMenuSettings();
         }
 
         function getMinuleVysetreniText() {
@@ -927,21 +1155,58 @@
 
         document.addEventListener('input', (e) => {
             if (e.target.classList.contains('field-size')) {
-                // Rozloží "10x20" na [10, 20] a uloží pro budoucí použití kolečkem
-                const dims = e.target.value.split('x').map(d => {
-                    const n = parseInt(d);
-                    return isNaN(n) ? null : n;
-                });
+                const dims = e.target.value.split('x').map(d => { const n = parseInt(d); return isNaN(n) ? null : n; });
                 e.target.dataset.dims = JSON.stringify(dims);
                 triggerFormUpdate(e.target);
             }
             if (e.target.classList.contains('field-suv')) {
-                // Převede text na číslo pro SUV logiku
                 const val = parseFloat(e.target.value.replace(',', '.'));
                 e.target.dataset.val = isNaN(val) ? "" : val;
-                triggerFormUpdate(e.target);
+                
+                if (e.target.closest('#ref-jatra')) {
+                    document.querySelectorAll('.row-metriky .field-suv').forEach(inp => autoUpdateAktivita(inp));
+                    document.querySelectorAll('.detail-form').forEach(f => triggerFormUpdate(f));
+                } else {
+                    autoUpdateAktivita(e.target);
+                    triggerFormUpdate(e.target);
+                }
             }
         });
+
+        function autoUpdateAktivita(suvInput) {
+            if (!suvInput.closest('.row-metriky') || !EXAM_STATE.pet) return;
+            
+            const suvVal = parseFloat(suvInput.dataset.val);
+            const refJatraInput = document.querySelector('#ref-jatra > input.field-suv');
+            const refSuvVal = refJatraInput ? parseFloat(refJatraInput.dataset.val || refJatraInput.value.replace(',', '.')) : NaN;
+
+            const btnAktivita = suvInput.closest('.row-metriky').querySelector('.btn-aktivita');
+            if (!btnAktivita) return;
+
+            const states = JSON.parse(btnAktivita.getAttribute('data-states'));
+
+            // Pokud se SUV smaže, resetujeme tlačítko aktivity
+            if (isNaN(suvVal) || isNaN(refSuvVal) || refSuvVal <= 0) {
+                if (parseInt(btnAktivita.getAttribute('data-state-index')) !== -1 && isNaN(suvVal)) {
+                    applyBtnState(btnAktivita, -1, states);
+                }
+                return;
+            }
+
+            const ratio = suvVal / refSuvVal;
+            let targetState = '';
+            if (ratio < 0.8) targetState = 'nízká';
+            else if (ratio <= 1.2) targetState = 'intermed.';
+            else if (ratio <= 1.5) targetState = 'zvýšená';
+            else targetState = 'vysoká';
+
+            const targetIndex = states.indexOf(targetState);
+            // Voláme applyBtnState jen tehdy, pokud je nutná změna
+            if (parseInt(btnAktivita.getAttribute('data-state-index')) !== targetIndex) {
+                applyBtnState(btnAktivita, targetIndex, states);
+            }
+        }
+
 
         document.addEventListener('wheel', (e) => {
             if (e.target.classList.contains('field-size')) {
@@ -953,7 +1218,15 @@
             if (e.target.classList.contains('field-suv')) {
                 e.preventDefault(); let val = e.target.dataset.val ? parseFloat(e.target.dataset.val) : null;
                 if (e.deltaY < 0) val = val === null ? 0.1 : Math.min(50.0, val + 0.1); else if (val !== null) { val = (Math.round(val * 10) - 1) / 10; if (val <= 0) val = null; }
-                e.target.dataset.val = val === null ? "" : val; e.target.value = val === null ? "" : val.toFixed(1); triggerFormUpdate(e.target);
+                e.target.dataset.val = val === null ? "" : val; e.target.value = val === null ? "" : val.toFixed(1); 
+                
+                if (e.target.closest('#ref-jatra')) {
+                    document.querySelectorAll('.row-metriky .field-suv').forEach(inp => autoUpdateAktivita(inp));
+                      document.querySelectorAll('.detail-form').forEach(f => triggerFormUpdate(f));
+                } else {
+                    autoUpdateAktivita(e.target);
+                    triggerFormUpdate(e.target);
+                }
             }
             const btn = e.target.closest('.attr-btn');
             if (btn && APP_SETTINGS.scrollValues) {
