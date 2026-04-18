@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Medical Workstation - Senior Dev Edition</title>
     <style>
-        :root { --bg-color:#050505; --panel-bg:#121418; --border-color:#2a313a; --text-color:#e6edf3; --accent-l1:#0d2b4d; --accent-l2:#153e6b; --accent-l3:#1e528a; --accent-selected:#005a9e; --hover-opacity:0.8; --delete-hover:#ff7b72; }
+        :root { --bg-color:#050505; --table-width: 240px; --panel-bg:#121418; --border-color:#2a313a; --text-color:#e6edf3; --accent-l1:#0d2b4d; --accent-l2:#153e6b; --accent-l3:#1e528a; --accent-selected:#005a9e; --hover-opacity:0.8; --delete-hover:#ff7b72; }
         * { box-sizing:border-box; margin:0; padding:0; }
         
         body { font-family:'Segoe UI', Tahoma, sans-serif; display:grid; grid-template-columns:180px 1fr 250px 250px; grid-template-rows:max-content 1fr; height:100vh; background-color:var(--bg-color); color:var(--text-color); padding:5px; gap:5px; overflow:hidden; }
@@ -47,21 +47,22 @@
         
         .detail-form { display:none; }
         .detail-form.active { display:block; }
-        .active-row-label { color:#fff !important; font-weight:bold; text-shadow:0 0 5px rgba(255,255,255,0.2); transition:color 0.2s ease; }
+        .active-row-label { color: #fff !important; -webkit-text-stroke: 0.2px #fff; text-shadow: 0 0 5px rgba(255,255,255,0.3); transition: all 0.2s ease; }
         .flex-wrapper { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-start; align-items:flex-start; }
         .lozisko-main-container { border:1px solid var(--border-color); padding:10px; border-radius:4px; background:rgba(255, 255, 255, 0.01); display:inline-flex; flex-direction:column; gap:12px; }
         .lozisko-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
         .lead-col { width:80px; flex-shrink:0; font-size:11px; color:#8b949e; }
         .lozisko-main-container .attr-btn, .lozisko-main-container .row-label { font-size:11px; }
         .no-border { border:none !important; background:none !important; }
-        .table-2col, .table-3col { display:grid; gap:2px; align-items:center; text-align:center; border:1px solid var(--border-color); padding:4px; border-radius:3px; background:rgba(255,255,255,0.01); }
-        .table-2col { grid-template-columns:1fr auto; width:280px; }
-        .table-3col { grid-template-columns:auto 1fr auto; width:260px; }
-        .table-2col .table-header { grid-column:span 2; }
-        .table-header { grid-column:span 3; color:#c9d1d9; font-weight:bold; font-size:11px; border-bottom:1px solid var(--border-color); padding-bottom:2px; margin-bottom:2px; text-transform:uppercase; }
-        .table-2col .row-label, .table-3col .row-label { font-size:11px; color:#8b949e; padding:0 4px; white-space:nowrap; font-weight:normal; }
-        .table-col-title { color:#7d8590; font-size:11px; font-weight:bold; padding:2px 0; }
-        .row-label { color:#8b949e; font-size:12px; padding:0 4px; white-space:nowrap; }
+        .table-2col, .table-3col { display: grid; gap: 2px; align-items: center; border: 1px solid var(--border-color); padding: 4px; border-radius: 3px; background: rgba(255, 255, 255, 0.01); width: var(--table-width); margin-bottom: 10px; }
+        .table-2col { grid-template-columns: max-content 1fr; }
+        .table-3col { grid-template-columns: auto 1fr auto; text-align: center; }
+        .table-header { color: #c9d1d9; font-weight: bold; font-size: 11px; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; margin-bottom: 2px; text-transform: uppercase; text-align: center; }
+        .table-2col .table-header { grid-column: span 2; }
+        .table-3col .table-header { grid-column: span 3; }
+        .table-col-title { color: #7d8590; font-size: 11px; font-weight: bold; padding: 2px 0; text-align: center; }
+        .row-label { color: #8b949e; font-size: 11px; font-weight: normal; padding: 0 4px; white-space: nowrap; display: flex; align-items: center; justify-content: center; min-height: 24px; }
+        .table-2col .row-label { justify-content: flex-start; padding-left: 8px; }
         
         .attr-btn { background:rgba(255,255,255,0.03); border:1px solid var(--border-color); color:#6e7681; padding:2px 4px; min-width:32px; font-size:10px; cursor:pointer; border-radius:2px; transition:all 0.1s; display:inline-grid; place-items:center; user-select:none; }
         .attr-btn:hover { color:#fff; border-color:#8b949e; }
@@ -348,7 +349,40 @@
         // ==========================================
         // 1. DATA A SLOVNÍKY
         // ==========================================
-        const LOZISKO_DATA = { krk: [ { nazev: 'Patro', stavy: ['+'] }, { nazev: 'Tonsila', stavy: ['+'] }, { nazev: 'Jazyk', stavy: ['apex', 'tělo', 'kořen'] }, { nazev: 'Pharynx', stavy: ['zadní stěna', 'later. stěna'] }, { nazev: 'Hypopharynx', stavy: ['valekula'] }, { nazev: 'Larynx', stavy: ['supraglot.', 'glottis', 'infraglot.'] }, { nazev: 'Parotis', stavy: ['+'] }, { nazev: 'Submandibularis', stavy: ['+'] }, { nazev: 'Thyroidea', stavy: ['+'] } ], hrudnik: [], bricho: [] };
+        const LOZISKO_DATA = { 
+            hlava: [
+                { nazev: 'Frontální lalok', stavy: ['+'] },
+                { nazev: 'Parietální lalok', stavy: ['+'] },
+                { nazev: 'Temporální lalok', stavy: ['+'] },
+                { nazev: 'Okcipitální lalok', stavy: ['+'] },
+                { nazev: 'Bazální ganglia', stavy: ['+'] },
+                { nazev: 'Thalamus', stavy: ['+'] },
+                { nazev: 'Mozeček', stavy: ['+'] },
+                { nazev: 'Kmen', stavy: ['mezencefalon', 'pons', 'medulla'], central: true },
+
+                { nazev: 'Extraaxiálně', stavy: ['epidur.', 'subdur.'], rightCol: true },
+                { nazev: 'Meningy', stavy: ['+'], rightCol: true },
+                { nazev: 'Kalva', stavy: ['+'], rightCol: true },
+                { nazev: 'Baze lební', stavy: ['přední jáma', 'střední jáma', 'zadní jáma'], central: true, rightCol: true },
+                { nazev: 'Sella/Hypofýza', stavy: ['intrasel.', 'suprasel.', 'parasel.'], central: true, rightCol: true },
+                { nazev: 'Komory', stavy: ['postranní', '3. komora', '4. komora'], central: true, rightCol: true },
+                { nazev: 'Orbita', stavy: ['intrakon.', 'extrakon.', 'bulbus'], rightCol: true }
+            ],
+            krk: [ { nazev: 'Patro', stavy: ['+'] }, { nazev: 'Tonsila', stavy: ['+'] }, { nazev: 'Jazyk', stavy: ['apex', 'tělo', 'kořen'] }, { nazev: 'Pharynx', stavy: ['zadní stěna', 'later. stěna'] }, { nazev: 'Hypopharynx', stavy: ['valekula'] }, { nazev: 'Larynx', stavy: ['supraglot.', 'glottis', 'infraglot.'] }, { nazev: 'Parotis', stavy: ['+'] }, { nazev: 'Submandibularis', stavy: ['+'] }, { nazev: 'Thyroidea', stavy: ['+'] } ], 
+            hrudnik: [
+                { nazev: 'Plíce', stavy: ['+'] },
+                { nazev: 'Horní lalok', stavy: ['+', 'S1', 'S2', 'S3'] },
+                { nazev: 'Střední lalok', stavy: ['+', 'S4', 'S5'] },
+                { nazev: 'Dolní lalok', stavy: ['+', 'S6', 'S7', 'S8', 'S9', 'S10'] },
+                { nazev: 'Pleura', stavy: ['+'] },
+                { nazev: 'Hrudní stěna', stavy: ['+'] },
+                { nazev: 'Parakard. tuk', stavy: ['+'] },
+                { nazev: 'Mamma', stavy: ['+', 'HZK', 'HVK', 'DZK', 'DVK'], rightCol: true },
+                { nazev: 'Thymus', stavy: ['+'], rightCol: true },
+                { nazev: 'Jícen', stavy: ['horní', 'střední', 'dolní'], central: true, rightCol: true }
+            ], 
+            bricho: [] 
+        };
         const LYMF_DATA = { krk: [ { nazev: 'krk', stavy: ['+'] }, { nazev: '1A', stavy: ['+'] }, { nazev: '1B', stavy: ['+'] }, { nazev: '2A', stavy: ['+'] }, { nazev: '2B', stavy: ['+'] }, { nazev: '3', stavy: ['+'] }, { nazev: '4', stavy: ['+'] }, { nazev: '5', stavy: ['+'] }, { nazev: '6', stavy: ['+'] } ], hrudnik: [], bricho: [] };
 
         const MORPHOLOGY_MAP = {
@@ -357,19 +391,183 @@
         };
 
         const CZECH_GRAMMAR = {
-            nouns: { 'ložisko': { g: 'N', '1s': 'ložisko', '2s': 'ložiska', '1p': 'ložiska', '2p': 'ložisek' }, 'expanze': { g: 'F', '1s': 'expanze', '2s': 'expanze', '1p': 'expanze', '2p': 'expanzí' }, 'infiltrace': { g: 'F', '1s': 'infiltrace', '2s': 'infiltrace', '1p': 'infiltrace', '2p': 'infiltrací' }, 'kolekce': { g: 'F', '1s': 'kolekce', '2s': 'kolekce', '1p': 'kolekce', '2p': 'kolekcí' }, 'uzlina': { g: 'F', '1s': 'uzlina', '2s': 'uzliny', '1p': 'uzliny', '2p': 'uzlin' }, 'paket uzlin': { g: 'M', '1s': 'paket uzlin', '2s': 'paketu uzlin', '1p': 'pakety uzlin', '2p': 'paketů uzlin' }, 'cysta': { g: 'F', '1s': 'cysta', '2s': 'cysty', '1p': 'cysty', '2p': 'cyst', '1': 'cysta', 'multi': 'cysty' }, 'hyper+': { g: 'F', '1': 'mírná hyperplázie sliznice', 'multi': 'mírná hyperplázie sliznic' }, 'hyper++': { g: 'F', '1': 'výrazná hyperplázie sliznice', 'multi': 'výrazná hyperplázie sliznic' }, 'tekutina': { g: 'F', '1': 'tekutina', 'multi': 'tekutina' }, 'polyp': { g: 'M', '1s': 'polyp', '2s': 'polypu', '1p': 'polypy', '2p': 'polypů', '1': 'polyp', 'multi': 'polypy' }, 'zvětšení': { g: 'N', '1s': 'zvětšení' }, 'akumulace rf': { g: 'F', '1s': 'difuzně zvýšená akumulace RF' }, 'resekce': { g: 'F', '1s': 'stav po resekci' }, 'nodul fdg+': { g: 'M', '1': 'FDG avidní nodul', 'multi': 'FDG avidní noduly' }, 'nodul fdg-': { g: 'M', '1': 'nodul bez zvýšené akumulace RF', 'multi': 'noduly bez zvýšené akumulace RF' }, 'patro': { g: 'N', '2s': 'patra' }, 'tonsila': { g: 'F', '2s': 'tonsily' }, 'jazyk': { g: 'M', '2s': 'jazyka' }, 'pharynx': { g: 'M', '2s': 'pharyngu' }, 'hypopharynx': { g: 'M', '2s': 'hypopharyngu' }, 'larynx': { g: 'M', '2s': 'laryngu' }, 'parotis': { g: 'F', '2s': 'parotidy' }, 'submandibularis': { g: 'F', '2s': 'submandibularis' }, 'thyroidea': { g: 'F', '2s': 'thyroidey' }, 'sinus': { g: 'M', '6s': 'sinu', '6p': 'sinech' }, 'apex': { g: 'M', '2s': 'apexu' }, 'tělo': { g: 'N', '2s': 'těla' }, 'kořen': { g: 'M', '2s': 'kořene' }, 'zadní stěna': { g: 'F', '2s': 'zadní stěny' }, 'later. stěna': { g: 'F', '2s': 'later. stěny' }, 'valekula': { g: 'F', '2s': 'valekuly' }, 'supraglot.': { g: 'F', '2s': 'supraglottis' }, 'glottis': { g: 'F', '2s': 'glottis' }, 'infraglot.': { g: 'F', '2s': 'infraglottis' }, 'krk': { g: 'M', '2s': 'krku' }, '1a': { g: 'M', '2s': 'levelu 1A' }, '1b': { g: 'M', '2s': 'levelu 1B' }, '2a': { g: 'M', '2s': 'levelu 2A' }, '2b': { g: 'M', '2s': 'levelu 2B' }, '3': { g: 'M', '2s': 'levelu 3' }, '4': { g: 'M', '2s': 'levelu 4' }, '5': { g: 'M', '2s': 'levelu 5' }, '6': { g: 'M', '2s': 'levelu 6' } },
-            adjectives: { 'solitární': { num: 'S', 'M': 'solitární', 'F': 'solitární', 'N': 'solitární' }, 'dvě': { num: 'P', 'M': 'dva', 'F': 'dvě', 'N': 'dvě' }, 'vícečetné': { num: 'P', 'M': 'vícečetné', 'F': 'vícečetné', 'N': 'vícečetná' }, 'mnohočetné': { num: 'P', 'M': 'mnohočetné', 'F': 'mnohočetné', 'N': 'mnohočetná' }, 'frontální': { '6s': 'frontálním', '6p': 'frontálních', prep: 've' }, 'etmoidální': { '6s': 'etmoidálním', '6p': 'etmoidálních', prep: 'v' }, 'sfenoidální': { '6s': 'sfenoidálním', '6p': 'sfenoidálních', prep: 'v' }, 'maxilární': { '6s': 'maxilárním', '6p': 'maxilárních', prep: 'v' } }
+            nouns: { 
+                // ZÁKLADNÍ LÉZE A METRIKY
+                'ložisko': { g: 'N', '1s': 'ložisko', '2s': 'ložiska', '1p': 'ložiska', '2p': 'ložisek' }, 
+                'expanze': { g: 'F', '1s': 'expanze', '2s': 'expanze', '1p': 'expanze', '2p': 'expanzí' }, 
+                'infiltrace': { g: 'F', '1s': 'infiltrace', '2s': 'infiltrace', '1p': 'infiltrace', '2p': 'infiltrací' }, 
+                'kolekce': { g: 'F', '1s': 'kolekce', '2s': 'kolekce', '1p': 'kolekce', '2p': 'kolekcí' }, 
+                'uzlina': { g: 'F', '1s': 'uzlina', '2s': 'uzliny', '1p': 'uzliny', '2p': 'uzlin' }, 
+                'paket uzlin': { g: 'M', '1s': 'paket uzlin', '2s': 'paketu uzlin', '1p': 'pakety uzlin', '2p': 'paketů uzlin' }, 
+                'cysta': { g: 'F', '1s': 'cysta', '2s': 'cysty', '1p': 'cysty', '2p': 'cyst', '1': 'cysta', 'multi': 'cysty' }, 
+                'hyper+': { g: 'F', '1': 'mírná hyperplázie sliznice', 'multi': 'mírná hyperplázie sliznic' }, 
+                'hyper++': { g: 'F', '1': 'výrazná hyperplázie sliznice', 'multi': 'výrazná hyperplázie sliznic' }, 
+                'tekutina': { g: 'F', '1': 'tekutina', 'multi': 'tekutina' }, 
+                'polyp': { g: 'M', '1s': 'polyp', '2s': 'polypu', '1p': 'polypy', '2p': 'polypů', '1': 'polyp', 'multi': 'polypy' }, 
+                'zvětšení': { g: 'N', '1s': 'zvětšení' }, 
+                'akumulace rf': { g: 'F', '1s': 'difuzně zvýšená akumulace RF' }, 
+                'resekce': { g: 'F', '1s': 'stav po resekci' }, 
+                'nodul fdg+': { g: 'M', '1': 'FDG avidní nodul', 'multi': 'FDG avidní noduly' }, 
+                'nodul fdg-': { g: 'M', '1': 'nodul bez zvýšené akumulace RF', 'multi': 'noduly bez zvýšené akumulace RF' }, 
+
+                // HLAVA A KRK
+                'patro': { g: 'N', '2s': 'patra' }, 'tonsila': { g: 'F', '2s': 'tonsily' }, 'jazyk': { g: 'M', '2s': 'jazyka' }, 
+                'pharynx': { g: 'M', '2s': 'pharyngu' }, 'hypopharynx': { g: 'M', '2s': 'hypopharyngu' }, 'larynx': { g: 'M', '2s': 'laryngu' }, 
+                'parotis': { g: 'F', '2s': 'parotidy' }, 'submandibularis': { g: 'F', '2s': 'submandibularis' }, 'thyroidea': { g: 'F', '2s': 'thyroidey' }, 
+                'sinus': { g: 'M', '6s': 'sinu', '6p': 'sinech' }, 'apex': { g: 'M', '2s': 'apexu' }, 'tělo': { g: 'N', '2s': 'těla' }, 
+                'kořen': { g: 'M', '2s': 'kořene' }, 'zadní stěna': { g: 'F', '2s': 'zadní stěny' }, 'later. stěna': { g: 'F', '2s': 'later. stěny' }, 
+                'valekula': { g: 'F', '2s': 'valekuly' }, 'supraglot.': { g: 'F', '2s': 'supraglottis' }, 'glottis': { g: 'F', '2s': 'glottis' }, 
+                'infraglot.': { g: 'F', '2s': 'infraglottis' }, 'krk': { g: 'M', '2s': 'krku' }, 
+                '1a': { g: 'M', '2s': 'levelu 1A' }, '1b': { g: 'M', '2s': 'levelu 1B' }, '2a': { g: 'M', '2s': 'levelu 2A' }, 
+                '2b': { g: 'M', '2s': 'levelu 2B' }, '3': { g: 'M', '2s': 'levelu 3' }, '4': { g: 'M', '2s': 'levelu 4' }, 
+                '5': { g: 'M', '2s': 'levelu 5' }, '6': { g: 'M', '2s': 'levelu 6' }, 
+
+                // HRUDNÍK A JÍCEN
+                'plíce': { g: 'F', '2s': 'plíce' }, 'horní lalok': { g: 'M', '2s': 'horního laloku' }, 'střední lalok': { g: 'M', '2s': 'středního laloku' }, 
+                'dolní lalok': { g: 'M', '2s': 'dolního laloku' }, 'pleura': { g: 'F', '2s': 'pleury' }, 'hrudní stěna': { g: 'F', '2s': 'hrudní stěny' }, 
+                'parakard. tuk': { g: 'M', '2s': 'parakardiálního tuku' }, 'thymus': { g: 'M', '2s': 'thymu' }, 'mamma': { g: 'F', '2s': 'mammy' }, 
+                'jícen': { g: 'M', '2s': 'jícnu' }, 'horní': { g: 'X', '2s': 'v horní třetině' }, 'střední': { g: 'X', '2s': 've střední třetině' }, 'dolní': { g: 'X', '2s': 'v dolní třetině' },
+
+                // MOZEK - PARENCHYM
+                'frontální lalok': { g: 'M', '2s': 'frontálního laloku' }, 'parietální lalok': { g: 'M', '2s': 'parietálního laloku' },
+                'temporální lalok': { g: 'M', '2s': 'temporálního laloku' }, 'okcipitální lalok': { g: 'M', '2s': 'okcipitálního laloku' },
+                'bazální ganglia': { g: 'N', '2s': 'bazálních ganglií' }, 'thalamus': { g: 'M', '2s': 'thalamu' }, 'mozeček': { g: 'M', '2s': 'mozečku' },
+                'extraaxiálně': { g: 'N', '2s': 'extraaxiálně' }, 'meningy': { g: 'F', '2s': 'mening' }, 'kalva': { g: 'F', '2s': 'kalvy' },
+                'orbita': { g: 'F', '2s': 'orbity' },
+
+                // MOZEK - CENTRÁLNÍ STRUKTURY
+                'vermis': { g: 'X', '2s': 'vermis' }, 'kmen': { g: 'M', '2s': 'mozkového kmene' }, 'baze lební': { g: 'F', '2s': 'baze lební' },
+                'sella/hypofýza': { g: 'F', '2s': 'oblasti selly' }, 'komory': { g: 'F', '2s': 'komorového systému' },
+
+                // MOZEK A ORBITY - PŘEDLOŽKOVÉ VAZBY (STAVY)
+                'horní část': { g: 'X', '2s': 'v horní části' }, 'dolní část': { g: 'X', '2s': 'v dolní části' }, 'celý': { g: 'X', '2s': 'v celém rozsahu' },
+                'mezencefalon': { g: 'X', '2s': 'mezencefala' }, 'pons': { g: 'X', '2s': 'pontu' }, 'medulla': { g: 'X', '2s': 'prodloužené míchy' },
+                'přední jáma': { g: 'X', '2s': 'v přední jámě' }, 'střední jáma': { g: 'X', '2s': 've střední jámě' }, 'zadní jáma': { g: 'X', '2s': 'v zadní jámě' },
+                'intrasel.': { g: 'X', '2s': 'intraselárně v' }, 'suprasel.': { g: 'X', '2s': 'supraselárně v' }, 'parasel.': { g: 'X', '2s': 'paraselárně v' },
+                'postranní': { g: 'X', '2s': 'v postranní komoře' }, '3. komora': { g: 'X', '2s': 've 3. komoře' }, '4. komora': { g: 'X', '2s': 've 4. komoře' },
+                'epidur.': { g: 'X', '2s': 'epidurálně' }, 'subdur.': { g: 'X', '2s': 'subdurálně' },
+                'intrakon.': { g: 'X', '2s': 'intrakonálně v oblasti' }, 'extrakon.': { g: 'X', '2s': 'extrakonálně v oblasti' }, 'bulbus': { g: 'X', '2s': 'v bulbu' }
+            },
+            adjectives: { 
+                // POČTY A TVARY
+                'solitární': { num: 'S', 'M': 'solitární', 'F': 'solitární', 'N': 'solitární' }, 
+                'dvě': { num: 'P', 'M': 'dva', 'F': 'dvě', 'N': 'dvě' }, 
+                'vícečetné': { num: 'P', 'M': 'vícečetné', 'F': 'vícečetné', 'N': 'vícečetná' }, 
+                'mnohočetné': { num: 'P', 'M': 'mnohočetné', 'F': 'mnohočetné', 'N': 'mnohočetná' }, 
+
+                // ANATOMICKÁ ADJEKTIVA (PŘEDLOŽKOVÉ VAZBY PRO SINY)
+                'frontální': { '6s': 'frontálním', '6p': 'frontálních', prep: 've' }, 
+                'etmoidální': { '6s': 'etmoidálním', '6p': 'etmoidálních', prep: 'v' }, 
+                'sfenoidální': { '6s': 'sfenoidálním', '6p': 'sfenoidálních', prep: 'v' }, 
+                'maxilární': { '6s': 'maxilárním', '6p': 'maxilárních', prep: 'v' } 
+            }
         };
 
         // ==========================================
         // 2. ORGÁNOVÉ MODULY
         // ==========================================
         const ORGAN_MODULES = {
+            'form-mozek': { init: initMozekGrid, process: processMozek },
             'form-siny': { init: initSinyGrid, process: processSiny }, 'form-slinne-zlazy': { init: initSlinneZlazyGrid, process: processSlinneZlazy },
             'form-thyroidea': { init: initThyroideaGrid, process: processThyroidea }, 'form-farynx': { init: initFarynxGrid, process: processFarynx }, 
             'form-plice': { init: initPliceGrid, process: processPlice }, 'form-ledviny': { init: initLedvinyGrid, process: processLedviny }
         };
 
+        
+        function initMozekGrid() {
+            let h = `<style>.diffuse-row .btn-secondary { display: none !important; } .diffuse-row:has(.btn-primary.selected) .btn-secondary { display: inline-grid !important; }</style><div style="display: flex; flex-direction: column;">`;
+            
+            // 1. SVD, PVS a chronické změny
+            h += build2ColTable('SVD, PVS a chronické změny', [
+                { nazev: 'Fazekas', stavy: ['1', '2', '3'] },
+                { nazev: 'Lakuny', stavy: ['+'], secondaryStavy: ['v BG', 'v thalamu', 'v kmeni', 'difuzně'], secondaryDefault: 'lokace' },
+                { nazev: 'PVS', stavy: ['+'], secondaryStavy: ['v BG', 'c. semiovale', 'état criblé'], secondaryDefault: 'lokace' },
+                { nazev: 'Nespec. glioza', stavy: ['1', 'řídké', 'více'], secondaryStavy: ['frontálně', 'parietálně', 'supratentoriálně'], secondaryDefault: 'lokace' },
+                { nazev: 'Postischemické', stavy: ['kortiko-sub.', 'hluboká BH'], secondaryStavy: ['s atrofií', 'hemosiderin'], secondaryDefault: 'typ' }
+            ], 'max-content 1fr');
+            
+            // 2. Demyelinizace
+            h += build2ColTable('Demyelinizace (SM)', [
+                { nazev: 'Periventrikulární', stavy: ['1', 'více'], secondaryStavy: ['aktivní'], secondaryDefault: 'inaktivní' },
+                { nazev: 'Juxtakortikální', stavy: ['1', 'více'], secondaryStavy: ['aktivní'], secondaryDefault: 'inaktivní' },
+                { nazev: 'Infratentoriální', stavy: ['1', 'více'], secondaryStavy: ['aktivní'], secondaryDefault: 'inaktivní' },
+                { nazev: 'Corpus callosum', stavy: ['1', 'více'], secondaryStavy: ['aktivní'], secondaryDefault: 'inaktivní' }
+            ], 310, 'max-content 1fr');
+
+            // 3. Kortex a atrofie
+            h += build2ColTable('Kortex a atrofie', [
+                { nazev: 'GCA', stavy: ['1', '2', '3'], secondaryStavy: ['frontotemp.', 'difuzně'], secondaryDefault: 'distribuce' },
+                { nazev: 'MTA', stavy: ['1', '2', '3', '4'], secondaryStavy: ['bilat.', 'vpravo', 'vlevo'], secondaryDefault: 'strana' },
+                { nazev: 'Koedam', stavy: ['1', '2', '3'], secondaryStavy: ['bilat.', 'vpravo', 'vlevo'], secondaryDefault: 'strana' },
+                { nazev: 'Kortik. léze', stavy: ['+'], inlineInput: 'Lokalizace léze...' },
+                { nazev: 'Infarkt', stavy: ['+'], inlineInput: 'Lokalizace infarktu...' }
+            ], 310, 'max-content 1fr');
+            
+            document.getElementById('form-mozek').innerHTML = h + `</div>`;
+        }
+
+        function processMozek(form) {
+            let results = [];
+            const t = form.querySelectorAll('.table-2col');
+            
+            const parse = (idx, cb) => t[idx]?.querySelectorAll('.row-label').forEach((lbl, i) => {
+                const wrapper = lbl.nextElementSibling;
+                const btns = wrapper.querySelectorAll('.attr-btn'), p = btns[0].textContent;
+                const inlineVal = wrapper.querySelector('.field-text')?.value || '';
+                if (p !== '0') cb(lbl.textContent.toLowerCase(), p, btns[1]?.textContent, i, inlineVal);
+            });
+
+            // 1. SVD, PVS a chronické změny
+            parse(0, (n, p, s) => {
+                const loc = s !== 'lokace' ? s : (n === 'pvs' ? 'v bílé hmotě' : 'různých lokacích');
+                if (n === 'fazekas') {
+                    results.push({ id: 'faz', rep: `Ložiska v bílé hmotě chronické ischemie (Fazekas ${p}).`, concl: `${['Mírná','Střední','Pokročilá'][p-1]} chronická ischemizace bílé hmoty (Fazekas ${p}).`, conclType: 'incidental' });
+                } else if (n === 'lakuny') {
+                    results.push({ id: 'lak', rep: `Vícečetné lakuny ${loc}.`, concl: `Postmalatické změny char. lakunárních infarktů (${loc}).`, conclType: 'incidental' });
+                } else if (n === 'pvs') {
+                    results.push({ id: 'pvs', rep: `Zvýrazněné perivaskulární prostory ${loc}.`, concl: `Zvýrazněné perivaskulární prostory (${loc}).`, conclType: 'incidental' });
+                } else if (n === 'nespec. glioza') {
+                    const loc = s !== 'lokace' ? s : 'v bílé hmotě';
+                    const repTxt = p === '1' ? 'Ojedinělé drobné T2W+ FLAIR+ ložisko' : (p === 'řídké' ? 'Sporadická drobná T2W+ FLAIR+ ložiska' : 'Vícečetná drobná T2W+ FLAIR+ ložiska');
+                    const conTxt = p === '1' ? 'Ojedinělé nespecifické gliozní ložisko' : (p === 'řídké' ? 'Sporadické nespecifické gliozní změny' : 'Vícečetné nespecifické gliozní změny');
+                    results.push({ id: 'o-gl', rep: `${repTxt} ${loc}.`, concl: `${conTxt} ${loc}.`, conclType: 'incidental' });
+                } else if (n === 'postischemické') {
+                    results.push({ id: 'o-is', rep: `Postmalatické změny ${p} ${s !== 'typ' ? `(${s})` : ''}.`, concl: `Postmalatické změny ${p}.`, conclType: 'incidental' });
+                }
+            });
+
+            // 2. Demyelinizace
+            let msLocs = [], active = false, msTotal = 0;
+            parse(1, (n, p, s, i) => {
+                active = active || s === 'aktivní'; msTotal += p === 'více' ? 2 : 1; msLocs.push(n);
+                results.push({ id: `ms-${i}`, rep: `${p === '1' ? 'Solitární' : 'Vícečetné'} T2/FLAIR hypersignální léze ${n === 'corpus callosum' ? 'v corpus callosum' : n}${s === 'aktivní' ? ' s postkontrastním sycením' : ''}.`, concl: '' });
+            });
+            if (msLocs.length) results.push({ id: 'ms-c', rep: '', concl: `${msTotal > 1 ? 'Vícečetné' : 'Solitární'} demyelinizační léze (${msLocs.join(', ')}), susp. SM. ${active ? 'S floridní aktivitou.' : 'Bez aktivity.'}`, conclType: 'main' });
+
+            // 3. Kortex a atrofie
+            parse(2, (n, p, s, i, inlineVal) => {
+                const side = (s?.includes('strana') || s?.includes('inaktivní')) ? 'bilat.' : s;
+                if (n === 'gca') {
+                    let c = `Globální kortikální atrofie (GCA ${p}).`;
+                    if (s === 'frontotemp.') {
+                        if (p === '2') c = "Kortikální atrofie s převahou frontotemporální.";
+                        else if (p === '3') c = "Výrazná frontotemporální atrofie.";
+                    }
+                    results.push({ id: 'gca', rep: `Globální kortikální atrofie st. ${p} (${s === 'distribuce' ? 'difuzně' : s}).`, concl: c, conclType: 'incidental' });
+                }
+                else if (n === 'mta') results.push({ id: 'mta', rep: `Atrofie mediálních temporálních laloků st. ${p} ${side}.`, concl: `Atrofie hippokampů (MTA stupně ${p}).`, conclType: p > 1 ? 'main' : 'incidental' });
+                else if (n === 'koedam') results.push({ id: 'koe', rep: `Parietální atrofie st. ${p} ${side}.`, concl: `Parietální atrofie (Koedam stupně ${p}).`, conclType: 'main' });
+                else if (n === 'kortik. léze') {
+                    results.push({ id: 'ctx', rep: `Kortikální ložisková patologie ${inlineVal}.`.trim().replace(' .', '.'), concl: `Kortikální ložisková patologie ${inlineVal}.`.trim().replace(' .', '.'), conclType: 'main' });
+                }
+                else if (n === 'infarkt') {
+                    results.push({ id: 'inf', rep: `Kortikální infarkt ${inlineVal}.`.trim().replace(' .', '.'), concl: `Kortikální infarkt ${inlineVal}.`.trim().replace(' .', '.'), conclType: 'main' });
+                }
+            });
+
+            return results;
+        }
+        
         function initSinyGrid() {
             const stavy = ['cysta', 'hyper+', 'hyper++', 'tekutina'];
             const data = [{ nazev: 'frontální', stavy }, { nazev: 'etmoidální', stavy }, { nazev: 'sfenoidální', stavy }, { nazev: 'maxilární', stavy }];
@@ -397,7 +595,7 @@
 
         function initSlinneZlazyGrid() {
             const data = [{ nazev: 'atrofie' }, { nazev: 'resekce' }, { nazev: 'nodul', stavy: ['1', 'více'] }, { nazev: 'nodul FDG+', stavy: ['1', 'více'] }];
-            document.getElementById('slinne-zlazy-grid').innerHTML = build3ColTable('Parotické', data, 260, 'data-sub-type="parotis"') + build3ColTable('Submandibulární', data, 260, 'data-sub-type="submand"');
+            document.getElementById('slinne-zlazy-grid').innerHTML = build3ColTable('Parotické', data, 'data-sub-type="parotis"') + build3ColTable('Submandibulární', data, 'data-sub-type="submand"');
         }
 
         function processSlinneZlazy(form) {
@@ -452,7 +650,7 @@
         function initThyroideaGrid() {
             const topHtml = `<div style="grid-column: span 3; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0 8px 0;">${createDynamicButton(['active'], 'zvětšení', 'static-text thy-global')}${createDynamicButton(['active'], 'akumulace RF', 'static-text thy-global')}</div>`;
             const botHtml = `<div class="dynamic-inputs-container" style="grid-column: span 3; display: none; padding-top: 6px; border-top: 1px dashed var(--border-color); margin-top: 2px;"><div style="display: flex; gap: 5px; justify-content: center;"><input type="text" class="global-input field-size" placeholder="velikost" ><input type="text" class="global-input field-suv pet-specific" placeholder="SUV" ></div></div>`;
-            document.getElementById('thyroidea-grid').innerHTML = build3ColTable('Thyroidea', [{ nazev: 'resekce' }, { nazev: 'nodul FDG+', stavy: ['1', 'více'], trigger: true }, { nazev: 'nodul FDG-', stavy: ['1', 'více'], trigger: true }, { nazev: 'cysta', stavy: ['1', 'více'], trigger: true }], 260, '', topHtml, botHtml);
+            document.getElementById('thyroidea-grid').innerHTML = build3ColTable('Thyroidea', [{ nazev: 'resekce' }, { nazev: 'nodul FDG+', stavy: ['1', 'více'], trigger: true }, { nazev: 'nodul FDG-', stavy: ['1', 'více'], trigger: true }, { nazev: 'cysta', stavy: ['1', 'více'], trigger: true }],  '', topHtml, botHtml);
         }
 
         function processThyroidea(form) {
@@ -476,9 +674,9 @@
 
         function initLedvinyGrid() {
             let html = `<div style="display: flex; flex-direction: column;">`;
-            html += build3ColTable('Fokální léze', [{ nazev: 'cysta', stavy: ['1', 'více'] }, { nazev: 'AML', stavy: ['1', 'více'] }, { nazev: 'jizva', stavy: ['1', 'více'] }], 280);
-            html += build3ColTable('Obstrukce a derivace', [{ nazev: 'hydronefróza', stavy: ['I', 'II', 'III', 'IV'] }, { nazev: 'litiáza', stavy: ['kaliko', 'pelvi', 'PU junkce', 'ureter', 'VU junkce'] }, { nazev: 'stent', stavy: ['správně', 'dislokace'] }, { nazev: 'nefrostomie' }], 280);
-            html += build3ColTable('Operace', [{ nazev: 'resekce', stavy: ['horní', 'střední', 'dolní'] }, { nazev: 'nefrektomie' }], 280) + `</div>`;
+            html += build3ColTable('Fokální léze', [{ nazev: 'cysta', stavy: ['1', 'více'] }, { nazev: 'AML', stavy: ['1', 'více'] }, { nazev: 'jizva', stavy: ['1', 'více'] }]);
+            html += build3ColTable('Obstrukce a derivace', [{ nazev: 'hydronefróza', stavy: ['I', 'II', 'III', 'IV'] }, { nazev: 'litiáza', stavy: ['kaliko', 'pelvi', 'PU junkce', 'ureter', 'VU junkce'] }, { nazev: 'stent', stavy: ['správně', 'dislokace'] }, { nazev: 'nefrostomie' }]);
+            html += build3ColTable('Operace', [{ nazev: 'resekce', stavy: ['horní', 'střední', 'dolní'] }, { nazev: 'nefrektomie' }]) + `</div>`;
             document.getElementById('ledviny-grid').innerHTML = html;
         }
 
@@ -531,9 +729,9 @@
         function initPliceGrid() {
             let html = `<style>.diffuse-row .btn-secondary { display: none !important; } .diffuse-row:has(.btn-primary.selected) .btn-secondary { display: inline-grid !important; }</style>`;
             html += `<div style="display: flex; flex-direction: column;">`;
-            html += build3ColTable('Parenchym - Fokální', [{ nazev: 'mikronodul', stavy: ['1', 'více'] }, { nazev: 'nodul', stavy: ['1', 'více'] }, { nazev: 'opacita', stavy: ['1', 'více'] }, { nazev: 'konsolidace', stavy: ['1', 'více'] }, { nazev: 'hypoventilace', stavy: ['1', 'více'] }, { nazev: 'jizva', stavy: ['1', 'více'] }, { nazev: 'poradiační' }], 280);
-            html += build2ColTable('Parenchym - Difuzní', [{ nazev: 'fibróza', stavy: ['mírná', 'střední', 'výrazná'], secondaryStavy: ['apikálně', 'všude', 'bazálně'], secondaryDefault: 'lokace' }, { nazev: 'emfyzém', stavy: ['parsept.', 'centrilob.', 'PAN'], secondaryStavy: ['apikálně', 'všude', 'bazálně'], secondaryDefault: 'lokace' }], 280, '70px 1fr');
-            html += build3ColTable('Operace', [{ nazev: 'pulmonektomie' }, { nazev: 'lobektomie horní' }, { nazev: 'lobektomie střed.' }, { nazev: 'lobektomie dolní' }, { nazev: 'resekce horní' }, { nazev: 'resekce střed.' }, { nazev: 'resekce dolní' }], 280);
+            html += build3ColTable('Parenchym - Fokální', [{ nazev: 'mikronodul', stavy: ['1', 'více'] }, { nazev: 'nodul', stavy: ['1', 'více'] }, { nazev: 'opacita', stavy: ['1', 'více'] }, { nazev: 'konsolidace', stavy: ['1', 'více'] }, { nazev: 'hypoventilace', stavy: ['1', 'více'] }, { nazev: 'jizva', stavy: ['1', 'více'] }, { nazev: 'poradiační' }]);
+            html += build2ColTable('Parenchym - Difuzní', [{ nazev: 'fibróza', stavy: ['mírná', 'střední', 'výrazná'], secondaryStavy: ['apikálně', 'všude', 'bazálně'], secondaryDefault: 'lokace' }, { nazev: 'emfyzém', stavy: ['parsept.', 'centrilob.', 'PAN'], secondaryStavy: ['apikálně', 'všude', 'bazálně'], secondaryDefault: 'lokace' }], 'max-content 1fr');
+            html += build3ColTable('Operace', [{ nazev: 'pulmonektomie' }, { nazev: 'lobektomie horní' }, { nazev: 'lobektomie střed.' }, { nazev: 'lobektomie dolní' }, { nazev: 'resekce horní' }, { nazev: 'resekce střed.' }, { nazev: 'resekce dolní' }]);
             html += `</div>`;
             document.getElementById('plice-grid').innerHTML = html;
         }
@@ -575,9 +773,49 @@
             let html = '<div class="lozisko-main-container">';
             html += `<div class="lozisko-row row-pocet exclusive-group"><span class="lead-col">Počet:</span>${createDynamicButton(['active'], 'solitární', 'static-text default-active')}${createDynamicButton(['active'], 'dvě', 'static-text')}${createDynamicButton(['active'], 'vícečetné', 'static-text')}${createDynamicButton(['active'], 'mnohočetné', 'static-text')}</div>`;
             html += `<div class="lozisko-row row-druh exclusive-group"><span class="lead-col">Druh:</span>${createDynamicButton(['active'], isLymf ? 'uzlina' : 'ložisko', 'static-text default-active')}${createDynamicButton(['active'], isLymf ? 'paket uzlin' : 'expanze', 'static-text')}${isLymf ? '' : createDynamicButton(['active'], 'infiltrace', 'static-text')+createDynamicButton(['active'], 'kolekce', 'static-text')}${createDynamicButton(['active'], 'vlastní', 'static-text trigger-text-inline')}<input type="text" class="global-input field-text hidden" placeholder="Specifikujte druh..." oninput="triggerFormUpdate(this)"></div>`;
-            html += `<div class="table-3col table-lokalizace no-border" style="grid-template-columns: auto max-content auto; width: max-content; gap: 4px; margin-bottom: 4px;"><div class="table-header" style="border-bottom: none;">${locTitle}</div><div class="table-col-title" style="text-align:center;">P</div><div></div><div class="table-col-title" style="text-align:center;">L</div>`;
-            data.forEach(item => { html += `<div>${createDynamicButton(item.stavy)}</div><div class="row-label" style="text-align:center; padding:0 12px;">${item.nazev}</div><div>${createDynamicButton(item.stavy)}</div>`; });
-            html += `</div>`;
+            
+            html += `<div class="lokalizace-wrapper" style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 6px;">`;
+
+            const leftBilateral = data.filter(i => !i.rightCol && !i.central);
+            const leftCentral = data.filter(i => !i.rightCol && i.central);
+            if (leftBilateral.length > 0 || leftCentral.length > 0) {
+                html += `<div class="lok-col-left" style="display: flex; flex-direction: column; gap: 4px;">`;
+                if (leftBilateral.length > 0) {
+                    html += `<div class="table-3col table-lokalizace no-border" style="grid-template-columns: auto max-content auto; width: max-content; gap: 4px;"><div class="table-header" style="border-bottom: none;">${locTitle}</div><div class="table-col-title" style="text-align:center;">P</div><div></div><div class="table-col-title" style="text-align:center;">L</div>`;
+                    leftBilateral.forEach(item => { html += `<div>${createDynamicButton(item.stavy)}</div><div class="row-label" style="text-align:center; padding:0 12px;">${item.nazev}</div><div>${createDynamicButton(item.stavy)}</div>`; });
+                    html += `</div>`;
+                }
+                if (leftCentral.length > 0) {
+                    html += `<div class="central-lokalizace" style="display: grid; grid-template-columns: max-content 1fr; gap: 0 10px; margin-top: 4px; padding-left: 4px;">`;
+                    leftCentral.forEach(item => { 
+                        html += `<div class="row-label" style="justify-content: flex-start; padding: 0;">${item.nazev}:</div><div>${createDynamicButton(item.stavy, "0", "central-btn")}</div>`; 
+                    });
+                    html += `</div>`;
+                }
+                html += `</div>`;
+            }
+
+            const rightBilateral = data.filter(i => i.rightCol && !i.central);
+            const rightCentral = data.filter(i => i.rightCol && i.central);
+            if (rightBilateral.length > 0 || rightCentral.length > 0) {
+                html += `<div class="lok-col-right" style="display: flex; flex-direction: column; gap: 8px;">`;
+                if (rightBilateral.length > 0) {
+                    html += `<div class="table-3col table-lokalizace no-border" style="grid-template-columns: auto max-content auto; width: max-content; gap: 4px;"><div class="table-header" style="border-bottom: none;">Ostatní</div><div class="table-col-title" style="text-align:center;">P</div><div></div><div class="table-col-title" style="text-align:center;">L</div>`;
+                    rightBilateral.forEach(item => { html += `<div>${createDynamicButton(item.stavy)}</div><div class="row-label" style="text-align:center; padding:0 12px;">${item.nazev}</div><div>${createDynamicButton(item.stavy)}</div>`; });
+                    html += `</div>`;
+                }
+                if (rightCentral.length > 0) {
+                    html += `<div class="central-lokalizace" style="display: grid; grid-template-columns: max-content 1fr; gap: 0 10px; margin-top: 4px; padding-left: 4px;">`;
+                    rightCentral.forEach(item => { 
+                        html += `<div class="row-label" style="justify-content: flex-start; padding: 0;">${item.nazev}:</div><div>${createDynamicButton(item.stavy, "0", "central-btn")}</div>`; 
+                    });
+                    html += `</div>`;
+                }
+                html += `</div>`;
+            }
+
+            html += `</div>`; 
+
             html += `<div class="lozisko-row row-vlastni-lok">${createDynamicButton(['active'], 'vlastní lok:', 'static-text trigger-text-inline lead-col')}<input type="text" class="global-input field-text hidden" placeholder="Specifikujte lokalizaci..." oninput="triggerFormUpdate(this)"></div>`;
             html += `<div class="lozisko-row row-vzhled-ct tomo-ct-specific" style="display:none; background:rgba(255,255,255,0.02); padding:4px 8px; border-radius:3px; margin-left:-8px;"><span class="lead-col" style="padding-left:8px;">Vzhled CT:</span><span class="row-label">Nativ:</span>${createDynamicButton(['hypo', 'izo', 'hyper'], '0')}<span class="row-label">Kontrast:</span>${createDynamicButton(['-', '+', '++'], '0')}<span class="row-label">nekróza:</span>${createDynamicButton(['+'], '0')}<span class="row-label">kalcif.:</span>${createDynamicButton(['+'], '0')}</div>`;
             html += `<div class="lozisko-row row-vzhled-mr tomo-mr-specific" style="display:none; background:rgba(255,255,255,0.02); padding:4px 8px; border-radius:3px; margin-left:-8px;"><span class="lead-col" style="padding-left:8px;">Vzhled MR:</span><span class="row-label">T1:</span>${createDynamicButton(['hypo', 'izo', 'hyper'], '0')}<span class="row-label">T2:</span>${createDynamicButton(['hypo', 'izo', 'hyper'], '0')}<span class="row-label">DWI:</span>${createDynamicButton(['+', '++'], '0')}<span class="row-label">STIR:</span>${createDynamicButton(['-'], '0')}<span class="row-label">T1C+:</span>${createDynamicButton(['-', '+', '++'], '0')}</div>`;
@@ -698,7 +936,8 @@
                 results.forEach(r => {
                     const fullId = `${form.id}_${r.id}`;
                     renderDragBox('report-panel', fullId, r.rep, category, region, form.id);
-                    renderDragBox('conclusion-panel', fullId, r.concl, category, region, form.id);
+                    // Přidán parametr r.conclType
+                    renderDragBox('conclusion-panel', fullId, r.concl, category, region, form.id, r.conclType);
                 });
                 document.querySelectorAll('.main-region').forEach(reg => togglePlaceholders(reg));
             }
@@ -713,14 +952,23 @@
             const druhAPocet = applyGrammar(pocetRaw, druhRaw);
 
             let lokaceArr = [];
-            const gridChildren = Array.from(form.querySelector('.table-lokalizace').children).slice(4); 
-            for(let i=0; i < gridChildren.length; i+=3) {
-                const btnP = gridChildren[i].querySelector('.attr-btn'), organName = gridChildren[i+1].textContent, btnL = gridChildren[i+2].querySelector('.attr-btn');
-                if (btnP?.classList.contains('selected')) lokaceArr.push(btnP.textContent === '+' ? `${getGenitive(organName)} vpravo` : `${getGenitive(btnP.textContent)} ${getGenitive(organName)} vpravo`);
-                if (btnL?.classList.contains('selected')) lokaceArr.push(btnL.textContent === '+' ? `${getGenitive(organName)} vlevo` : `${getGenitive(btnL.textContent)} ${getGenitive(organName)} vlevo`);
-            }
+            form.querySelectorAll('.table-lokalizace').forEach(table => {
+                const gridChildren = Array.from(table.children).slice(4); 
+                for(let i=0; i < gridChildren.length; i+=3) {
+                    const btnP = gridChildren[i].querySelector('.attr-btn'), organName = gridChildren[i+1].textContent, btnL = gridChildren[i+2].querySelector('.attr-btn');
+                    if (btnP?.classList.contains('selected')) lokaceArr.push(btnP.textContent === '+' ? `${getGenitive(organName)} vpravo` : `${getGenitive(btnP.textContent)} ${getGenitive(organName)} vpravo`);
+                    if (btnL?.classList.contains('selected')) lokaceArr.push(btnL.textContent === '+' ? `${getGenitive(organName)} vlevo` : `${getGenitive(btnL.textContent)} ${getGenitive(organName)} vlevo`);
+                }
+            });
+            
+            form.querySelectorAll('.central-lokalizace .central-btn.selected').forEach(btn => {
+                const label = btn.closest('div').previousElementSibling;
+                const organName = label.textContent.replace(':', '').trim();
+                lokaceArr.push(`${getGenitive(btn.textContent)} ${getGenitive(organName)}`);
+            });
+
             const vlBtn = form.querySelector('.row-vlastni-lok .attr-btn.selected'); if (vlBtn) { const val = form.querySelector('.row-vlastni-lok .field-text').value.trim(); if(val) lokaceArr.push(val); }
-            const lokalizace = lokaceArr.join(', '), size = form.querySelector('.row-metriky .field-size').value; 
+            const lokalizace = lokaceArr.join(', '), size = form.querySelector('.row-metriky .field-size').value;
             
             let suv = '', aktivitaText = '';
             if (EXAM_STATE.pet) {
@@ -901,15 +1149,20 @@
             updateHierarchy(); checkDynamicInputs(btn); updateRowHighlight(btn); triggerFormUpdate(btn);
         }
 
-        function build3ColTable(title, dataArray, width = 260, extraAttrs = '', prependHtml = '', appendHtml = '') {
-            let html = `<div class="table-3col" style="width: ${width}px; margin-bottom: 10px;" ${extraAttrs}><div class="table-header">${title}</div>${prependHtml}<div class="table-col-title">P</div><div></div><div class="table-col-title">L</div>`;
+        function build3ColTable(title, dataArray, extraAttrs = '', prependHtml = '', appendHtml = '') {
+            let html = `<div class="table-3col" ${extraAttrs}><div class="table-header">${title}</div>${prependHtml}<div class="table-col-title">P</div><div></div><div class="table-col-title">L</div>`;
             dataArray.forEach(item => { const stavy = item.stavy || ['+'], extraCls = item.trigger ? 'dynamic-trigger' : ''; html += `<div>${createDynamicButton(stavy, "0", extraCls)}</div><div class="row-label">${item.nazev}</div><div>${createDynamicButton(stavy, "0", extraCls)}</div>`; });
             return html + appendHtml + `</div>`;
         }
 
-        function build2ColTable(title, dataArray, width = 280, cols = '70px 1fr', extraAttrs = '') {
-            let html = `<div class="table-2col" style="width: ${width}px; grid-template-columns: ${cols}; margin-bottom: 10px;" ${extraAttrs}><div class="table-header">${title}</div>`;
-            dataArray.forEach(item => { const stavy = item.stavy || ['+'], hasSec = !!item.secondaryStavy; html += `<div class="row-label" style="text-align:left;">${item.nazev}</div><div class="${hasSec ? 'diffuse-row ' : ''}" style="display:flex; gap:4px; justify-content:flex-start;">${createDynamicButton(stavy, "0", hasSec ? "btn-primary" : "")}${hasSec ? createDynamicButton(item.secondaryStavy, item.secondaryDefault || "0", "btn-secondary") : ''}</div>`; });
+        function build2ColTable(title, dataArray, cols = 'max-content 1fr', extraAttrs = '') {
+            let html = `<div class="table-2col" style="grid-template-columns: ${cols};" ${extraAttrs}><div class="table-header">${title}</div>`;
+            dataArray.forEach(item => { 
+                const stavy = item.stavy || ['+'], hasSec = !!item.secondaryStavy; 
+                const extraCls = item.inlineInput ? 'trigger-text-inline' : '';
+                const inputHtml = item.inlineInput ? `<input type="text" class="global-input field-text hidden" placeholder="${item.inlineInput}" oninput="triggerFormUpdate(this)" style="width:120px;">` : '';
+                html += `<div class="row-label">${item.nazev}</div><div class="${hasSec ? 'diffuse-row ' : ''}" style="display:flex; gap:4px; justify-content:flex-start; align-items:center;">${createDynamicButton(stavy, "0", (hasSec ? "btn-primary " : "") + extraCls)}${hasSec ? createDynamicButton(item.secondaryStavy, item.secondaryDefault || "0", "btn-secondary") : ''}${inputHtml}</div>`; 
+            });
             return html + `</div>`;
         }
 
@@ -920,10 +1173,42 @@
         }
 
         function updateRowHighlight(btn) {
-            const pCell = btn.parentElement; if (!pCell) return; const grid = pCell.parentElement; let labelCell = null, pC = null, lC = null;
-            if (grid?.classList.contains('table-3col')) { if (pCell.nextElementSibling?.classList.contains('row-label')) { pC = pCell; labelCell = pCell.nextElementSibling; lC = labelCell.nextElementSibling; } else if (pCell.previousElementSibling?.classList.contains('row-label')) { lC = pCell; labelCell = pCell.previousElementSibling; pC = labelCell.previousElementSibling; } } 
-            else if (grid?.classList.contains('table-2col')) { if (pCell.previousElementSibling?.classList.contains('row-label')) labelCell = pCell.previousElementSibling; }
-            if (labelCell) ((pC?.querySelector('.selected')) || (lC?.querySelector('.selected'))) ? labelCell.classList.add('active-row-label') : labelCell.classList.remove('active-row-label');
+            let label = null;
+            let relatedBtns = [btn];
+            
+            if (btn.previousElementSibling && btn.previousElementSibling.classList.contains('row-label')) {
+                label = btn.previousElementSibling;
+            } 
+            else if (btn.parentElement && btn.parentElement.parentElement) {
+                const cell = btn.parentElement;
+                const grid = cell.parentElement;
+                
+                if (grid.classList.contains('table-3col')) {
+                    if (cell.nextElementSibling && cell.nextElementSibling.classList.contains('row-label')) {
+                        label = cell.nextElementSibling;
+                        relatedBtns.push(label.nextElementSibling?.querySelector('.attr-btn'));
+                    } else if (cell.previousElementSibling && cell.previousElementSibling.classList.contains('row-label')) {
+                        label = cell.previousElementSibling;
+                        relatedBtns.push(label.previousElementSibling?.querySelector('.attr-btn'));
+                    }
+                } else if (grid.classList.contains('table-2col')) {
+                    if (cell.previousElementSibling && cell.previousElementSibling.classList.contains('row-label')) {
+                        label = cell.previousElementSibling;
+                        relatedBtns = Array.from(cell.querySelectorAll('.attr-btn'));
+                    }
+                } 
+                /* Tvůj doplněný kód pro central-lokalizace: */
+                else if (cell.previousElementSibling?.classList.contains('row-label')) {
+                    label = cell.previousElementSibling;
+                } else {
+                    label = cell.querySelector('.row-label');
+                }
+            }
+
+            if (label) {
+                const isActive = relatedBtns.some(b => b && b.classList.contains('selected'));
+                isActive ? label.classList.add('active-row-label') : label.classList.remove('active-row-label');
+            }
         }
 
         function updateHierarchy() {
@@ -973,7 +1258,7 @@
         function updateNumbers(containerId, defaultName) { document.querySelectorAll(`#${containerId} .dynamic-item`).forEach((btn, index) => { btn.querySelector('.item-text').textContent = btn.getAttribute('data-dynamic-name') || `${defaultName} ${index + 1}`; }); }
 
         // --- VYKRESLENÍ A DRAG & DROP ---
-        function renderDragBox(panelId, fullId, text, category, targetRegion, parentFormId) {
+        function renderDragBox(panelId, fullId, text, category, targetRegion, parentFormId, conclType = null) {
             const container = document.querySelector(`#${panelId} .content-area`);
             let box = container.querySelector(`.drag-box[data-form-id="${fullId}"]`);
 
@@ -983,10 +1268,21 @@
                     container.querySelectorAll('.conclusion-section').forEach(c => addContainerDragEvents(c));
                 }
                 if (!text || text === '.') { if (box) box.remove(); return; }
-                if (box) box.textContent = text;
-                else {
+                
+                // --- NOVÁ LOGIKA ROZŘAZENÍ ---
+                let isIncidental = false;
+                if (conclType === 'incidental') isIncidental = true;
+                else if (conclType === 'main') isIncidental = false;
+                else isIncidental = (category !== (targetRegion || category)); // Fallback pro starší moduly
+                
+                if (box) {
+                    box.textContent = text;
+                    // Zajištění přesunu, pokud se typ závěru změní dynamicky
+                    const targetContainer = isIncidental ? container.querySelector('.incidental-items') : container.querySelector('.main-conclusion-items');
+                    if (box.parentNode !== targetContainer) targetContainer.appendChild(box);
+                } else {
                     box = document.createElement('div'); box.className = 'drag-box'; box.setAttribute('draggable', 'true'); box.setAttribute('data-form-id', fullId); if(parentFormId) box.setAttribute('data-parent-form', parentFormId); addDragEvents(box); box.textContent = text;
-                    ((category !== (targetRegion || category)) ? container.querySelector('.incidental-items') : container.querySelector('.main-conclusion-items')).appendChild(box);
+                    (isIncidental ? container.querySelector('.incidental-items') : container.querySelector('.main-conclusion-items')).appendChild(box);
                 }
                 return;
             }
