@@ -384,7 +384,24 @@
                 { nazev: 'Thymus', stavy: ['+'], rightCol: true },
                 { nazev: 'Jícen', stavy: ['horní', 'střední', 'dolní'], central: true, rightCol: true }
             ], 
-            bricho: [] 
+            bricho: [
+                { nazev: 'Játra', stavy: ['celá', 'pravý l.', 'levý l.'], central: true },
+                { nazev: 'Segment', stavy: ['S1', 'S2', 'S3', 'S4A', 'S4B', 'S5', 'S6', 'S7', 'S8'], central: true },
+                { nazev: 'Žlučník', stavy: ['fundus', 'tělo', 'krček'], central: true },
+                { nazev: 'Pankreas', stavy: ['hlava', 'tělo', 'kauda'], central: true },
+                { nazev: 'Slezina', stavy: ['+'], central: true },
+                { nazev: 'Mesenterium', stavy: ['+'], central: true },
+                { nazev: 'Peritoneum', stavy: ['omentum', 'pánevní', 'všude'], central: true },
+                { nazev: 'Žaludek', stavy: ['kardie', 'tělo', 'pylorus'], central: true },
+                { nazev: 'Tračník', stavy: ['anus', 'anorectum', 'rectum', 'v. sigmoideum', 'c. descendens', 'c. transversum', 'c. ascendens', 'caecum', 'appendix'], central: true },
+                { nazev: 'Nadledvina', stavy: ['+'], rightCol: true },
+                { nazev: 'Ledvina', stavy: ['+', 'horní pól', 'střední část', 'dolní pól'], rightCol: true },
+                { nazev: 'Ovarium', stavy: ['+'], rightCol: true },
+                { nazev: 'Děloha', stavy: ['fundus', 'tělo', 'cervix'], central: true, rightCol: true },
+                { nazev: 'Moč. měchýř', stavy: ['+'], central: true, rightCol: true },
+                { nazev: 'Prostata', stavy: ['+'], central: true, rightCol: true },
+                { nazev: 'Testes', stavy: ['pravé', 'levé'], central: true, rightCol: true }
+            ] 
         };
         const LYMF_DATA = { krk: [ { nazev: 'krk', stavy: ['+'] }, { nazev: '1A', stavy: ['+'] }, { nazev: '1B', stavy: ['+'] }, { nazev: '2A', stavy: ['+'] }, { nazev: '2B', stavy: ['+'] }, { nazev: '3', stavy: ['+'] }, { nazev: '4', stavy: ['+'] }, { nazev: '5', stavy: ['+'] }, { nazev: '6', stavy: ['+'] } ], hrudnik: [], bricho: [] };
 
@@ -510,20 +527,37 @@
                 'subdurálně': { g: 'N', '2s': 'subdurálně' },
                 'subarachnoidálně': { g: 'N', '2s': 'subarachnoidálně' },
                 'intraventrikulárně': { g: 'N', '2s': 'intraventrikulárně' },
-            },
-            adjectives: { 
-                // POČTY A TVARY
-                'solitární': { num: 'S', 'M': 'solitární', 'F': 'solitární', 'N': 'solitární' }, 
-                'dvě': { num: 'P', 'M': 'dva', 'F': 'dvě', 'N': 'dvě' }, 
-                'vícečetné': { num: 'P', 'M': 'vícečetné', 'F': 'vícečetné', 'N': 'vícečetná' }, 
-                'mnohočetné': { num: 'P', 'M': 'mnohočetné', 'F': 'mnohočetné', 'N': 'mnohočetná' }, 
 
-                // ANATOMICKÁ ADJEKTIVA (PŘEDLOŽKOVÉ VAZBY PRO SINY)
-                'frontální': { '6s': 'frontálním', '6p': 'frontálních', prep: 've' }, 
-                'etmoidální': { '6s': 'etmoidálním', '6p': 'etmoidálních', prep: 'v' }, 
-                'sfenoidální': { '6s': 'sfenoidálním', '6p': 'sfenoidálních', prep: 'v' }, 
-                'maxilární': { '6s': 'maxilárním', '6p': 'maxilárních', prep: 'v' } 
-            }
+                // BŘICHO A PÁNEV
+                // BŘICHO A PÁNEV
+                'celá': { g: 'X', '2s': 'celých' }, 's4a': { g: 'M', '2s': 'segmentu 4A' }, 's4b': { g: 'M', '2s': 'segmentu 4B' }, 
+                'omentum': { g: 'N', '2s': 'omenta' }, 'pánevní': { g: 'X', '2s': 'pánevního peritonea' }, 'všude': { g: 'X', '2s': 'peritonea difuzně' }, 
+                'horní pól': { g: 'M', '2s': 'horního pólu' }, 'střední část': { g: 'F', '2s': 'střední části' }, 'dolní pól': { g: 'M', '2s': 'dolního pólu' },
+                'pravé': { g: 'X', '2s': 'pravého' }, 'levé': { g: 'X', '2s': 'levého' },
+                'játra': { g: 'N', '2s': 'jater' }, 'segment': { g: 'M', '2s': 'segmentu' }, 'pravý l.': { g: 'M', '2s': 'pravého laloku' }, 'levý l.': { g: 'M', '2s': 'levého laloku' },
+                'žlučník': { g: 'M', '2s': 'žlučníku' }, 'fundus': { g: 'M', '2s': 'fundu' }, 'krček': { g: 'M', '2s': 'krčku' },
+                'pankreas': { g: 'M', '2s': 'pankreatu' }, 'hlava': { g: 'F', '2s': 'hlavy' }, 'kauda': { g: 'F', '2s': 'kaudy' },
+                'slezina': { g: 'F', '2s': 'sleziny' }, 'mesenterium': { g: 'N', '2s': 'mesenteria' }, 'peritoneum': { g: 'N', '2s': 'peritonea' },
+                'žaludek': { g: 'M', '2s': 'žaludku' }, 'kardie': { g: 'F', '2s': 'kardie' }, 'pylorus': { g: 'M', '2s': 'pyloru' },
+                'tračník': { g: 'M', '2s': 'tračníku' }, 'anus': { g: 'M', '2s': 'anu' }, 'anorectum': { g: 'N', '2s': 'anorecta' }, 'rectum': { g: 'N', '2s': 'recta' }, 
+                'v. sigmoideum': { g: 'N', '2s': 'kličky v. sigmoidea' }, 'c. descendens': { g: 'N', '2s': 'colon descendens' }, 'c. transversum': { g: 'N', '2s': 'colon transversum' }, 'c. ascendens': { g: 'N', '2s': 'colon ascendens' }, 'caecum': { g: 'N', '2s': 'caeca' }, 'appendix': { g: 'M', '2s': 'appendixu' },
+                'nadledvina': { g: 'F', '2s': 'nadledviny' }, 'ledvina': { g: 'F', '2s': 'ledviny' }, 'moč. měchýř': { g: 'M', '2s': 'močového měchýře' }, 
+                'ovarium': { g: 'N', '2s': 'ovária' }, 'děloha': { g: 'F', '2s': 'dělohy' }, 'cervix': { g: 'M', '2s': 'cervixu' }, 'prostata': { g: 'F', '2s': 'prostaty' }, 'testes': { g: 'N', '2s': 'varlete' }
+
+                },
+                adjectives: { 
+                    // POČTY A TVARY
+                    'solitární': { num: 'S', 'M': 'solitární', 'F': 'solitární', 'N': 'solitární' }, 
+                    'dvě': { num: 'P', 'M': 'dva', 'F': 'dvě', 'N': 'dvě' }, 
+                    'vícečetné': { num: 'P', 'M': 'vícečetné', 'F': 'vícečetné', 'N': 'vícečetná' }, 
+                    'mnohočetné': { num: 'P', 'M': 'mnohočetné', 'F': 'mnohočetné', 'N': 'mnohočetná' }, 
+
+                    // ANATOMICKÁ ADJEKTIVA (PŘEDLOŽKOVÉ VAZBY PRO SINY)
+                    'frontální': { '6s': 'frontálním', '6p': 'frontálních', prep: 've' }, 
+                    'etmoidální': { '6s': 'etmoidálním', '6p': 'etmoidálních', prep: 'v' }, 
+                    'sfenoidální': { '6s': 'sfenoidálním', '6p': 'sfenoidálních', prep: 'v' }, 
+                    'maxilární': { '6s': 'maxilárním', '6p': 'maxilárních', prep: 'v' } 
+                }
         };
 
         // ==========================================
@@ -888,7 +922,7 @@
                     if (centralBtn?.classList.contains('selected')) {
                         const rawName = organName.replace(':', '').trim();
                         if (centralBtn.textContent === '+') lokaceArr.push(getGenitive(rawName));
-                        else if (['Sella/Hypofýza', 'Komory', 'Kmen'].includes(rawName)) lokaceArr.push(getGenitive(centralBtn.textContent));
+                        else if (['Sella/Hypofýza', 'Komory', 'Kmen', 'Tračník', 'Peritoneum'].includes(rawName)) lokaceArr.push(getGenitive(centralBtn.textContent));
                         else lokaceArr.push(`${getGenitive(centralBtn.textContent)} ${getGenitive(rawName)}`);
                     } else if (!centralBtn) {
                         if (btnP?.classList.contains('selected')) lokaceArr.push(btnP.textContent === '+' ? `${getGenitive(organName)} vpravo` : `${getGenitive(btnP.textContent)} ${getGenitive(organName)} vpravo`);
@@ -1198,7 +1232,8 @@
             const prefix = isLymf ? 'lymf-' : (isVasc ? 'vasc-' : 'lozisko-');
             const uniqueId = prefix + Date.now();
             const div = document.createElement('div'), formDiv = document.createElement('div');
-            const displayRegion = region.toUpperCase();
+            const regionMap = { 'hlava': 'HLAVA', 'krk': 'KRK', 'hrudnik': 'HRUDNÍK', 'bricho': 'BŘICHO' };
+            const displayRegion = regionMap[region] || region.toUpperCase();
             
             div.className = 'btn dynamic-item'; div.setAttribute('data-form-link', uniqueId); div.innerHTML = `<span class="item-text"></span><span class="delete-btn">×</span>`;
             formDiv.id = uniqueId; formDiv.className = 'detail-form'; formDiv.setAttribute('data-region', displayRegion); formDiv.setAttribute('data-category', displayRegion); 
