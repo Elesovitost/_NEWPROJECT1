@@ -870,6 +870,69 @@
             return html;
         }
 
+
+        // Pomocné funkce pro parsování ložisek/uzlin
+        const parseBasicInfo = (form) => {
+            const druhBtn = form.querySelector('.row-druh .attr-btn.selected'), pocetBtn = form.querySelector('.row-pocet .attr-btn.selected');
+            const druhRaw = druhBtn ? (druhBtn.textContent === 'vlastní' ? form.querySelector('.row-druh .field-text').value.trim() : druhBtn.textContent) : '';
+            return { druhRaw, druhAPocet: applyGrammar(pocetBtn?.textContent || '', druhRaw) };
+        };
+
+        const parseLokalizace = (form) => {
+            let lokaceArr = [];
+            form.querySelectorAll('.table-lokalizace').forEach(table => {
+                const gridChildren = Array.from(table.children).slice(4); 
+                for(let i=0; i < gridChildren.length; i+=3) {
+                    const btnP = gridChildren[i].querySelector('.attr-btn'), organName = gridChildren[i+1].textContent, btnL = gridChildren[i+2].querySelector('.attr-btn');
+                    const centralBtn = gridChildren[i+2].querySelector('.central-btn');
+                    if (centralBtn?.classList.contains('selected')) {
+                        const rawName = organName.replace(':', '').trim();
+                        if (centralBtn.textContent === '+') lokaceArr.push(getGenitive(rawName));
+                        else if (['Sella/Hypofýza', 'Komory', 'Kmen'].includes(rawName)) lokaceArr.push(getGenitive(centralBtn.textContent));
+                        else lokaceArr.push(`${getGenitive(centralBtn.textContent)} ${getGenitive(rawName)}`);
+                    } else if (!centralBtn) {
+                        if (btnP?.classList.contains('selected')) lokaceArr.push(btnP.textContent === '+' ? `${getGenitive(organName)} vpravo` : `${getGenitive(btnP.textContent)} ${getGenitive(organName)} vpravo`);
+                        if (btnL?.classList.contains('selected')) lokaceArr.push(btnL.textContent === '+' ? `${getGenitive(organName)} vlevo` : `${getGenitive(btnL.textContent)} ${getGenitive(organName)} vlevo`);
+                    }
+                }
+            });
+            const vlBtn = form.querySelector('.row-vlastni-lok .attr-btn.selected'); 
+            if (vlBtn) { const val = form.querySelector('.row-vlastni-lok .field-text').value.trim(); if(val) lokaceArr.push(val); }
+            return lokaceArr;
+        };
+
+        const parseSouvisejici = (form, isLymf) => {
+            let rep = "", conclArr = [];
+            if (!isLymf) {
+                if (form.querySelector('.btn-edem.selected')) { rep += " Je vyjádřen perifokální edém."; conclArr.push("s perifokálním edémem"); }
+                const midBtn = form.querySelector('.btn-midshift.selected');
+                if (midBtn) { const val = midBtn.nextElementSibling?.value.trim(), smer = midBtn.textContent; rep += ` Je přítomen midline shift ${val ? val + ' mm ' : ''}${smer}.`; conclArr.push(`s midline shiftem ${smer}${val ? ' ' + val + ' mm' : ''}`); }
+                const hernBtn = form.querySelector('.btn-herniace.selected');
+                if (hernBtn) { const typ = hernBtn.textContent, p7 = CZECH_GRAMMAR.nouns[typ]?.['7s'] || typ; rep += ` Jsou patrny známky ${typ} herniace.`; conclArr.push(`${typ === 'subfalcinní' ? 'se' : 's'} ${p7} herniací`); }
+            }
+            return { rep, conclArr };
+        };
+
+        const parseEtiologie = (form) => {
+            let actEtio = [];
+            form.querySelectorAll('.row-etiologie .etio-group').forEach(group => {
+                const eBtn = group.querySelector('.etio-btn');
+                if (eBtn?.classList.contains('selected')) actEtio.push({ base: eBtn.textContent, cert: group.querySelector('.btn-certainty')?.textContent || 'ano', time: parseInt(eBtn.dataset.clickTime) || 0 });
+            });
+            actEtio.sort((a, b) => a.time - b.time);
+            if (actEtio.length === 0) return '';
+            
+            const fmt = (b, c) => {
+                const lB = b.toLowerCase(); let txt = lB === 'benigní' ? 'benigní etiologie' : lB === 'maligní' ? 'maligní etiologie' : lB === 'zánět' ? 'zánětlivé etiologie' : b; 
+                if (c === 'ano') return ['tumor','meta','meningeom','lgg','hgg'].includes(lB) ? `charakteru ${b}` : txt;
+                return `${c === 'zřejmě' ? 'pravděpodobně' : c} ${['tumor','meta','meningeom','lgg','hgg'].includes(lB) ? b : txt}`;
+            };
+            if (actEtio.length === 1) return fmt(actEtio[0].base, actEtio[0].cert);
+            const dif = actEtio.map(e => e.base === 'benigní' ? 'benigní etiologie' : e.base === 'maligní' ? 'maligní etiologie' : e.base === 'zánět' ? 'zánětlivé etiologie' : e.base);
+            return actEtio.some(e => e.cert !== 'ano') ? `${fmt(actEtio[0].base, actEtio[0].cert)}, v dif.dg. ${dif.slice(1).join(', ')}` : `v dif.dg. ${dif.join(', ')}`;
+        };
+
+
         // ==========================================
         // 4. CORE ENGINE & DELEGATION 
         // ==========================================
@@ -941,66 +1004,7 @@
             }
         }
 
-        // Pomocné funkce pro parsování ložisek/uzlin
-        const parseBasicInfo = (form) => {
-            const druhBtn = form.querySelector('.row-druh .attr-btn.selected'), pocetBtn = form.querySelector('.row-pocet .attr-btn.selected');
-            const druhRaw = druhBtn ? (druhBtn.textContent === 'vlastní' ? form.querySelector('.row-druh .field-text').value.trim() : druhBtn.textContent) : '';
-            return { druhRaw, druhAPocet: applyGrammar(pocetBtn?.textContent || '', druhRaw) };
-        };
-
-        const parseLokalizace = (form) => {
-            let lokaceArr = [];
-            form.querySelectorAll('.table-lokalizace').forEach(table => {
-                const gridChildren = Array.from(table.children).slice(4); 
-                for(let i=0; i < gridChildren.length; i+=3) {
-                    const btnP = gridChildren[i].querySelector('.attr-btn'), organName = gridChildren[i+1].textContent, btnL = gridChildren[i+2].querySelector('.attr-btn');
-                    const centralBtn = gridChildren[i+2].querySelector('.central-btn');
-                    if (centralBtn?.classList.contains('selected')) {
-                        const rawName = organName.replace(':', '').trim();
-                        if (centralBtn.textContent === '+') lokaceArr.push(getGenitive(rawName));
-                        else if (['Sella/Hypofýza', 'Komory', 'Kmen'].includes(rawName)) lokaceArr.push(getGenitive(centralBtn.textContent));
-                        else lokaceArr.push(`${getGenitive(centralBtn.textContent)} ${getGenitive(rawName)}`);
-                    } else if (!centralBtn) {
-                        if (btnP?.classList.contains('selected')) lokaceArr.push(btnP.textContent === '+' ? `${getGenitive(organName)} vpravo` : `${getGenitive(btnP.textContent)} ${getGenitive(organName)} vpravo`);
-                        if (btnL?.classList.contains('selected')) lokaceArr.push(btnL.textContent === '+' ? `${getGenitive(organName)} vlevo` : `${getGenitive(btnL.textContent)} ${getGenitive(organName)} vlevo`);
-                    }
-                }
-            });
-            const vlBtn = form.querySelector('.row-vlastni-lok .attr-btn.selected'); 
-            if (vlBtn) { const val = form.querySelector('.row-vlastni-lok .field-text').value.trim(); if(val) lokaceArr.push(val); }
-            return lokaceArr;
-        };
-
-        const parseSouvisejici = (form, isLymf) => {
-            let rep = "", conclArr = [];
-            if (!isLymf) {
-                if (form.querySelector('.btn-edem.selected')) { rep += " Je vyjádřen perifokální edém."; conclArr.push("s perifokálním edémem"); }
-                const midBtn = form.querySelector('.btn-midshift.selected');
-                if (midBtn) { const val = midBtn.nextElementSibling?.value.trim(), smer = midBtn.textContent; rep += ` Je přítomen midline shift ${val ? val + ' mm ' : ''}${smer}.`; conclArr.push(`s midline shiftem ${smer}${val ? ' ' + val + ' mm' : ''}`); }
-                const hernBtn = form.querySelector('.btn-herniace.selected');
-                if (hernBtn) { const typ = hernBtn.textContent, p7 = CZECH_GRAMMAR.nouns[typ]?.['7s'] || typ; rep += ` Jsou patrny známky ${typ} herniace.`; conclArr.push(`${typ === 'subfalcinní' ? 'se' : 's'} ${p7} herniací`); }
-            }
-            return { rep, conclArr };
-        };
-
-        const parseEtiologie = (form) => {
-            let actEtio = [];
-            form.querySelectorAll('.row-etiologie .etio-group').forEach(group => {
-                const eBtn = group.querySelector('.etio-btn');
-                if (eBtn?.classList.contains('selected')) actEtio.push({ base: eBtn.textContent, cert: group.querySelector('.btn-certainty')?.textContent || 'ano', time: parseInt(eBtn.dataset.clickTime) || 0 });
-            });
-            actEtio.sort((a, b) => a.time - b.time);
-            if (actEtio.length === 0) return '';
-            
-            const fmt = (b, c) => {
-                const lB = b.toLowerCase(); let txt = lB === 'benigní' ? 'benigní etiologie' : lB === 'maligní' ? 'maligní etiologie' : lB === 'zánět' ? 'zánětlivé etiologie' : b; 
-                if (c === 'ano') return ['tumor','meta','meningeom','lgg','hgg'].includes(lB) ? `charakteru ${b}` : txt;
-                return `${c === 'zřejmě' ? 'pravděpodobně' : c} ${['tumor','meta','meningeom','lgg','hgg'].includes(lB) ? b : txt}`;
-            };
-            if (actEtio.length === 1) return fmt(actEtio[0].base, actEtio[0].cert);
-            const dif = actEtio.map(e => e.base === 'benigní' ? 'benigní etiologie' : e.base === 'maligní' ? 'maligní etiologie' : e.base === 'zánět' ? 'zánětlivé etiologie' : e.base);
-            return actEtio.some(e => e.cert !== 'ano') ? `${fmt(actEtio[0].base, actEtio[0].cert)}, v dif.dg. ${dif.slice(1).join(', ')}` : `v dif.dg. ${dif.join(', ')}`;
-        };
+        
 
         function calculateRecistDynamics(currSize, minSize, currSuv, minSuv, hasMinDate, isRecistActive) {
             if (!hasMinDate) return "";
@@ -1135,7 +1139,10 @@
             const conclStr = conclParts.length ? `${conclParts.join(' ')}.` : '';
 
             const menuBtn = document.querySelector(`.dynamic-item[data-form-link="${form.id}"]`);
-            if (menuBtn) menuBtn.setAttribute('data-dynamic-name', dgPrefix);
+            if (menuBtn) {
+                menuBtn.setAttribute('data-dynamic-name', dgPrefix);
+                updateNumbers(menuBtn.parentElement.id, 'Krvácení / Ischemie');
+            }
             
             return { rep: reportStr, concl: conclStr };
         }
@@ -1197,10 +1204,17 @@
             formDiv.id = uniqueId; formDiv.className = 'detail-form'; formDiv.setAttribute('data-region', displayRegion); formDiv.setAttribute('data-category', displayRegion); 
             formDiv.innerHTML = isVasc ? buildVascularContent(VASCULAR_DATA[region] || []) : buildFindingContent((isLymf ? LYMF_DATA : LOZISKO_DATA)[region] || [], type);
             
-            detailsContainer.appendChild(formDiv); formDiv.querySelectorAll('.default-active').forEach(btn => applyBtnState(btn, 0, JSON.parse(btn.getAttribute('data-states'))));
+            detailsContainer.appendChild(formDiv); 
+            container.appendChild(div); 
+
+            formDiv.querySelectorAll('.default-active').forEach(btn => applyBtnState(btn, 0, JSON.parse(btn.getAttribute('data-states'))));
+            
             div.onclick = () => { document.querySelectorAll('.detail-form').forEach(f => f.classList.remove('active')); formDiv.classList.add('active'); document.querySelectorAll('.dynamic-item').forEach(el => el.classList.remove('active-item')); div.classList.add('active-item'); }; 
             div.querySelector('.delete-btn').onclick = (e) => { e.stopPropagation(); div.remove(); formDiv.remove(); document.querySelectorAll(`.drag-box[data-parent-form="${uniqueId}"], .drag-box[data-form-id="${uniqueId}"]`).forEach(el => { const parent = el.parentNode; el.remove(); if (parent?.classList.contains('subcategory-items') && parent.children.length === 0) parent.closest('.subcategory-section').remove(); }); document.querySelectorAll('.main-region').forEach(reg => togglePlaceholders(reg)); updateNumbers(containerId, isLymf ? 'Lymfadenopatie' : (isVasc ? 'Krvácení / Ischemie' : 'Ložisko')); };
-            container.appendChild(div); updateNumbers(containerId, isLymf ? 'Lymfadenopatie' : (isVasc ? 'Krvácení / Ischemie' : 'Ložisko')); div.click(); applyExamVisibilityRules();
+
+            updateNumbers(containerId, isLymf ? 'Lymfadenopatie' : (isVasc ? 'Krvácení / Ischemie' : 'Ložisko')); 
+            div.click(); 
+            applyExamVisibilityRules();
         }
 
         function updateNumbers(containerId, defaultName) { 
