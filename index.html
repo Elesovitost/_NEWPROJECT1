@@ -8,7 +8,7 @@
         * { box-sizing:border-box; margin:0; padding:0; }
         
         body { font-family:'Segoe UI', Tahoma, sans-serif; display:grid; grid-template-columns:180px 1fr 250px 250px; grid-template-rows:max-content 1fr; height:100vh; background-color:var(--bg-color); color:var(--text-color); padding:5px; gap:5px; overflow:hidden; }
-        .panel { background-color:var(--panel-bg); border:1px solid var(--border-color); display:flex; flex-direction:column; padding:8px; border-radius:4px; }
+        .panel { background-color:var(--panel-bg); border:1px solid var(--border-color); display:flex; flex-direction:column; padding:8px; border-radius:4px; min-height: 0; }
         h2 { font-size:0.85rem; text-align:center; padding-bottom:5px; margin-bottom:8px; border-bottom:1px solid var(--border-color); color:#7d8590; letter-spacing:1px; text-transform:uppercase; }
         
         .header-panel { grid-column:1 / -1; flex-direction:row; justify-content:flex-start; align-items:center; padding:6px 15px; gap:20px; }
@@ -29,7 +29,6 @@
         .flash-error { animation:flash-red 0.4s ease 3; border:1px solid #ff7b72; }
 
         .level-group { display:inline-flex; flex-direction:column; align-items:flex-start; width:100%; }
-        .content-area { overflow-y:auto; flex:1; width:100%; }
         .btn { display:block; width:100%; white-space:nowrap; text-align:left; padding:4px 8px; margin:1px 0; border:none; border-radius:2px; cursor:pointer; font-size:12px; color:#fff; transition:all 0.1s; }
         .btn:hover:not(:disabled) { opacity:var(--hover-opacity); }
         .btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
@@ -57,20 +56,23 @@
         .lozisko-main-container .attr-btn, .lozisko-main-container .row-label { font-size:11px; }
         .no-border { border:none !important; background:none !important; box-shadow:none !important; }
         .table-2col.no-border:hover .table-header, .table-3col.no-border:hover .table-header { color: #c9d1d9; text-shadow: none; border-bottom-color: transparent; }
-        .table-2col, .table-3col { display: grid; gap: 2px; align-items: center; border: 1px solid var(--border-color); padding: 4px; border-radius: 3px; background: rgba(255, 255, 255, 0.01); width: var(--table-width); margin-bottom: 10px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-        .table-2col:hover, .table-3col:hover { border-color: rgba(226, 192, 68, 0.4); box-shadow: 0 0 8px rgba(226, 192, 68, 0.05); }
-        .table-2col { grid-template-columns: max-content 1fr; }
+        .table-1col, .table-2col, .table-3col, .custom-text-section { display: grid; gap: 2px; align-items: center; border: 1px solid transparent; padding: 4px; border-radius: 3px; background: rgba(255, 255, 255, 0.01); width: var(--table-width); margin-bottom: 10px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .custom-text-section { display: flex; flex-direction: column; gap: 4px; align-items: stretch; margin-top: 0; }
+        .table-1col:hover, .table-2col:hover, .table-3col:hover, .custom-text-section:hover { border-color: rgba(226, 192, 68, 0.4); box-shadow: 0 0 8px rgba(226, 192, 68, 0.05); }
+        .table-1col { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+        .table-2col { grid-template-columns: max-content auto auto 1fr; }
         .table-3col { grid-template-columns: auto 1fr auto; text-align: center; }
-        .table-header { color: #c9d1d9; font-weight: bold; font-size: 11px; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; margin-bottom: 2px; text-transform: uppercase; text-align: center; transition: color 0.2s ease, text-shadow 0.2s ease, border-color 0.2s ease; }
-        .table-2col .table-header { grid-column: span 2; }
-        .table-3col .table-header { grid-column: span 3; }
-        .table-2col:hover .table-header, .table-3col:hover .table-header { color: #c5a94b; text-shadow: 0 0 4px rgba(226, 192, 68, 0.15); border-bottom-color: rgba(226, 192, 68, 0.4); }
-        .table-3col > div > .attr-btn { width: 100%; }
-        .table-col-title { color: #7d8590; font-size: 11px; font-weight: bold; padding: 2px 0; text-align: center; }.row-label { color: #8b949e; font-size: 11px; font-weight: normal; padding: 0 4px; white-space: nowrap; display: flex; align-items: center; justify-content: center; min-height: 24px; }
+        .table-header { grid-column: 1 / -1; color: #c9d1d9; font-weight: bold; font-size: 11px; border-bottom: 1px solid transparent; padding-bottom: 2px; margin-bottom: 2px; text-transform: uppercase; text-align: center; transition: color 0.2s ease, text-shadow 0.2s ease, border-color 0.2s ease; }
+        .table-1col:hover .table-header, .table-2col:hover .table-header, .table-3col:hover .table-header, .custom-text-section:hover .table-header { color: #c5a94b; text-shadow: 0 0 4px rgba(226, 192, 68, 0.15); border-bottom-color: rgba(226, 192, 68, 0.4); }
+        .table-2col > div > .attr-btn, .table-3col > div > .attr-btn { width: 100%; }
+        .btn-col-2 .btn-secondary { display: none !important; }
+        .btn-col-1:has(.btn-primary.selected) + .btn-col-2 .btn-secondary { display: inline-grid !important; }
+        .table-col-title { color: #7d8590; font-size: 11px; font-weight: bold; padding: 2px 0; text-align: center; }
+        .row-label { color: #8b949e; font-size: 11px; font-weight: normal; padding: 0 4px; white-space: nowrap; display: flex; align-items: center; justify-content: center; min-height: 24px; }
         .table-2col .row-label { justify-content: flex-start; padding-left: 8px; }
         
         /* Kompaktní režim */
-        body.compact-mode .table-2col, body.compact-mode .table-3col { padding: 2px; gap: 1px; margin-bottom: 6px; }
+        body.compact-mode .table-1col, body.compact-mode .table-2col, body.compact-mode .table-3col, body.compact-mode .custom-text-section { padding: 2px; gap: 1px; margin-bottom: 6px; }
         body.compact-mode .table-header { font-size: 10px; padding-bottom: 1px; margin-bottom: 1px; }
         body.compact-mode .row-label { min-height: 20px; }
         body.compact-mode .attr-btn { padding: 1px 3px; min-width: 28px; }
@@ -120,6 +122,10 @@
         #report-panel h2:hover, #conclusion-panel h2:hover { color: #fff; background: rgba(255,255,255,0.05); }
         .copy-highlight { background-color: rgba(88, 166, 255, 0.25) !important; transition: background-color 0.2s; }
         
+        #details-panel { position: relative; }
+        #details-panel::before { content: ""; position: absolute; inset: 0; background: url("ORGANS SCHEMATIC.png") center center / contain no-repeat; opacity: 0.5; pointer-events: none; z-index: 0; transition: opacity 0.3s ease-in-out; }
+        #details-panel:has(.detail-form.active)::before { opacity: 0.05; }
+        #details-panel > * { position: relative; z-index: 1; }
         #details-container { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-start; align-content: flex-start; }
 
         /* Nové univerzální třídy pro formuláře patologií */
@@ -129,6 +135,10 @@
         .loc-wrapper { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 8px; margin-top: 4px; }
         .loc-col { display: flex; flex-direction: column; gap: 6px; }
         .etio-group { display: flex; flex-direction: column; gap: 2px; align-items: center; }
+
+        .content-area { overflow-y:auto; flex:1; width:100%; min-height:0; scroll-behavior:smooth; scrollbar-width:none; -ms-overflow-style:none; }
+        .content-area::-webkit-scrollbar { display:none; }
+        .content-area.is-dragging-scroll { cursor:grabbing !important; user-select:none; scroll-behavior:auto !important; }
     </style>
 </head>
 <body>
@@ -265,8 +275,15 @@
                 <div id="lymf-bricho-container" class="lvl3-container"></div>
                 <button class="btn lvl2" id="btn-bricho-organy" data-action="toggle-sub" data-target="bricho-organy-sub">Orgány</button>
                 <div id="bricho-organy-sub" class="hidden lvl3-container">
-                    <button class="btn lvl3" id="btn-jatra" data-action="show-details" data-target="form-jatra">Játra, Žlučník</button>
+                    <button class="btn lvl3" id="btn-jatra" data-action="show-details" data-target="form-jatra">Játra</button>
+                    <button class="btn lvl3" id="btn-zlucnik" data-action="show-details" data-target="form-zlucnik">Žlučník</button>
+                    <button class="btn lvl3" id="btn-slezina" data-action="show-details" data-target="form-slezina">Slezina</button>
+                    <button class="btn lvl3" id="btn-zaludek" data-action="show-details" data-target="form-zaludek">Žaludek</button>
+                    <button class="btn lvl3" id="btn-tracnik" data-action="show-details" data-target="form-tracnik">Tračník</button>
+                    <button class="btn lvl3" id="btn-nadledviny" data-action="show-details" data-target="form-nadledviny">Nadledviny</button>
                     <button class="btn lvl3" id="btn-ledviny" data-action="show-details" data-target="form-ledviny">Ledviny</button>
+                    <button class="btn lvl3" id="btn-deloha" data-action="show-details" data-target="form-deloha">Děloha</button>
+                    <button class="btn lvl3" id="btn-ovaria" data-action="show-details" data-target="form-ovaria">Ovária</button>
                 </div>
             </div>
         </div>
@@ -287,7 +304,15 @@
             <div id="form-mamma" class="detail-form" data-menu-id="btn-mamma" data-region="HRUDNÍK" data-category="MAMMA"><div class="flex-wrapper" id="mamma-grid"></div></div>
             <div id="form-jicen" class="detail-form" data-menu-id="btn-jicen" data-region="HRUDNÍK" data-category="JÍCEN"><div class="flex-wrapper" id="jicen-grid"></div></div>
             <div id="form-jatra" class="detail-form" data-menu-id="btn-jatra" data-region="BŘICHO" data-category="JÁTRA"><div class="flex-wrapper" id="jatra-grid"></div></div>
-            <div id="form-ledviny" class="detail-form" data-menu-id="btn-ledviny" data-region="BŘICHO" data-category="LEDVINY"><div class="flex-wrapper" id="ledviny-grid"></div></div></div>
+            <div id="form-zlucnik" class="detail-form" data-menu-id="btn-zlucnik" data-region="BŘICHO" data-category="ŽLUČNÍK"><div class="flex-wrapper" id="zlucnik-grid"></div></div>
+            <div id="form-slezina" class="detail-form" data-menu-id="btn-slezina" data-region="BŘICHO" data-category="SLEZINA"><div class="flex-wrapper" id="slezina-grid"></div></div>
+            <div id="form-zaludek" class="detail-form" data-menu-id="btn-zaludek" data-region="BŘICHO" data-category="ŽALUDEK"><div class="flex-wrapper" id="zaludek-grid"></div></div>
+            <div id="form-tracnik" class="detail-form" data-menu-id="btn-tracnik" data-region="BŘICHO" data-category="TRAČNÍK"><div class="flex-wrapper" id="tracnik-grid"></div></div>
+            <div id="form-nadledviny" class="detail-form" data-menu-id="btn-nadledviny" data-region="BŘICHO" data-category="NADLEDVINY"><div class="flex-wrapper" id="nadledviny-grid"></div></div>
+            <div id="form-ledviny" class="detail-form" data-menu-id="btn-ledviny" data-region="BŘICHO" data-category="LEDVINY"><div class="flex-wrapper" id="ledviny-grid"></div></div>
+            <div id="form-deloha" class="detail-form" data-region="BŘICHO" data-category="DĚLOHA"><div class="flex-wrapper"></div></div>
+            <div id="form-ovaria" class="detail-form" data-region="BŘICHO" data-category="OVÁRIA / ADNEXA"><div class="flex-wrapper"></div></div>
+            
     </section>
 
     <aside class="panel" id="report-panel">
@@ -600,7 +625,17 @@
                 'tračník': { g: 'M', '2s': 'tračníku' }, 'anus': { g: 'M', '2s': 'anu' }, 'anorectum': { g: 'N', '2s': 'anorecta' }, 'rectum': { g: 'N', '2s': 'recta' }, 
                 'sigmoideum': { g: 'N', '2s': 'sigmoidea' }, 'c. descendens': { g: 'N', '2s': 'colon descendens' }, 'c. transversum': { g: 'N', '2s': 'colon transversum' }, 'c. ascendens': { g: 'N', '2s': 'colon ascendens' }, 'caecum': { g: 'N', '2s': 'caeca' }, 'appendix': { g: 'M', '2s': 'appendixu' },
                 'nadledvina': { g: 'F', '2s': 'nadledviny' }, 'ledvina': { g: 'F', '2s': 'ledviny' }, 'moč. měchýř': { g: 'M', '2s': 'močového měchýře' }, 
-                'ovarium': { g: 'N', '2s': 'ovária' }, 'děloha': { g: 'F', '2s': 'dělohy' }, 'cervix': { g: 'M', '2s': 'cervixu' }, 'prostata': { g: 'F', '2s': 'prostaty' }, 'testes': { g: 'N', '2s': 'varlete' }
+                'ovarium': { g: 'N', '2s': 'ovária' }, 'děloha': { g: 'F', '2s': 'dělohy' }, 'cervix': { g: 'M', '2s': 'cervixu' }, 'prostata': { g: 'F', '2s': 'prostaty' }, 'testes': { g: 'N', '2s': 'varlete' },
+                'myom': { g: 'M', '1s': 'myom', '2s': 'myomu', '1p': 'myomy', '2p': 'myomů' },
+                'iud': { g: 'N', '1s': 'IUD' },
+                'endometrium': { g: 'N', '2s': 'endometria' },
+                'intramurální': { g: 'X', '2s': 'intramurálně' },
+                'subserózní': { g: 'X', '2s': 'subserózně' },
+                'submukózní': { g: 'X', '2s': 'submukózně' },
+                'adnexa': { g: 'N', '1p': 'adnexa', '2p': 'adnex' },
+                'myom': { g: 'M', '1s': 'myom', '2s': 'myomu', '1p': 'myomy', '2p': 'myomů' },
+                'komplexní cysta': { g: 'F', '1s': 'komplexní cysta', '2s': 'komplexní cysty', '1p': 'komplexní cysty', '2p': 'komplexních cyst' },
+                'prostá cysta': { g: 'F', '1s': 'prostá cysta', '2s': 'prosté cysty', '1p': 'prosté cysty', '2p': 'prostých cyst' }
 
                 },
                 adjectives: { 
@@ -634,7 +669,14 @@
             'form-mamma': { init: initMammaGrid, process: processMamma },
             'form-jicen': { init: initJicenGrid, process: processJicen },
             'form-jatra': { init: initJatraGrid, process: processJatra },
-            'form-ledviny': { init: initLedvinyGrid, process: processLedviny }
+            'form-zlucnik': { init: initZlucnikGrid, process: processZlucnik },
+            'form-slezina': { init: initSlezinaGrid, process: processSlezina },
+            'form-zaludek': { init: initZaludekGrid, process: processZaludek },
+            'form-tracnik': { init: initTracnikGrid, process: processTracnik },
+            'form-nadledviny': { init: initNadledvinyGrid, process: processNadledviny },
+            'form-ledviny': { init: initLedvinyGrid, process: processLedviny },
+            'form-deloha': { init: initDelohaGrid, process: processDeloha },
+            'form-ovaria': { init: initOvariaGrid, process: processOvaria }
         };
 
         function initMozekGrid() {
@@ -666,14 +708,18 @@
             let results = [];
             const t = form.querySelectorAll('.table-2col');
             const parse = (idx, cb) => t[idx]?.querySelectorAll('.row-label').forEach((lbl, i) => {
-                const wrapper = lbl.nextElementSibling, btns = wrapper.querySelectorAll('.attr-btn'), p = btns[0].textContent;
-                const inlineVal = wrapper.querySelector('.field-text')?.value || '';
-                if (p !== '0') cb(lbl.textContent.toLowerCase(), p, btns[1]?.textContent, i, inlineVal);
+                const pBtn = lbl.nextElementSibling.querySelector('.attr-btn');
+                const sBtn = lbl.nextElementSibling.nextElementSibling.querySelector('.attr-btn');
+                const inputCol = lbl.nextElementSibling.nextElementSibling.nextElementSibling;
+                const inlineVal = inputCol.querySelector('.field-text')?.value || '';
+                const p = pBtn.textContent;
+                
+                if (p !== '0') cb(lbl.textContent.toLowerCase(), p, sBtn?.textContent, i, inlineVal);
             });
 
             parse(0, (n, p, s) => {
                 const loc = s !== 'lokace' ? s : (n === 'pvs' ? 'v bílé hmotě' : 'různých lokacích');
-                if (n === 'fazekas') results.push({ id: 'faz', rep: `Ložiska v bílé hmotě chronické ischemie (Fazekas ${p}).`, concl: `${['Mírná','Střední','Pokročilá'][p-1]} chronická ischemizace bílé hmoty (Fazekas ${p}).`, conclType: 'incidental' });
+                if (n === 'fazekas') results.push({ id: 'faz', rep: `${['Ojedinělá tečkovitá ložiska', 'Mnohočetná ložiska s tendencí ke splývání', 'Rozsáhlé konfluující změny'][p-1]} v bílé hmotě.`, concl: `${['Mírná','Střední','Pokročilá'][p-1]} chronická ischemizace bílé hmoty (Fazekas ${p}).`, conclType: 'incidental' });
                 else if (n === 'lakuny') results.push({ id: 'lak', rep: `Vícečetné lakuny ${loc}.`, concl: `Postmalatické změny char. lakunárních infarktů (${loc}).`, conclType: 'incidental' });
                 else if (n === 'pvs') results.push({ id: 'pvs', rep: `Zvýrazněné perivaskulární prostory ${loc}.`, concl: `Zvýrazněné perivaskulární prostory (${loc}).`, conclType: 'incidental' });
                 else if (n === 'nespec. glioza') {
@@ -857,9 +903,20 @@
         }
 
         function initThyroideaGrid() {
-            const topHtml = `<div style="grid-column: span 3; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0 8px 0;">${createDynamicButton(['active'], 'zvětšení', 'static-text thy-global')}${createDynamicButton(['active'], 'akumulace RF', 'static-text thy-global')}</div>`;
-            const botHtml = `<div class="dynamic-inputs-container" style="grid-column: span 3; display: none; padding-top: 6px; border-top: 1px dashed var(--border-color); margin-top: 2px;"><div style="display: flex; gap: 5px; justify-content: center;"><input type="text" class="global-input field-size" placeholder="velikost" ><input type="text" class="global-input field-suv pet-specific" placeholder="SUV" ></div></div>`;
-            document.getElementById('thyroidea-grid').innerHTML = build3ColTable('Thyroidea', [{ nazev: 'resekce' }, { nazev: 'nodul FDG+', stavy: ['1', 'více'], trigger: true }, { nazev: 'nodul FDG-', stavy: ['1', 'více'], trigger: true }, { nazev: 'cysta', stavy: ['1', 'více'], trigger: true }],  '', topHtml, botHtml);
+            let html = `<div style="display: flex; flex-direction: column;">`;
+            html += build1ColTable('Thyroidea - difuzní', [
+                { stavy: ['active'], defaultState: 'zvětšení', extraClass: 'static-text thy-global' },
+                { stavy: ['active'], defaultState: 'akumulace RF', extraClass: 'static-text thy-global' }
+            ]);
+            html += build3ColTable('Thyroidea - fokální', [
+                { nazev: 'resekce' }, 
+                { nazev: 'nodul FDG+', stavy: ['1', 'více'], trigger: true }, 
+                { nazev: 'nodul FDG-', stavy: ['1', 'více'], trigger: true }, 
+                { nazev: 'cysta', stavy: ['1', 'více'], trigger: true }
+            ]);
+            html += `<div class="dynamic-inputs-container" style="display: none; width: var(--table-width); padding: 6px; border: 1px dashed var(--border-color); border-radius: 3px; background: rgba(255, 255, 255, 0.01);"><div style="display: flex; gap: 5px; justify-content: center;"><input type="text" class="global-input field-size" placeholder="velikost" ><input type="text" class="global-input field-suv pet-specific" placeholder="SUV" ></div></div>`;
+            html += `</div>`;
+            document.getElementById('thyroidea-grid').innerHTML = html;
         }
 
         function processThyroidea(form) {
@@ -899,20 +956,17 @@
                 { nazev: 'resekce' },
                 { nazev: 'RFA' }
             ]);
-            html += build2ColTable('Žlučník', [
-                { nazev: 'litiáza', stavy: ['sludge', '1', 'více'] },
-                { nazev: 'cholecystitis', stavy: ['mírná', 'výrazná'] },
-                { nazev: 'CHCE' }
-            ], 'max-content 1fr');
             html += `</div>`;
             document.getElementById('jatra-grid').innerHTML = html;
         }
 
         function processJatra(form) {
             let results = [];
-            
-            // Tabulka 0: Fokální nálezy (zůstává beze změny)
-            form.querySelectorAll('.table-3col')[0]?.querySelectorAll('.row-label').forEach((label, idx) => {
+            const t3 = form.querySelectorAll('.table-3col');
+            const t2 = form.querySelectorAll('.table-2col');
+
+            // Fokální nálezy
+            t3[0]?.querySelectorAll('.row-label').forEach((label, idx) => {
                 const p = label.previousElementSibling.querySelector('.attr-btn').textContent;
                 const l = label.nextElementSibling.querySelector('.attr-btn').textContent;
                 if (p === '0' && l === '0') return;
@@ -924,95 +978,282 @@
                 if (name === 'cysta') rep = `${isPlural ? 'Prosté cysty' : 'Prostá cysta'} jater ${side}.`;
                 else if (name === 'incidentalom') rep = `${isPlural ? 'Incidentalomy' : 'Incidentalom'} jater ${side}.`;
                 else if (name === 'hemangiom') rep = `${isPlural ? 'Hemangiomy' : 'Hemangiom'} jater ${side}.`;
-                else if (name === 'dilatace žlučovodů') {
-                    rep = `Dilatace intrahepatálních žlučovodů ${side}.`;
-                    concl = `Dilatace intrahepatálních žlučovodů ${side}.`;
-                    cType = 'incidental';
-                }
+                else if (name === 'dilatace žlučovodů') { rep = `Dilatace intrahepatálních žlučovodů ${side}.`; concl = `Dilatace intrahepatálních žlučovodů ${side}.`; cType = 'incidental'; }
                 if (rep) results.push({ id: `fok-${idx}`, rep, concl, conclType: cType });
             });
 
-            // Tabulka 1: Difuzní parenchym (explicitní mapování textů)
-            form.querySelectorAll('.table-2col')[0]?.querySelectorAll('.row-label').forEach((label, idx) => {
+            // Difuzní nálezy
+            t2[0]?.querySelectorAll('.row-label').forEach((label, idx) => {
                 const val = label.nextElementSibling.querySelector('.attr-btn').textContent;
                 if (val === '0') return;
                 const name = label.textContent.toLowerCase();
                 let rep = '', concl = '', cType = 'incidental';
-                
-                if (name === 'zvětšení') {
-                    if (val === 'mírné') {
-                        rep = "Mírné zvětšení jater.";
-                        concl = "Mírná hepatomegalie.";
-                    } else if (val === 'výrazné') {
-                        rep = "Výrazné zvětšení jater.";
-                        concl = "Výrazná hepatomegalie.";
-                    }
-                } else if (name === 'difuzní léze') {
-                    if (val === 'fibróza') {
-                        rep = "Jaterní parenchym je mírně nehomogenní.";
-                        cType = null; // Do závěru nejde
-                    } else if (val === 'cirhóza') {
-                        rep = "Zmenšení jater s nerovným laločnatým povrchem a nehomogenním parenchymem.";
-                        concl = "Známky jaterní cirhózy.";
-                    }
-                } else if (name === 'portální hypertenze' && val === '+') {
-                    rep = "Rozšířená v. portae, kolaterály.";
-                    concl = "Známky portální hypertenze.";
+                if (name === 'zvětšení') { rep = `${capitalize(val)} zvětšení jater.`; concl = `${capitalize(val)} hepatomegalie.`; }
+                else if (name === 'difuzní léze') { 
+                    if (val === 'fibróza') rep = "Jaterní parenchym je mírně nehomogenní."; 
+                    else if (val === 'cirhóza') { rep = "Zmenšení jater s laločnatým povrchem."; concl = "Známky jaterní cirhózy."; cType = 'main'; }
                 }
+                else if (name === 'portální hypertenze') { rep = "Rozšířená v. portae, kolaterály."; concl = "Známky portální hypertenze."; cType = 'main'; }
                 if (rep) results.push({ id: `dif-${idx}`, rep, concl, conclType: cType });
             });
 
-            // Tabulka 2: Operace (skloňování a pády)
-            form.querySelectorAll('.table-3col')[1]?.querySelectorAll('.row-label').forEach((label, idx) => {
+            // Operace
+            t3[1]?.querySelectorAll('.row-label').forEach((label, idx) => {
                 const p = label.previousElementSibling.querySelector('.attr-btn').textContent;
                 const l = label.nextElementSibling.querySelector('.attr-btn').textContent;
                 if (p === '0' && l === '0') return;
                 const side = (p !== '0' && l !== '0') ? 'bilat.' : (p !== '0' ? 'vpravo' : 'vlevo');
-                const name = label.textContent.toLowerCase();
-                
-                let opText = '';
-                if (name === 'hemihepatektomie') opText = "hemihepatektomii";
-                else if (name === 'resekce') opText = "resekci jater";
-                else if (name === 'rfa') opText = "RFA jater";
-                
-                if (opText) results.push({ id: `op-${idx}`, rep: `Stav po ${opText} ${side}.`, concl: '' });
+                results.push({ id: `op-${idx}`, rep: `Stav po ${label.textContent} ${side}.`, concl: '' });
             });
+            return results;
+        }
 
-            // Tabulka 3: Žlučník (explicitní mapování)
-            form.querySelectorAll('.table-2col')[1]?.querySelectorAll('.row-label').forEach((label, idx) => {
+        function initZlucnikGrid() {
+            let html = `<div style="display: flex; flex-direction: column;">`;
+            html += build2ColTable('Žlučník a cesty', [
+                { nazev: 'litiáza', stavy: ['sludge', '1', 'více'] },
+                { nazev: 'cholecystitis', stavy: ['mírná', 'výrazná'] },
+                { nazev: 'dilatace d. choledochus', stavy: ['mírná', 'výrazná'] },
+                { nazev: 'CHCE' }
+            ], 'max-content 1fr');
+            html += `</div>`;
+            document.getElementById('zlucnik-grid').innerHTML = html;
+        }
+        function processZlucnik(form) {
+            let results = [];
+            form.querySelectorAll('.table-2col .row-label').forEach((label, idx) => {
                 const val = label.nextElementSibling.querySelector('.attr-btn').textContent;
                 if (val === '0') return;
                 const name = label.textContent.toLowerCase();
                 let rep = '', concl = '', cType = 'incidental';
-                
+
                 if (name === 'litiáza') {
-                    if (val === 'sludge') {
-                        rep = "Žlučník se sludgem.";
-                        concl = "Sludge ve žlučníku.";
-                    } else if (val === '1') {
-                        rep = "Žlučník se solitárním konkrementem.";
-                        concl = "Cholecystolitiáza.";
-                    } else if (val === 'více') {
-                        rep = "Žlučník s vícečetnými konkrementy.";
-                        concl = "Vícečetná cholecystolitiáza.";
-                    }
+                    const m = { 'sludge': 'se sludgem', '1': 'se solitárním konkrementem', 'více': 's vícečetnou litiázou' };
+                    rep = `Žlučník ${m[val]}.`;
+                    concl = val === 'sludge' ? "Sludge ve žlučníku." : "Cholecystolitiáza.";
                 } else if (name === 'cholecystitis') {
-                    if (val === 'mírná') {
-                        rep = "Mírně zesílená stěna žlučníku.";
-                        concl = "Mírná cholecystitis.";
-                    } else if (val === 'výrazná') {
-                        rep = "Nepravidelně zesálená stěna žlučníku, edém okolí.";
-                        concl = "Cholecystitis.";
-                    }
+                    rep = `${capitalize(val)} zesílení stěny žlučníku, edém okolí.`;
+                    concl = `${capitalize(val)} cholecystitis.`;
+                    cType = 'main';
+                } else if (name.includes('choledochus')) {
+                    rep = `${capitalize(val)} dilatace d. choledochus.`;
+                    concl = `${capitalize(val)} dilatace d. choledochus.`;
                 } else if (name === 'chce') {
                     rep = "Stav po cholecystektomii.";
-                    concl = '';
                     cType = null;
                 }
-                
                 if (rep) results.push({ id: `zl-${idx}`, rep, concl, conclType: cType });
             });
+            return results;
+        }
 
+        function initSlezinaGrid() {
+            const data = [
+                { nazev: 'Zvětšená', stavy: ['+'], inlineInput: 'mm' },
+                { nazev: 'Difuzní aktivita', stavy: ['+'] },
+                { nazev: 'Cystoid', stavy: ['1', 'více'] },
+                { nazev: 'Hemangiom', stavy: ['1', 'více'] },
+                { nazev: 'Infarkt', stavy: ['1', 'více'] },
+                { nazev: 'Splenektomie', stavy: ['+'] },
+                { nazev: 'Regenerát', stavy: ['+'] }
+            ];
+            document.getElementById('slezina-grid').innerHTML = build2ColTable('Slezina', data);
+        }
+
+        function processSlezina(form) {
+            let results = [];
+            form.querySelectorAll('.row-label').forEach((label, idx) => {
+                const pBtn = label.nextElementSibling.querySelector('.attr-btn');
+                const p = pBtn.textContent;
+                
+                if (p === '0') return;
+                
+                const name = label.textContent.toLowerCase();
+                const inputCol = label.nextElementSibling.nextElementSibling.nextElementSibling;
+                const inlineVal = inputCol ? inputCol.querySelector('.field-text')?.value.trim() : '';
+                
+                let rep = '', concl = '', cType = null;
+
+                if (name === 'zvětšená') {
+                    const mmStr = inlineVal ? ` (KK diametr ${inlineVal} mm)` : '';
+                    rep = `Zvětšená${mmStr}.`;
+                    concl = `Splenomegalie.`;
+                    cType = 'incidental';
+                } else if (name === 'difuzní aktivita') {
+                    rep = "Difuzně zvýšená akumulací RF.";
+                    concl = "Difuzně zvýšená aktivita sleziny (v.s. reaktivně/zánětlivě).";
+                    cType = 'incidental';
+                } else if (name === 'cystoid') {
+                    rep = p === '1' ? "Cystoidní léze." : "Vícečetné cystoidní léze sleziny.";
+                } else if (name === 'hemangiom') {
+                    rep = p === '1' ? "Vícečetná ložiska (hemangiomy)." : "Vícečetné hemangiomy sleziny.";
+                } else if (name === 'infarkt') {
+                    rep = p === '1' ? "Klínovité ložisko pravděpod. po infarktu." : "Vícečetná klínovitá ložiska pravědpod. po infarktech.";
+                    cType = 'incidental';
+                } else if (name === 'splenektomie') {
+                    rep = "Po splenektomii.";
+                    cType = 'incidental';
+                } else if (name === 'regenerát') {
+                    rep = "Nodulus charakteru regenerátu.";
+                }
+
+                if (rep) {
+                    results.push({ id: `slez-${idx}`, rep, concl, conclType: cType });
+                }
+            });
+            return results;
+        }
+
+        function initZaludekGrid() {
+            const data = [
+                { nazev: 'Resekce', stavy: ['B-I', 'B-II', 'R-Y', 'sleeve', 'TG'] },
+                { nazev: 'Bariatrie', stavy: ['bandáž', 'bypass'] },
+                { nazev: 'Fundoplikace', stavy: ['+'] },
+                { nazev: 'Sonda', stavy: ['PEG', 'NGS', 'NJS'] },
+                { nazev: 'Zesílení stěny', stavy: ['mírné', 'výrazné'], secondaryStavy: ['difuzně', 'kardie', 'korpus', 'antrum', 'pylorus'], secondaryDefault: 'lokace' }
+            ];
+            document.getElementById('zaludek-grid').innerHTML = build2ColTable('Žaludek', data);
+        }
+
+        function processZaludek(form) {
+            let results = [];
+            form.querySelectorAll('.row-label').forEach((label, idx) => {
+                const pBtn = label.nextElementSibling.querySelector('.attr-btn');
+                const sBtn = label.nextElementSibling.nextElementSibling.querySelector('.attr-btn');
+                const p = pBtn.textContent;
+                const s = sBtn ? sBtn.textContent : '';
+                if (p === '0') return;
+                
+                const name = label.textContent.toLowerCase();
+                let rep = '', concl = '', cType = null;
+
+                if (name === 'resekce') {
+                    const map = { 'B-I': 'Billroth I', 'B-II': 'Billroth II', 'R-Y': 'Roux-en-Y', 'sleeve': 'sleeve resekci', 'TG': 'totální gastrektomii' };
+                    rep = `Stav po resekci žaludku typu ${map[p] || p}.`;
+                } else if (name === 'bariatrie') {
+                    rep = `Stav po bariatrické operaci (${p === 'bandáž' ? 'bandáž žaludku' : 'gastrický bypass'}).`;
+                } else if (name === 'fundoplikace') {
+                    rep = "Známky fundoplikace žaludku.";
+                } else if (name === 'sonda') {
+                    rep = `Zavedena ${p} sonda.`;
+                } else if (name === 'zesílení stěny') {
+                    const loc = s === 'lokace' ? '' : ` v oblasti ${s}`;
+                    rep = `${capitalize(p)} zesílení stěny žaludku${loc}.`;
+                    if (p === 'výrazné') {
+                        concl = `Zesílení stěny žaludku${loc}.`;
+                        cType = 'incidental';
+                    }
+                }
+                if (rep) results.push({ id: `zal-${idx}`, rep, concl, conclType: cType });
+            });
+            return results;
+        }
+
+        function initTracnikGrid() {
+            const data = [
+                { nazev: 'Resekce', stavy: ['PHK', 'LHK', 'sigmoidea', 'NPR', 'amputace'] },
+                { nazev: 'Appendektomie', stavy: ['APPE'] },
+                { nazev: 'Stomie', stavy: ['kolostomie', 'ileostomie'], secondaryStavy: ['vpravo', 'vlevo'], secondaryDefault: 'strana' },
+                { nazev: 'Fokus aktivity', stavy: ['fokus RF', 'více fokusů'], secondaryStavy: ['caecum', 'ascendens', 'transversum', 'descendens', 'sigmoideum', 'rektum'], secondaryDefault: 'kde' },
+                { nazev: 'Zesílení stěny', stavy: ['mírné', 'výrazné'], secondaryStavy: ['tračník', 'rektum'], secondaryDefault: 'lokace' },
+                { nazev: 'Divertikulóza', stavy: ['+', 'divertikulitida'], secondaryStavy: ['sigmoideum', 'descendens', 'difuzně'], secondaryDefault: 'lokace' }
+            ];
+            document.getElementById('tracnik-grid').innerHTML = build2ColTable('Tračník', data);
+        }
+
+        function processTracnik(form) {
+            let results = [];
+            form.querySelectorAll('.row-label').forEach((label, idx) => {
+                const pBtn = label.nextElementSibling.querySelector('.attr-btn');
+                const sBtn = label.nextElementSibling.nextElementSibling.querySelector('.attr-btn');
+                const p = pBtn.textContent;
+                const s = sBtn ? sBtn.textContent : '';
+                if (p === '0') return;
+                
+                const name = label.textContent.toLowerCase();
+                let rep = '', concl = '', cType = null;
+
+                if (name === 'resekce') {
+                    const map = { 'PHK': 'pravostranné hemikolektomii', 'LHK': 'levostranné hemikolektomii', 'sigmoidea': 'resekci sigmoidea', 'NPR': 'nízké přední resekci rekta', 'amputace': 'amputaci rekta' };
+                    rep = `Stav po ${map[p] || p}.`;
+                } else if (name === 'appendektomie') {
+                    rep = "Stav po appendektomii.";
+                } else if (name === 'stomie') {
+                    const loc = s === 'strana' ? '' : ` ${s}`;
+                    rep = `Vyvedena ${p}${loc}.`;
+                } else if (name === 'fokus aktivity') {
+                    const loc = s === 'kde' ? 'tračníku' : s;
+                    rep = `Ložiskově zvýšená akumulace RF v oblasti ${loc} (${p}).`;
+                    concl = `Fokální aktivita v oblasti ${loc} - k dovyšetření (v.s. polyp/tumor).`;
+                    cType = 'incidental';
+                } else if (name === 'zesílení stěny') {
+                    const loc = s === 'lokace' ? 'střeva' : s;
+                    rep = `${capitalize(p)} zesílení stěny v oblasti ${loc}.`;
+                    if (p === 'výrazné') {
+                        concl = `Zesílení stěny v oblasti ${loc}.`;
+                        cType = 'incidental';
+                    }
+                } else if (name === 'divertikulóza') {
+                    const loc = s === 'lokace' ? '' : ` v oblasti ${s}`;
+                    rep = `Divertikulóza tračníku${loc}${p === 'divertikulitida' ? ' se známkami zánětlivé iritace okolí' : ''}.`;
+                    if (p === 's divertikulitidou') {
+                        concl = `Známky divertikulitidy${loc}.`;
+                        cType = 'incidental';
+                    }
+                }
+                if (rep) results.push({ id: `trac-${idx}`, rep, concl, conclType: cType });
+            });
+            return results;
+        }
+
+        function initNadledvinyGrid() {
+            document.getElementById('nadledviny-grid').innerHTML = build3ColTable('Nadledviny', [
+                { nazev: 'Aktivita+', stavy: ['+'] },
+                { nazev: 'Hyperplázie', stavy: ['+'] },
+                { nazev: 'Incidentalom', stavy: ['+'] },
+                { nazev: 'Adenom', stavy: ['+'] },
+                { nazev: 'Myelolipom', stavy: ['+'] },
+                { nazev: 'Adrenalektomie', stavy: ['+'] }
+            ]);
+        }
+        function processNadledviny(form) {
+            let results = [];
+            form.querySelectorAll('.table-3col .row-label').forEach((label, idx) => {
+                const name = label.textContent.toLowerCase();
+                const p = label.previousElementSibling.querySelector('.attr-btn').textContent;
+                const l = label.nextElementSibling.querySelector('.attr-btn').textContent;
+                
+                if (p === '0' && l === '0') return;
+                
+                const isBilat = (p !== '0' && l !== '0');
+                const locRep = isBilat ? 'bilat.' : (p !== '0' ? 'vpravo' : 'vlevo');
+                const locGen = isBilat ? 'obou nadledvin' : (p !== '0' ? 'pravé nadledviny' : 'levé nadledviny');
+                
+                let rep = '', concl = '', cType = 'incidental';
+
+                if (name === 'aktivita+') {
+                    rep = `Zvýšená akumulace RF (zřejmě funkčně) ${locRep}.`;
+                } else if (name === 'hyperplázie') {
+                    rep = `Zvětšení ${locGen} (${isBilat ? 'hyperplázie' : 'hyperplázie'}).`;
+                    concl = `Hyperplázie ${locGen}.`;
+                } else if (name === 'incidentalom') {
+                    rep = `${isBilat ? 'Ložiska' : 'Ložisko'} bez zvýšené akumulace RF ${locRep} (${isBilat ? 'incidentalomy' : 'incidentalom'}).`;
+                    concl = `${isBilat ? 'Incidentalomy' : 'Incidentalom'} ${locGen}.`;
+                } else if (name === 'adenom') {
+                    rep = `${isBilat ? 'Drobná ložiska' : 'Drobné ložisko'} bez zvýšené akumulace RF ${locRep} (${isBilat ? 'adenomy' : 'adenom'}).`;
+                    concl = `${isBilat ? 'Adenomy' : 'Adenom'} ${locGen}.`;
+                } else if (name === 'myelolipom') {
+                    rep = `${isBilat ? 'Ložiska' : 'Ložisko'} tukové denzity ${locRep} (${isBilat ? 'myelolipomy' : 'myelolipom'}).`;
+                    concl = `${isBilat ? 'Myelolipomy' : 'Myelolipom'} ${locGen}.`;
+                } else if (name === 'adrenalektomie') {
+                    rep = `Stav po odstranění ${locGen} (adrenalektomie).`;
+                    cType = null; // Stavy po operaci se nevypisují do závěru
+                }
+                
+                if (rep) {
+                    results.push({ id: `nadl-${idx}`, rep, concl, conclType: cType });
+                }
+            });
             return results;
         }
 
@@ -1066,6 +1307,93 @@
                     if (isBilat && p === l) rep = `Stav po parciální resekci ${opPady[p]} pólu bilat.`; else { if (p !== '0') rep += `Stav po parciální resekci ${opPady[p]} pólu vpravo. `; if (l !== '0') rep += `Stav po parciální resekci ${opPady[l]} pólu vlevo.`; }
                 } else if (name === 'nefrektomie') rep = `Stav po nefrektomii ${side}.`;
                 return { rep: rep.trim() };
+            });
+            return results;
+        }
+
+        function initDelohaGrid() {
+            let h = `<div style="display: flex; flex-direction: column;">`;
+            h += build2ColTable('Děloha', [
+                { nazev: 'Myom', stavy: ['1', 'více'], secondaryStavy: ['intramurální', 'subserózní', 'submukózní'], secondaryDefault: 'kde' },
+                { nazev: 'Endometrium', stavy: ['zesílení', 'tekutina'], secondaryStavy: ['mírné/á', 'výrazné/á'], secondaryDefault: 'intenzita' },
+                { nazev: 'Akumulace RF', stavy: ['+'] },
+                { nazev: 'IUD', stavy: ['+'] },
+                { nazev: 'Hysterektomie', stavy: ['+'] }
+            ], 'max-content 1fr');
+            document.getElementById('form-deloha').innerHTML = h + `</div>`;
+        }
+        function processDeloha(form) {
+            let results = [];
+            form.querySelectorAll('.table-2col .row-label').forEach((label, idx) => {
+                const pBtn = label.nextElementSibling.querySelector('.attr-btn'), sBtn = label.nextElementSibling.nextElementSibling.querySelector('.attr-btn');
+                const p = pBtn.textContent, s = sBtn ? sBtn.textContent : '';
+                if (p === '0') return;
+                const name = label.textContent.toLowerCase();
+                let rep = '', concl = '', cType = 'incidental';
+
+                if (name === 'myom') {
+                    const adj = p === '1' ? 'Solitární' : 'Vícečetné';
+                    const noun = p === '1' ? 'myom' : 'myomy';
+                    const loc = (s === 'kde' || !s) ? '' : ` (${s})`;
+                    rep = `${adj} ${noun} dělohy${loc}.`;
+                    concl = p === '1' ? 'Myom dělohy.' : 'Uterus myomatosus.';
+                } else if (name === 'endometrium') {
+                    const int = s === 'intenzita' ? '' : ` ${s.split('/')[p === 'zesílení' ? 0 : 1]}`;
+                    rep = `${capitalize(int)} ${p === 'zesílení' ? 'zesílení sliznice endometria' : 'kolekce tekutiny v endometrální dutině'}.`;
+                    concl = p === 'zesílení' ? 'Zesílení endometria.' : 'Fluidometra.';
+                } else if (name === 'akumulace rf') {
+                    rep = "Mírná difuzní fyziologická akumulace RF v endometriu.";
+                    cType = null;
+                } else if (name === 'iud') {
+                    rep = "Intrauterinní tělísko (IUD) v děložní dutině in situ.";
+                    cType = null;
+                } else if (name === 'hysterektomie') {
+                    rep = "Stav po hysterektomii.";
+                    concl = "";
+                    cType = null;
+                }
+                if (rep) results.push({ id: `ut-${idx}`, rep, concl, conclType: cType });
+            });
+            return results;
+        }
+
+        function initOvariaGrid() {
+            let h = `<div style="display: flex; flex-direction: column;">`;
+            h += build3ColTable('Ovária / Adnexa', [
+                { nazev: 'Prostá cysta', stavy: ['1', 'více'] },
+                { nazev: 'Komplexní cysta', stavy: ['1', 'více'], trigger: true },
+                { nazev: 'Akumulace RF', stavy: ['+'] },
+                { nazev: 'Adnexektomie', stavy: ['+'] }
+            ]);
+            h += `<div class="dynamic-inputs-container" style="display: none; width: var(--table-width); padding: 6px; border: 1px dashed var(--border-color); border-radius: 3px; background: rgba(255, 255, 255, 0.01);"><div style="display: flex; gap: 5px; justify-content: center;"><input type="text" class="global-input field-size" placeholder="velikost cysty (mm)" ></div></div>`;
+            document.getElementById('form-ovaria').innerHTML = h + `</div>`;
+        }
+        function processOvaria(form) {
+            let results = [];
+            form.querySelectorAll('.table-3col .row-label').forEach((label, idx) => {
+                const p = label.previousElementSibling.querySelector('.attr-btn').textContent, l = label.nextElementSibling.querySelector('.attr-btn').textContent;
+                if (p === '0' && l === '0') return;
+                const name = label.textContent.toLowerCase(), side = (p !== '0' && l !== '0') ? 'bilat.' : (p !== '0' ? 'vpravo' : 'vlevo'), isPl = (p === 'více' || l === 'více' || side === 'bilat.');
+                let rep = '', concl = '', cType = 'incidental';
+
+                if (name === 'prostá cysta') {
+                    const adj = isPl ? 'Vícečetné prosté cysty' : 'Solitární prostá cysta';
+                    rep = `${adj} ovaria ${side}.`;
+                } else if (name === 'komplexní cysta') {
+                    const sz = form.querySelector('.field-size')?.value;
+                    const adj = isPl ? 'Vícečetné komplexní cystické léze' : 'Komplexní cystická léze';
+                    rep = `${adj} adnexálně ${side}${sz ? ' vel. do ' + sz + ' mm' : ''}.`;
+                    concl = `Komplexní cystická léze ovaria ${side} k UZ korelaci.`;
+                    cType = 'incidental'; // Přesunuto do vedlejších
+                } else if (name === 'akumulace rf') {
+                    rep = `Zvýšená ložisková akumulace RF v ovariu ${side} fyziologického charakteru (ovulační projev).`;
+                    cType = null;
+                } else if (name === 'adnexektomie') {
+                    rep = `Stav po adnexektomii ${side}.`;
+                    concl = "";
+                    cType = null;
+                }
+                if (rep) results.push({ id: `ov-${idx}`, rep, concl, conclType: cType });
             });
             return results;
         }
@@ -1448,7 +1776,7 @@
             return `
             <style>.custom-btn-width { width: 65px !important; flex-shrink: 0; }</style>
             <div style="flex-basis: 100%; display: flex; flex-direction: column; align-items: flex-start;">
-                <div class="table-2col custom-text-section" style="display: flex; flex-direction: column; gap: 4px; align-items: stretch; margin-top: 0;">
+                <div class="custom-text-section">
                     <div class="table-header">${capitalize(organName.toLowerCase())} - Vlastní text</div>
                     <div class="form-row" style="flex-wrap: nowrap; margin: 0; padding: 0 4px;">
                         ${createDynamicButton(['popis'], 'popis', 'btn-custom-rep trigger-text-inline custom-btn-width')}
@@ -1775,8 +2103,9 @@
             updateHierarchy(); checkDynamicInputs(btn); updateRowHighlight(btn); triggerFormUpdate(btn);
         }
 
-        function build3ColTable(title, dataArray, extraAttrs = '', prependHtml = '', appendHtml = '') { return `<div class="table-3col" ${extraAttrs}><div class="table-header">${title}</div>${prependHtml}<div class="table-col-title">P</div><div></div><div class="table-col-title">L</div>${dataArray.map(i => `<div>${createDynamicButton(i.stavy || ['+'], "0", i.trigger ? 'dynamic-trigger' : '')}</div><div class="row-label">${i.nazev}</div><div>${createDynamicButton(i.stavy || ['+'], "0", i.trigger ? 'dynamic-trigger' : '')}</div>`).join('')}${appendHtml}</div>`; }
-        function build2ColTable(title, dataArray, cols = 'max-content 1fr', extraAttrs = '') { return `<div class="table-2col" style="grid-template-columns: ${cols};" ${extraAttrs}><div class="table-header">${title}</div>${dataArray.map(i => `<div class="row-label">${i.nazev}</div><div class="${i.secondaryStavy ? 'diffuse-row ' : ''}" style="display:flex; gap:4px; justify-content:flex-start; align-items:center;">${createDynamicButton(i.stavy || ['+'], "0", (i.secondaryStavy ? "btn-primary " : "") + (i.inlineInput ? 'trigger-text-inline' : ''))}${i.secondaryStavy ? createDynamicButton(i.secondaryStavy, i.secondaryDefault || "0", "btn-secondary") : ''}${i.inlineInput ? `<input type="text" class="global-input field-text hidden" placeholder="${i.inlineInput}" oninput="triggerFormUpdate(this)" style="width:120px;">` : ''}</div>`).join('')}</div>`; }
+        function build1ColTable(title, dataArray, extraAttrs = '') { return `<div class="table-1col" ${extraAttrs}><div class="table-header">${title}</div><div style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px; align-items:center; width: 100%;">${dataArray.map(i => `${i.nazev ? `<div class="row-label" style="min-height:auto;">${i.nazev}</div>` : ''}${createDynamicButton(i.stavy || ['+'], i.defaultState || "0", i.extraClass || '')}`).join('')}</div></div>`; }
+        function build2ColTable(title, dataArray, ignoredCols = '', extraAttrs = '') { return `<div class="table-2col" ${extraAttrs}><div class="table-header">${title}</div>${dataArray.map(i => `<div class="row-label">${i.nazev}</div><div class="btn-col-1" style="display:flex; align-items:center;">${createDynamicButton(i.stavy || ['+'], "0", (i.secondaryStavy ? "btn-primary " : "") + (i.inlineInput ? 'trigger-text-inline ' : '') + (i.extraClass || ''))}</div><div class="btn-col-2" style="display:flex; align-items:center;">${i.secondaryStavy ? createDynamicButton(i.secondaryStavy, i.secondaryDefault || "0", "btn-secondary") : ''}</div><div class="input-col" style="display:flex; align-items:center; width:100%;">${i.inlineInput ? `<input type="text" class="global-input field-text hidden" placeholder="${i.inlineInput}" oninput="triggerFormUpdate(this)" style="flex:1; min-width: 50px;">` : ''}</div>`).join('')}</div>`; }
+        function build3ColTable(title, dataArray, extraAttrs = '') { return `<div class="table-3col" ${extraAttrs}><div class="table-header">${title}</div><div class="table-col-title">P</div><div></div><div class="table-col-title">L</div>${dataArray.map(i => `<div>${createDynamicButton(i.stavy || ['+'], "0", i.trigger ? 'dynamic-trigger ' + (i.extraClass || '') : (i.extraClass || ''))}</div><div class="row-label">${i.nazev}</div><div>${createDynamicButton(i.stavy || ['+'], "0", i.trigger ? 'dynamic-trigger ' + (i.extraClass || '') : (i.extraClass || ''))}</div>`).join('')}</div>`; }
 
         function checkDynamicInputs(btn) {
             if (!btn) return; 
@@ -2029,6 +2358,39 @@
         }, { passive: false });
 
         document.addEventListener('mousedown', (e) => { if (e.target.classList.contains('field-size')) { let d = e.target.dataset.dims ? JSON.parse(e.target.dataset.dims) : []; if (d.length > 0 && d.length < 3 && d[d.length - 1] !== null) { d.push(null); e.target.dataset.dims = JSON.stringify(d); e.target.value = d.map(v => v === null ? '' : v).join('x'); } } });
+
+        // Implementace tažení myší pro skrolování panelů
+        document.querySelectorAll('.content-area').forEach(container => {
+            let isDown = false;
+            let startY;
+            let scrollTop;
+
+            container.addEventListener('mousedown', (e) => {
+            if (e.target.closest('button, input, .drag-box, .slider, .switch, [contenteditable="true"]') || e.offsetX > container.clientWidth) return;
+            isDown = true;
+            container.classList.add('is-dragging-scroll');
+                startY = e.pageY;
+                scrollTop = container.scrollTop;
+            });
+
+            container.addEventListener('mouseleave', () => {
+                isDown = false;
+                container.classList.remove('is-dragging-scroll');
+            });
+
+            container.addEventListener('mouseup', () => {
+                isDown = false;
+                container.classList.remove('is-dragging-scroll');
+            });
+
+            container.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault(); 
+                const y = e.pageY;
+                const walk = (y - startY) * 1.5; 
+                container.scrollTop = scrollTop - walk;
+            });
+        });
     </script>
 </body>
 </html>
