@@ -88,6 +88,8 @@
         .global-input { background-color:rgba(255, 255, 255, 0.02); border:1px solid var(--border-color); color:#fff; padding:4px 6px; font-size:11px; border-radius:2px; outline:none; transition:border-color 0.2s; }
         .global-input:focus { border-color:var(--accent-selected); background-color:rgba(255, 255, 255, 0.05); }
         .global-input::placeholder { color:#5a626b; }
+        .custom-state-input { width: 100%; min-width: 40px; padding: 2px 4px; font-size: 10px; text-align: center; height: 22px; box-sizing: border-box; background: rgba(0, 90, 158, 0.2); border: 1px solid #58a6ff; border-radius: 2px; color: #fff; }
+        body.compact-mode .custom-state-input { height: 18px; font-size: 9px; padding: 1px 2px; }
         .field-size { width:100px; flex-shrink:0; cursor:ns-resize; }
         .field-suv { width:40px; flex-shrink:0; cursor:ns-resize; }
         .field-text { flex:1; min-width:50px; }
@@ -150,6 +152,7 @@
         .content-area { overflow-y:auto; flex:1; width:100%; min-height:0; scroll-behavior:smooth; scrollbar-width:none; -ms-overflow-style:none; }
         .content-area::-webkit-scrollbar { display:none; }
         .content-area.is-dragging-scroll { cursor:grabbing !important; user-select:none; scroll-behavior:auto !important; }
+        body.no-pet .pet-specific-item { display: none !important; }
     </style>
 </head>
 <body>
@@ -311,7 +314,7 @@
                 <div id="loziska-skelet-container" class="lvl3-container"></div>
                 <button class="btn lvl2" id="btn-skelet-organy" data-action="toggle-sub" data-target="skelet-organy-sub">Orgány</button>
                 <div id="skelet-organy-sub" class="hidden lvl3-container">
-                    <button class="btn lvl3" id="btn-skelet" data-action="show-details" data-target="form-skelet">Skelet</button>
+                    <button class="btn lvl3" id="btn-skelet" data-action="show-details" data-target="form-skelet">Kosti / Klouby</button>
                     <button class="btn lvl3" id="btn-svaly" data-action="show-details" data-target="form-svaly">Svaly / Měkké tkáně</button>
                 </div>
             </div>
@@ -354,7 +357,7 @@
             <div id="form-prostata" class="detail-form" data-menu-id="btn-prostata" data-region="BŘICHO" data-category="PROSTATA"><div class="flex-wrapper" id="prostata-grid"></div></div>
             <div id="form-testes" class="detail-form" data-menu-id="btn-testes" data-region="BŘICHO" data-category="TESTES / SKROTUM"><div class="flex-wrapper" id="testes-grid"></div></div>            
             <div id="form-velke-cevy" class="detail-form" data-menu-id="btn-velke-cevy" data-region="BŘICHO" data-category="CÉVY"><div class="flex-wrapper" id="velke-cevy-grid"></div></div>
-            <div id="form-skelet" class="detail-form" data-menu-id="btn-skelet" data-region="SKELET" data-category="SKELET"><div class="flex-wrapper" id="skelet-grid"></div></div>
+            <div id="form-skelet" class="detail-form" data-menu-id="btn-skelet" data-region="SKELET" data-category="SKELET"><div class="flex-wrapper" id="kostiklouby-grid"></div></div>
             <div id="form-svaly" class="detail-form" data-menu-id="btn-svaly" data-region="SKELET" data-category="SVALY"><div class="flex-wrapper" id="svaly-grid"></div></div>
             
     </section>
@@ -791,7 +794,7 @@
             'form-prostata': { init: initProstataGrid, process: processProstata },
             'form-testes': { init: initTestesGrid, process: processTestes },
             'form-velke-cevy': { init: initVelkeCevyGrid, process: processVelkeCevy },
-            'form-skelet': { init: initSkeletGrid, process: processSkelet },
+            'form-skelet': { init: initKostiKloubyGrid, process: processKostiKlouby },
             'form-svaly': { init: initSvalyGrid, process: processSvaly },
         };
 
@@ -2117,150 +2120,320 @@
             return results;
         }
 
-        function initSkeletGrid() {
+        function initKostiKloubyGrid() {
+            const vC = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'vlastní'];
+            const vT = [...Array.from({length: 12}, (_, i) => `T${i+1}`), 'vlastní'];
+            const vL = [...Array.from({length: 5}, (_, i) => `L${i+1}`), 'vlastní'];
+            const vR = [...Array.from({length: 12}, (_, i) => `${i+1}.`), 'vlastní'];
+
+            const buildTraumaTable = (title, subType) => `
+                <div class="table-3col" data-sub-type="${subType}" style="grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 8px;">
+                    <div class="table-header">${title}</div>
+                    <div class="table-col-title">R</div><div class="table-col-title">C</div><div class="table-col-title">L</div>
+                    
+                    <div></div><div>${createDynamicButton(vC, "C obratel", "central-btn")}</div><div></div>
+                    <div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Scapula", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Scapula", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Humerus", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Humerus", "side-btn static-text")}</div>
+                    <div></div><div>${createDynamicButton(vT, "T obratel", "central-btn")}</div><div></div>
+                    <div>${createDynamicButton(vR, "Žebro", "side-btn")}</div><div></div><div>${createDynamicButton(vR, "Žebro", "side-btn")}</div>
+                    <div></div><div>${createDynamicButton(vL, "L obratel", "central-btn")}</div><div></div>
+                    <div></div><div>${createDynamicButton(['+'], "Sakrum", "central-btn static-text")}</div><div></div>
+                    <div>${createDynamicButton(['+'], "Kyčelní k.", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Kyčelní k.", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Sedací k.", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Sedací k.", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Stydká kost", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Stydká kost", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Femur", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Femur", "side-btn static-text")}</div>
+                </div>`;
+
             let h = `<div style="display: flex; flex-direction: column;">`;
             
-            // 1. Kostní dřeň
             h += build2ColTable('Kostní dřeň', [
                 { nazev: 'Aktivita difuzně', stavy: ['+'] },
                 { nazev: 'Neaktivita lokální', stavy: ['-'] },
                 { nazev: 'Enostózy', stavy: ['1', 'více'] }
             ], 'max-content 1fr');
-            
-            // 2. Degenerativní změny (Speciální 3-col R C L layout)
-            h += `<div class="table-3col" data-sub-type="degenerace">
+
+            h += `<div class="table-3col" data-sub-type="degenerace" style="grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
                 <div class="table-header">Degenerativní změny</div>
                 <div class="table-col-title">R</div><div class="table-col-title">C</div><div class="table-col-title">L</div>
                 
-                <div></div>
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <div class="row-label" style="min-height:auto;">C páteř</div>
-                    ${createDynamicButton(['+'], "0", "central-btn")}
-                </div>
-                <div></div>
-
-                <div>${createDynamicButton(['+'], "0", "side-btn")}</div>
-                <div class="row-label">AC</div>
-                <div>${createDynamicButton(['+'], "0", "side-btn")}</div>
-
-                <div>${createDynamicButton(['+'], "0", "side-btn")}</div>
-                <div class="row-label">Rameno</div>
-                <div>${createDynamicButton(['+'], "0", "side-btn")}</div>
-
-                <div></div>
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <div class="row-label" style="min-height:auto;">T páteř</div>
-                    ${createDynamicButton(['+'], "0", "central-btn")}
-                </div>
-                <div></div>
-
-                <div></div>
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <div class="row-label" style="min-height:auto;">L páteř</div>
-                    ${createDynamicButton(['+'], "0", "central-btn")}
-                </div>
-                <div></div>
-
-                <div>${createDynamicButton(['+'], "0", "side-btn")}</div>
-                <div class="row-label">Kyčel</div>
-                <div>${createDynamicButton(['+'], "0", "side-btn")}</div>
-
-                <div>${createDynamicButton(['+'], "0", "side-btn")}</div>
-                <div class="row-label">SI</div>
-                <div>${createDynamicButton(['+'], "0", "side-btn")}</div>
+                <div></div><div>${createDynamicButton(['+'], "C páteř", "central-btn static-text")}</div><div></div>
+                <div>${createDynamicButton(['+'], "AC", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "AC", "side-btn static-text")}</div>
+                <div>${createDynamicButton(['+'], "Rameno", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Rameno", "side-btn static-text")}</div>
+                <div></div><div>${createDynamicButton(['+'], "T páteř", "central-btn static-text")}</div><div></div>
+                <div></div><div>${createDynamicButton(['+'], "L páteř", "central-btn static-text")}</div><div></div>
+                <div>${createDynamicButton(['+'], "Kyčel", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Kyčel", "side-btn static-text")}</div>
+                <div>${createDynamicButton(['+'], "SI", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "SI", "side-btn static-text")}</div>
             </div>`;
             
-            // 3. DISH
-            h += build2ColTable('DISH', [
-                { nazev: 'DISH', stavy: ['+'] }
-            ], 'max-content 1fr');
-
-            document.getElementById('skelet-grid').innerHTML = h + `</div>`;
+            h += build2ColTable('DISH', [{ nazev: 'DISH', stavy: ['+'] }], 'max-content 1fr');
+            h += buildTraumaTable('Akutní trauma', 'trauma-akutni');
+            h += buildTraumaTable('Chronické trauma', 'trauma-chronicke');
+            document.getElementById('kostiklouby-grid').innerHTML = h + `</div>`;
         }
 
-        function processSkelet(form) {
+        function processKostiKlouby(form) {
             let results = [];
             
-            // 1. Zpracování 2-sloupcových tabulek (Kostní dřeň, DISH)
-            form.querySelectorAll('.table-2col').forEach(table => {
-                table.querySelectorAll('.row-label').forEach((label, idx) => {
-                    const pBtn = label.nextElementSibling.querySelector('.attr-btn');
-                    if (!pBtn) return;
-                    const p = pBtn.textContent;
-                    if (p === '0') return;
-                    
-                    const name = label.textContent.toLowerCase();
-                    let rep = '', concl = '', cType = 'incidental';
+            // --- SEKCE TRAUMA ---
+            const processTraumaTable = (subType, isAcute) => {
+                const table = form.querySelector(`.table-3col[data-sub-type="${subType}"]`);
+                if (!table) return;
 
-                    if (name === 'aktivita difuzně') {
-                        rep = "Difuzně zvýšená akumulace RF kostní dřeně při aktivaci.";
-                    } else if (name === 'neaktivita lokální') {
-                        rep = "Lokálně snížená akumulace RF po ozáření.";
-                    } else if (name === 'enostózy') {
-                        rep = p === '1' ? "Drobný sklerotický okrsek ve skeletu obrazu enostózy." : "Drobné sklerotické okrsky ve skeletu obrazu enostóz.";
-                    } else if (name === 'dish') {
-                        rep = "Osifikace v oblasti předního longitudinálního lig. páteře, nejvýrazněji v thorakálním úseku, s tvorbou osteofytů. Zachovaná výška meziobratlových plotének a bez známek erozí SI či sakroiliitidy. Osifikační změny v oblasti entézí pánevního skeletu.";
-                        concl = "Strukturální změny skeletu obrazu DISH.";
-                    }
-                    
-                    if (rep) {
-                        const safeId = name.replace(/\s+/g, '-').substring(0, 5) + '-' + idx;
-                        results.push({ id: `sk2-${safeId}`, rep, concl, conclType: cType });
+                let locsVert = [];
+                let locsOther = [];
+                
+                table.querySelectorAll('.central-btn.selected').forEach(btn => {
+                    const def = btn.getAttribute('data-default-text');
+                    const val = btn.dataset.customVal || btn.querySelector('span').textContent;
+                    if (def.includes('obratel')) locsVert.push(val);
+                    else if (def === 'Sakrum') locsOther.push("kosti křížové");
+                });
+
+                const sideBtns = Array.from(table.querySelectorAll('.side-btn'));
+                const names = [...new Set(sideBtns.map(b => b.getAttribute('data-default-text')))];
+
+                names.forEach(name => {
+                    const pair = sideBtns.filter(b => b.getAttribute('data-default-text') === name);
+                    const p = pair[0].classList.contains('selected');
+                    const l = pair[1].classList.contains('selected');
+                    if (!p && !l) return;
+
+                    const map = { 
+                        'klavikula': 'klavikuly', 'scapula': 'lopatky', 'humerus': 'prox. humeru', 
+                        'žebro': 'žebra', 'kyčelní k.': 'kosti kyčelní', 'sedací k.': 'kosti sedací', 
+                        'stydká kost': 'kosti stydké', 'femur': 'prox. femuru' 
+                    };
+                    const base = map[name.toLowerCase()] || name;
+
+                    if (name.toLowerCase() === 'žebro') {
+                        if (p) {
+                            const val = pair[0].dataset.customVal || pair[0].querySelector('span').textContent;
+                            locsOther.push(`${val} žebra vpravo`);
+                        }
+                        if (l) {
+                            const val = pair[1].dataset.customVal || pair[1].querySelector('span').textContent;
+                            locsOther.push(`${val} žebra vlevo`);
+                        }
+                    } else {
+                        if (p && l) locsOther.push(`${base} bilat.`);
+                        else if (p) locsOther.push(`${base} vpravo`);
+                        else if (l) locsOther.push(`${base} vlevo`);
                     }
                 });
+
+                if (locsVert.length > 0 || locsOther.length > 0) {
+                    let repParts = [];
+                    let conclParts = [];
+
+                    if (locsVert.length > 0) {
+                        const vertStr = formatCzechList(locsVert);
+                        const isPlural = locsVert.length > 1 || vertStr.includes(' a ') || vertStr.includes(',');
+                        const telWord = isPlural ? 'těl' : 'těla';
+                        if (isAcute) {
+                            repParts.push(`klínovité snížení obratl. ${telWord} ${vertStr}`);
+                            conclParts.push(`Kompresivní fraktura obratl. ${telWord} ${vertStr}.`);
+                        } else {
+                            const txt = `stav po starší kompresi obratl. ${telWord} ${vertStr}`;
+                            repParts.push(txt);
+                            conclParts.push(capitalize(txt) + '.');
+                        }
+                    }
+
+                    if (locsOther.length > 0) {
+                        const otherStr = formatCzechList(locsOther);
+                        if (isAcute) {
+                            repParts.push(`fraktura ${otherStr}`);
+                            conclParts.push(`Fraktura ${otherStr}.`);
+                        } else {
+                            const txt = `stav po starší fraktuře ${otherStr}`;
+                            repParts.push(txt);
+                            conclParts.push(capitalize(txt) + '.');
+                        }
+                    }
+
+                    results.push({ id: subType, rep: capitalize(repParts.join(', ')) + '.', concl: conclParts.join(' '), conclType: 'incidental' });
+                }
+            };
+
+            processTraumaTable('trauma-akutni', true);
+            processTraumaTable('trauma-chronicke', false);
+
+            // --- SEKCE KOSTNÍ DŘEŇ ---
+            let allMarrow = [];
+            const marrowTable = form.querySelectorAll('.table-2col')[0];
+            marrowTable?.querySelectorAll('.row-label').forEach((label) => {
+                const p = label.nextElementSibling.querySelector('.attr-btn').textContent;
+                if (p === '0') return;
+                const name = label.textContent.toLowerCase();
+                if (name === 'aktivita difuzně') allMarrow.push("difuzně zvýšená akumulace RF při aktivaci");
+                else if (name === 'neaktivita lokální') allMarrow.push("lokálně snížená akumulace RF po ozáření");
+                else if (name === 'enostózy') allMarrow.push(p === '1' ? "drobný sklerotický okrsek (enostóza)" : "drobné sklerotické okrsky (enostózy)");
             });
 
-            // 2. Zpracování 3-sloupcové tabulky (Degenerace)
+            if (allMarrow.length > 0) results.push({ id: 'marrow-combined', rep: `${formatCzechList(allMarrow)}.`, concl: '' });
+
+            // --- SEKCE DEGENERACE ---
             const degTable = form.querySelector('.table-3col[data-sub-type="degenerace"]');
             if (degTable) {
                 let locs = [];
-                
-                // Zpracování centrálních struktur (C, T, L páteř)
-                degTable.querySelectorAll('.central-btn').forEach(btn => {
-                    if (btn.textContent !== '0') {
-                        const name = btn.previousElementSibling.textContent.toLowerCase();
-                        const map = {
-                            'c páteř': 'krční páteře',
-                            't páteř': 'hrudní páteře',
-                            'l páteř': 'bederní páteře'
-                        };
-                        locs.push(map[name] || name);
-                    }
+                degTable.querySelectorAll('.central-btn.selected').forEach(btn => {
+                    const name = btn.getAttribute('data-default-text').toLowerCase();
+                    const map = { 'c páteř': 'krční páteře', 't páteř': 'hrudní páteře', 'l páteř': 'bederní páteře' };
+                    locs.push(map[name] || name);
                 });
+                const sideBtns = Array.from(degTable.querySelectorAll('.side-btn'));
+                const uniqueSideNames = [...new Set(sideBtns.map(b => b.getAttribute('data-default-text')))];
+                uniqueSideNames.forEach(sideName => {
+                    const pair = sideBtns.filter(b => b.getAttribute('data-default-text') === sideName);
+                    const p = pair[0].classList.contains('selected'), l = pair[1].classList.contains('selected');
+                    if (!p && !l) return;
+                    const map = { 'ac': 'AC skloubení', 'rameno': p && l ? 'ramenních kloubů' : 'ramenního kloubu', 'kyčel': p && l ? 'kyčelních kloubů' : 'kyčelního kloubu', 'si': 'SI skloubení' };
+                    const reportName = map[sideName.toLowerCase()] || sideName;
+                    locs.push(reportName + (p && l ? ' bilat.' : (p ? ' vpravo' : ' vlevo')));
+                });
+                if (locs.length > 0) results.push({ id: `sk3-deg`, rep: `Pokročilé degenerativní změny ${formatCzechList(locs)}.`, concl: `Degenerativní změny skeletu.`, conclType: 'incidental' });
+            }
+
+            // --- SEKCE DISH ---
+            const dishTable = form.querySelectorAll('.table-2col')[1];
+            dishTable?.querySelectorAll('.row-label').forEach((label, idx) => {
+                if (label.nextElementSibling.querySelector('.attr-btn').textContent !== '0')
+                    results.push({ id: `dish-${idx}`, rep: "Osifikace v oblasti předního longitudinálního lig. páteře, nejvýrazněji v thorakálním úseku, s tvorbou osteofytů. Zachovaná výška meziobratlových plotének a bez známek erozí SI či sakroiliitidy. Osifikační změny v oblasti entézí pánevního skeletu.", concl: "Strukturální změny skeletu obrazu DISH.", conclType: 'incidental' });
+            });
+
+            return results;
+        }
+
+        function initTraumaGrid() {
+            const vC = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'vlastní'];
+            const vT = [...Array.from({length: 12}, (_, i) => `T${i+1}`), 'vlastní'];
+            const vL = [...Array.from({length: 5}, (_, i) => `L${i+1}`), 'vlastní'];
+            const vR = [...Array.from({length: 12}, (_, i) => `${i+1}.`), 'vlastní'];
+
+            const buildTable = (title, subType) => `
+                <div class="table-3col" data-sub-type="${subType}" style="grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 8px;">
+                    <div class="table-header">${title}</div>
+                    <div class="table-col-title">R</div><div class="table-col-title">C</div><div class="table-col-title">L</div>
+                    
+                    <div></div><div>${createDynamicButton(vC, "C obratel", "central-btn")}</div><div></div>
+                    <div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Scapula", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Scapula", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Humerus", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Humerus", "side-btn static-text")}</div>
+                    <div></div><div>${createDynamicButton(vT, "T obratel", "central-btn")}</div><div></div>
+                    <div>${createDynamicButton(vR, "Žebro", "side-btn")}</div><div></div><div>${createDynamicButton(vR, "Žebro", "side-btn")}</div>
+                    <div></div><div>${createDynamicButton(vL, "L obratel", "central-btn")}</div><div></div>
+                    <div></div><div>${createDynamicButton(['+'], "Sakrum", "central-btn static-text")}</div><div></div>
+                    <div>${createDynamicButton(['+'], "Kyčelní k.", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Kyčelní k.", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Sedací k.", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Sedací k.", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Stydká kost", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Stydká kost", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Femur", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Femur", "side-btn static-text")}</div>
+                </div>`;
+
+            document.getElementById('trauma-grid').innerHTML = buildTable('Akutní trauma', 'trauma-akutni') + buildTable('Chronické trauma', 'trauma-chronicke');
+        }
+
+        function processTrauma(form) {
+            let results = [];
+            
+            const processTable = (subType, isAcute) => {
+                const table = form.querySelector(`.table-3col[data-sub-type="${subType}"]`);
+                if (!table) return;
+
+                let locsVert = [];
+                let locsOther = [];
                 
-                // Zpracování párových struktur (AC, Rameno, Kyčel, SI)
-                const pairedRows = ['AC', 'Rameno', 'Kyčel', 'SI'];
-                pairedRows.forEach(rowName => {
-                    const labelNode = Array.from(degTable.querySelectorAll('.row-label')).find(l => l.textContent === rowName);
-                    if (!labelNode) return;
-                    
-                    const p = labelNode.previousElementSibling.querySelector('.attr-btn').textContent;
-                    const l = labelNode.nextElementSibling.querySelector('.attr-btn').textContent;
-                    
-                    if (p === '0' && l === '0') return;
-                    
-                    const isBilat = (p !== '0' && l !== '0');
-                    const map = {
-                        'AC': 'AC skloubení',
-                        'Rameno': isBilat ? 'ramenních kloubů' : 'ramenního kloubu',
-                        'Kyčel': isBilat ? 'kyčelních kloubů' : 'kyčelního kloubu',
-                        'SI': 'SI skloubení'
-                    };
-                    const reportName = map[rowName] || rowName;
-                    const sideStr = isBilat ? ' bilat.' : (p !== '0' ? ' vpravo' : ' vlevo');
-                    locs.push(reportName + sideStr);
+                // 1. Sběr centrálních struktur (obratle, sakrum)
+                table.querySelectorAll('.central-btn.selected').forEach(btn => {
+                    const def = btn.getAttribute('data-default-text');
+                    const val = btn.dataset.customVal || btn.querySelector('span').textContent;
+                    if (def.includes('obratel')) locsVert.push(val);
+                    else if (def === 'Sakrum') locsOther.push("kosti křížové");
                 });
 
-                if (locs.length > 0) {
-                    const formatted = formatCzechList(locs);
-                    results.push({ 
-                        id: `sk3-deg`, 
-                        rep: `Pokročilé degenerativní změny ${formatted}.`, 
-                        concl: `Degenerativní změny skeletu.`, 
-                        conclType: 'incidental' 
-                    });
+                // 2. Sběr stranových struktur (dlouhé kosti, žebra, pánev)
+                const sideBtns = Array.from(table.querySelectorAll('.side-btn'));
+                const names = [...new Set(sideBtns.map(b => b.getAttribute('data-default-text')))];
+
+                names.forEach(name => {
+                    const pair = sideBtns.filter(b => b.getAttribute('data-default-text') === name);
+                    const p = pair[0].classList.contains('selected');
+                    const l = pair[1].classList.contains('selected');
+                    if (!p && !l) return;
+
+                    const map = { 
+                        'klavikula': 'klavikuly', 
+                        'scapula': 'lopatky', 
+                        'humerus': 'prox. humeru', 
+                        'žebro': 'žebra', 
+                        'kyčelní k.': 'kosti kyčelní', 
+                        'sedací k.': 'kosti sedací', 
+                        'stydká kost': 'kosti stydké', 
+                        'femur': 'prox. femuru' 
+                    };
+                    const base = map[name.toLowerCase()] || name;
+
+                    if (name.toLowerCase() === 'žebro') {
+                        if (p) {
+                            const val = pair[0].dataset.customVal || pair[0].querySelector('span').textContent;
+                            locsOther.push(`${val} žebra vpravo`);
+                        }
+                        if (l) {
+                            const val = pair[1].dataset.customVal || pair[1].querySelector('span').textContent;
+                            locsOther.push(`${val} žebra vlevo`);
+                        }
+                    } else {
+                        if (p && l) locsOther.push(`${base} bilat.`);
+                        else if (p) locsOther.push(`${base} vpravo`);
+                        else if (l) locsOther.push(`${base} vlevo`);
+                    }
+                });
+
+                if (locsVert.length === 0 && locsOther.length === 0) return;
+
+                let repParts = [];
+                let conclParts = [];
+
+                // 3. Formátování textu pro obratle (Spine)
+                if (locsVert.length > 0) {
+                    const vertStr = formatCzechList(locsVert);
+                    const isPlural = locsVert.length > 1 || vertStr.includes(' a ') || vertStr.includes(',');
+                    const telWord = isPlural ? 'těl' : 'těla';
+                    
+                    if (isAcute) {
+                        repParts.push(`klínovité snížení obratl. ${telWord} ${vertStr}`);
+                        conclParts.push(`Kompresivní fraktura obratl. ${telWord} ${vertStr}.`);
+                    } else {
+                        const txt = `stav po starší kompresi obratl. ${telWord} ${vertStr}`;
+                        repParts.push(txt);
+                        conclParts.push(capitalize(txt) + '.');
+                    }
                 }
-            }
+
+                // 4. Formátování textu pro ostatní kosti
+                if (locsOther.length > 0) {
+                    const otherStr = formatCzechList(locsOther);
+                    if (isAcute) {
+                        repParts.push(`fraktura ${otherStr}`);
+                        conclParts.push(`Fraktura ${otherStr}.`);
+                    } else {
+                        const txt = `stav po starší fraktuře ${otherStr}`;
+                        repParts.push(txt);
+                        conclParts.push(capitalize(txt) + '.');
+                    }
+                }
+
+                // 5. Výsledná agregace (V Reportu vše za sebou oddělené čárkami)
+                results.push({ 
+                    id: subType, 
+                    rep: capitalize(repParts.join(', ')) + '.', 
+                    concl: conclParts.join(' '), 
+                    conclType: 'incidental' 
+                });
+            };
+
+            processTable('trauma-akutni', true);
+            processTable('trauma-chronicke', false);
 
             return results;
         }
@@ -2614,7 +2787,7 @@
                     else { const i = EXAM_STATE.regions.indexOf(reg); if (i > -1) EXAM_STATE.regions.splice(i, 1); else EXAM_STATE.regions.push(reg); }
                     saveExamState(); applyExamVisibilityRules(); break;
                 case 'toggle-sub':
-                    const isOrganBtn = ['btn-hlava-organy', 'btn-organy', 'btn-hrudnik-organy', 'btn-bricho-organy'].includes(btn.id);
+                    const isOrganBtn = ['btn-hlava-organy', 'btn-organy', 'btn-hrudnik-organy', 'btn-bricho-organy', 'btn-skelet-organy'].includes(btn.id);
                     if (isOrganBtn && APP_SETTINGS.organyDohromady) {
                         document.querySelectorAll('.detail-form').forEach(f => f.classList.remove('active'));
                         document.querySelectorAll('.dynamic-item').forEach(el => el.classList.remove('active-item'));
@@ -2917,21 +3090,120 @@
 
         // Utility funkce
         
-        function createDynamicButton(stavy, vychoziStav="0", extraClass="") { return `<button class="attr-btn ${extraClass}" data-default-text="${vychoziStav}" data-states='${JSON.stringify(stavy)}' data-state-index="-1" data-longest-text="${[vychoziStav, ...stavy].reduce((a, b) => a.length > b.length ? a : b)}" onclick="advanceState(event,this)" oncontextmenu="revertState(event,this)"><span>${vychoziStav}</span></button>`; }
-        function advanceState(e, btn) { e.preventDefault(); const s = JSON.parse(btn.getAttribute('data-states')); let i = parseInt(btn.getAttribute('data-state-index')); if(i < s.length - 1) applyBtnState(btn, i + 1, s); }
-        function revertState(e, btn) { e.preventDefault(); const s = JSON.parse(btn.getAttribute('data-states')); let i = parseInt(btn.getAttribute('data-state-index')); if(i > -1) applyBtnState(btn, i - 1, s); }
-        function applyBtnState(btn, index, states) {
-            btn.setAttribute('data-state-index', index); const isStat = btn.classList.contains('static-text');
-            if (index > -1) btn.closest('.exclusive-group')?.querySelectorAll('.attr-btn.selected').forEach(sib => { if (sib !== btn) { sib.setAttribute('data-state-index', '-1'); sib.classList.remove('selected'); delete sib.dataset.clickTime; if (!sib.classList.contains('static-text')) sib.querySelector('span').textContent = sib.getAttribute('data-default-text'); checkDynamicInputs(sib); } });
-            if (index === -1) { btn.classList.remove('selected'); delete btn.dataset.clickTime; if (!isStat) btn.querySelector('span').textContent = btn.getAttribute('data-default-text'); } 
-            else { btn.dataset.clickTime = btn.dataset.clickTime || Date.now(); btn.classList.add('selected'); if (!isStat) btn.querySelector('span').textContent = states[index]; }
-            updateHierarchy(); checkDynamicInputs(btn); updateRowHighlight(btn); triggerFormUpdate(btn);
+        // Utility funkce s automatickou detekcí vlastního textu
+        
+        function createDynamicButton(stavy, vychoziStav="0", extraClass="") {
+            // Smart detekce: Pokud je poslední stav "vlastní", aktivujeme mechaniku inputu
+            const hasCustom = stavy[stavy.length - 1] === 'vlastní';
+            const states = [...stavy];
+            const longestText = [vychoziStav, ...states].reduce((a, b) => a.length > b.length ? a : b);
+            
+            let html = `<button class="attr-btn ${extraClass} ${hasCustom ? 'has-custom-logic' : ''}" 
+                data-default-text="${vychoziStav}" 
+                data-states='${JSON.stringify(states)}' 
+                data-state-index="-1" 
+                data-longest-text="${longestText}" 
+                onclick="advanceState(event,this)" 
+                oncontextmenu="revertState(event,this)"><span>${vychoziStav}</span></button>`;
+            
+            if (hasCustom) {
+                html += `<input type="text" class="global-input custom-state-input hidden" 
+                    placeholder="vlastní..." 
+                    oninput="syncCustomInput(this)" 
+                    oncontextmenu="revertCustomState(event, this)">`;
+            }
+            return html;
         }
 
-        function build1ColTable(title, dataArray, extraAttrs = '') { return `<div class="table-1col" ${extraAttrs}><div class="table-header">${title}</div><div style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px; align-items:center; width: 100%;">${dataArray.map(i => `${i.nazev ? `<div class="row-label" style="min-height:auto;">${i.nazev}</div>` : ''}${createDynamicButton(i.stavy || ['+'], i.defaultState || "0", i.extraClass || '')}`).join('')}</div></div>`; }
-        function build2ColTable(title, dataArray, ignoredCols = '', extraAttrs = '') { return `<div class="table-2col" ${extraAttrs}><div class="table-header">${title}</div>${dataArray.map(i => `<div class="row-label">${i.nazev}</div><div class="btn-col-1" style="display:flex; align-items:center;">${createDynamicButton(i.stavy || ['+'], "0", (i.secondaryStavy ? "btn-primary " : "") + (i.inlineInput ? 'trigger-text-inline ' : '') + (i.extraClass || ''))}</div><div class="btn-col-2" style="display:flex; align-items:center;">${i.secondaryStavy ? createDynamicButton(i.secondaryStavy, i.secondaryDefault || "0", "btn-secondary") : ''}</div><div class="input-col" style="display:flex; align-items:center; width:100%; min-width:0;">${i.inlineInput ? `<input type="text" class="global-input field-text ${i.inputClass || ''} hidden" placeholder="${i.inlineInput}" oninput="triggerFormUpdate(this)" style="flex:1; min-width:0; width:100%;">` : ''}</div>`).join('')}</div>`; }
-        function build3ColTable(title, dataArray, extraAttrs = '') { return `<div class="table-3col" ${extraAttrs}><div class="table-header">${title}</div><div class="table-col-title">R</div><div></div><div class="table-col-title">L</div>${dataArray.map(i => `<div>${createDynamicButton(i.stavy || ['+'], "0", i.trigger ? 'dynamic-trigger ' + (i.extraClass || '') : (i.extraClass || ''))}</div><div class="row-label">${i.nazev}</div><div>${createDynamicButton(i.stavy || ['+'], "0", i.trigger ? 'dynamic-trigger ' + (i.extraClass || '') : (i.extraClass || ''))}</div>`).join('')}</div>`; }
+        function advanceState(e, btn) { 
+            e.preventDefault(); 
+            const s = JSON.parse(btn.getAttribute('data-states')); 
+            let i = parseInt(btn.getAttribute('data-state-index')); 
+            if(i < s.length - 1) applyBtnState(btn, i + 1, s); 
+        }
 
+        function revertState(e, btn) { 
+            e.preventDefault(); 
+            const s = JSON.parse(btn.getAttribute('data-states')); 
+            let i = parseInt(btn.getAttribute('data-state-index')); 
+            if(i > -1) applyBtnState(btn, i - 1, s); 
+        }
+
+        function applyBtnState(btn, index, states) {
+            btn.setAttribute('data-state-index', index); 
+            const isStat = btn.classList.contains('static-text');
+            const isCustomLogic = btn.classList.contains('has-custom-logic');
+            const cInp = btn.nextElementSibling;
+
+            // Exclusive group handling
+            if (index > -1) {
+                btn.closest('.exclusive-group')?.querySelectorAll('.attr-btn.selected').forEach(sib => {
+                    if (sib !== btn) {
+                        sib.setAttribute('data-state-index', '-1');
+                        sib.classList.remove('selected');
+                        delete sib.dataset.clickTime;
+                        if (!sib.classList.contains('static-text')) sib.querySelector('span').textContent = sib.getAttribute('data-default-text');
+                        // Reset případného schovaného inputu u sourozence
+                        if (sib.classList.contains('has-custom-logic')) {
+                            sib.style.display = '';
+                            if (sib.nextElementSibling) sib.nextElementSibling.classList.add('hidden');
+                        }
+                        checkDynamicInputs(sib);
+                    }
+                });
+            }
+
+            // State styling & content
+            if (index === -1) {
+                btn.classList.remove('selected');
+                delete btn.dataset.clickTime;
+                if (!isStat) btn.querySelector('span').textContent = btn.getAttribute('data-default-text');
+            } else {
+                btn.dataset.clickTime = btn.dataset.clickTime || Date.now();
+                btn.classList.add('selected');
+                if (!isStat) btn.querySelector('span').textContent = states[index];
+            }
+
+            // UI Switch pro "vlastní" stav
+            if (isCustomLogic && cInp && cInp.classList.contains('custom-state-input')) {
+                const isLastState = index === states.length - 1;
+                if (isLastState) {
+                    btn.style.display = 'none';
+                    cInp.classList.remove('hidden');
+                    cInp.value = btn.dataset.customVal || '';
+                    if (!isStat) btn.querySelector('span').textContent = cInp.value || cInp.placeholder;
+                    setTimeout(() => cInp.focus(), 10);
+                } else {
+                    btn.style.display = '';
+                    cInp.classList.add('hidden');
+                }
+            }
+
+            updateHierarchy(); 
+            checkDynamicInputs(btn); 
+            updateRowHighlight(btn); 
+            triggerFormUpdate(btn);
+        }
+
+        function syncCustomInput(inp) {
+            const btn = inp.previousElementSibling;
+            if (btn && btn.classList.contains('attr-btn')) {
+                btn.dataset.customVal = inp.value;
+                btn.querySelector('span').textContent = inp.value.trim() || "vlastní...";
+                triggerFormUpdate(inp);
+            }
+        }
+
+        function revertCustomState(e, inp) {
+            e.preventDefault();
+            const btn = inp.previousElementSibling;
+            if (btn) revertState(e, btn);
+        }
+
+        function build1ColTable(title, dataArray, extraAttrs = '') { return `<div class="table-1col" ${extraAttrs}><div class="table-header">${title}</div><div style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px; align-items:center; width: 100%;">${dataArray.map(i => { const t = i.nazev || i.defaultState || ''; const isPet = /fdg\+|aktivit|rf/i.test(t) ? ' pet-specific-item' : ''; return `<div class="${isPet.trim()}" style="display:flex; flex-direction:column; align-items:center; width:100%;">${i.nazev ? `<div class="row-label" style="min-height:auto;">${i.nazev}</div>` : ''}${createDynamicButton(i.stavy || ['+'], i.defaultState || "0", i.extraClass || '')}</div>`; }).join('')}</div></div>`; }
+        function build2ColTable(title, dataArray, ignoredCols = '', extraAttrs = '') { return `<div class="table-2col" ${extraAttrs}><div class="table-header">${title}</div>${dataArray.map(i => { const isPet = i.nazev && /fdg\+|aktivit|rf/i.test(i.nazev) ? ' pet-specific-item' : ''; return `<div class="row-label${isPet}">${i.nazev}</div><div class="btn-col-1${isPet}" style="display:flex; align-items:center;">${createDynamicButton(i.stavy || ['+'], "0", (i.secondaryStavy ? "btn-primary " : "") + (i.inlineInput ? 'trigger-text-inline ' : '') + (i.extraClass || ''))}</div><div class="btn-col-2${isPet}" style="display:flex; align-items:center;">${i.secondaryStavy ? createDynamicButton(i.secondaryStavy, i.secondaryDefault || "0", "btn-secondary") : ''}</div><div class="input-col${isPet}" style="display:flex; align-items:center; width:100%; min-width:0;">${i.inlineInput ? `<input type="text" class="global-input field-text ${i.inputClass || ''} hidden" placeholder="${i.inlineInput}" oninput="triggerFormUpdate(this)" style="flex:1; min-width:0; width:100%;">` : ''}</div>`; }).join('')}</div>`; }
+        function build3ColTable(title, dataArray, extraAttrs = '') { return `<div class="table-3col" ${extraAttrs}><div class="table-header">${title}</div><div class="table-col-title">R</div><div></div><div class="table-col-title">L</div>${dataArray.map(i => { const isPet = i.nazev && /fdg\+|aktivit|rf/i.test(i.nazev) ? ' pet-specific-item' : ''; return `<div class="${isPet.trim()}">${createDynamicButton(i.stavy || ['+'], "0", i.trigger ? 'dynamic-trigger ' + (i.extraClass || '') : (i.extraClass || ''))}</div><div class="row-label${isPet}">${i.nazev}</div><div class="${isPet.trim()}">${createDynamicButton(i.stavy || ['+'], "0", i.trigger ? 'dynamic-trigger ' + (i.extraClass || '') : (i.extraClass || ''))}</div>`; }).join('')}</div>`; }
+        
         function checkDynamicInputs(btn) {
             if (!btn) return; 
             if (btn.classList.contains('trigger-text-inline')) { 
@@ -3098,7 +3370,8 @@
             const tV = (sel, cond, d = '') => document.querySelectorAll(sel).forEach(el => el.style.display = cond ? d : 'none');
             const showPet = !!EXAM_STATE.pet, hasTomo = !!EXAM_STATE.tomo, sT = EXAM_STATE.regions.filter(r => ['KRK', 'HRUDNÍK', 'BŘICHO'].includes(r)), sH = EXAM_STATE.regions.filter(r => ['MOZEK', 'ORBITY', 'VDN'].includes(r));
             document.querySelectorAll('.region-btn').forEach(b => b.classList.toggle('selected', EXAM_STATE.regions.includes(b.dataset.region)));
-            
+            document.body.classList.toggle('no-pet', !showPet);
+
             const setB = (id, arr, def, all) => { const b = document.getElementById(id); if (b) { b.textContent = arr.length === 0 ? def : (arr.length === 3 ? all : arr.join(', ')); b.classList.toggle('selected', arr.length > 0); } };
             setB('main-region-btn', sT, 'TRUP', 'CELOTĚLO'); setB('main-head-btn', sH, 'HLAVA', sH[0]);
 
@@ -3123,6 +3396,7 @@
             let visSkelet = sT.length > 0; 
             if (visSkelet) visR.push('SKELET');
             tV(`.main-region[data-region="SKELET"], #btn-skelet-main`, visSkelet, 'block');
+            tV('#skelet-sub', visSkelet);
 
             document.querySelectorAll('.detail-form.active').forEach(form => { const fReg = form.getAttribute('data-region'); if (fReg && !visR.includes(fReg)) { form.classList.remove('active'); document.querySelector(`.dynamic-item[data-form-link="${form.id}"]`)?.classList.remove('active-item'); } });
 
@@ -3286,8 +3560,7 @@
                 "Pharynx": { name: "Hltan", target: "btn-farynx" },
                 "Játra": { name: "Játra", target: "btn-jatra" },
                 "Žlučník": { name: "Žlučník", target: "btn-zlucnik" },
-                "Srdce": { name: "Srdce", target: null },
-                "Pankreas": { name: "Pankreas", target: null },
+                "Srdce": { name: "Srdce", target: "btn-srdce" },
                 "Plíce": { name: "Plíce", target: "btn-plice" },
                 "Devices": { name: "Devices", target: "btn-devices" },
                 "Slezina": { name: "Slezina", target: "btn-slezina" },
@@ -3297,20 +3570,24 @@
                 "Tračník": { name: "Tračník", target: "btn-tracnik" },
                 "Tenké střevo": { name: "Tenké střevo", target: "btn-tenke-strevo" },
                 "Močový měchýř": { name: "Močový měchýř", target: "btn-moc-mechyr" },
-                "Thymus": { name: "Thymus", target: null },
+                "Thymus": { name: "Thymus", target: "btn-thymus" },
                 "Ovária": { name: "Ovária", target: "btn-ovaria" },
                 "Děloha": { name: "Děloha", target: "btn-deloha" },
                 "Testes": { name: "Testes", target: "btn-testes" },
                 "Prostata": { name: "Prostata", target: "btn-prostata" },
-                "Skelet": { name: "Skelet", target: null },
-                "Sval": { name: "Svaly", target: null },
+                "Skelet": { name: "Kosti / Klouby", target: "btn-skelet" },
+                "Sval": { name: "Svaly / Měkké tkáně", target: "btn-svaly" },
+                "Svaly": { name: "Svaly / Měkké tkáně", target: "btn-svaly" },
                 "Aorta": { name: "Velké cévy", target: "btn-velke-cevy" },
+                "Cévy": { name: "Velké cévy", target: "btn-velke-cevy" },
+                "Jícen": { name: "Jícen", target: "btn-jicen" },
+                "Nadledviny": { name: "Nadledviny", target: "btn-nadledviny" },
                 "Brain Lesion": { name: "Ložisko (Hlava)", action: "add-finding", container: "loziska-hlava-container", region: "hlava", type: "lozisko" },
                 "Brain Hemorrhage": { name: "Krvácení / Ischemie", action: "add-finding", container: "vasc-hlava-container", region: "hlava", type: "vascular" },
                 "Neck Lesion": { name: "Ložisko (Krk)", action: "add-finding", container: "loziska-krk-container", region: "krk", type: "lozisko" },
                 "Thorax Lesion": { name: "Ložisko (Hrudník)", action: "add-finding", container: "loziska-hrudnik-container", region: "hrudnik", type: "lozisko" },
                 "Abdomen Lesion": { name: "Ložisko (Břicho)", action: "add-finding", container: "loziska-bricho-container", region: "bricho", type: "lozisko" },
-                "Soft Tissues Lesion": { name: "Ložisko (Měkké tkáně)", action: "add-finding", container: "loziska-bricho-container", region: "bricho", type: "lozisko" },
+                "Soft Tissues Lesion": { name: "Ložisko (Skelet / Měkké tkáně)", action: "add-finding", container: "loziska-skelet-container", region: "skelet", type: "lozisko" },
                 "Neck Lymph Node": { name: "Lymfadenopatie (Krk)", action: "add-finding", container: "lymf-krk-container", region: "krk", type: "lymf" },
                 "Thorax Lymph Node": { name: "Lymfadenopatie (Hrudník)", action: "add-finding", container: "lymf-hrudnik-container", region: "hrudnik", type: "lymf" },
                 "Abdomen Lymph Node": { name: "Lymfadenopatie (Břicho)", action: "add-finding", container: "lymf-bricho-container", region: "bricho", type: "lymf" }
@@ -3440,6 +3717,16 @@
                 e.target.closest('#ref-jatra') ? (document.querySelectorAll('.row-metriky .field-suv').forEach(inp => autoUpdateAktivita(inp)), document.querySelectorAll('.detail-form').forEach(f => triggerFormUpdate(f))) : (autoUpdateAktivita(e.target), triggerFormUpdate(e.target));
             } else if (e.target.classList.contains('field-mm')) {
                 e.preventDefault(); let v = parseInt(e.target.value) || 0; v = e.deltaY < 0 ? v + 1 : Math.max(0, v - 1); e.target.value = v === 0 ? '' : v; triggerFormUpdate(e.target);
+            } else if (e.target.classList.contains('custom-state-input')) {
+                if (APP_SETTINGS.scrollValues && e.deltaY > 0) {
+                    e.preventDefault();
+                    const btn = e.target.previousElementSibling;
+                    if (btn && btn.classList.contains('attr-btn')) {
+                        const s = JSON.parse(btn.getAttribute('data-states'));
+                        let i = parseInt(btn.getAttribute('data-state-index'));
+                        if (i > -1) applyBtnState(btn, i - 1, s);
+                    }
+                }
             } else {
                 const btn = e.target.closest('.attr-btn');
                 if (btn && APP_SETTINGS.scrollValues) { e.preventDefault(); const s = JSON.parse(btn.getAttribute('data-states')); let i = parseInt(btn.getAttribute('data-state-index')); if (e.deltaY < 0 && i < s.length - 1) i++; else if (e.deltaY > 0 && i > -1) i--; else return; applyBtnState(btn, i, s); }
