@@ -253,7 +253,7 @@
                     <button class="btn lvl2" id="btn-hlava-organy" data-action="toggle-sub" data-target="hlava-organy-sub">Orgány</button>
                     <div id="hlava-organy-sub" class="hidden lvl3-container">
                         <button class="btn lvl3" id="btn-mozek" data-action="show-details" data-target="form-mozek">Mozek</button>
-                        <button class="btn lvl3" id="btn-cevy-hlava" data-action="show-details" data-target="form-cevy-hlava">Cévy</button>
+                        <button class="btn lvl3" id="btn-cevy" data-action="show-details" data-target="form-cevy-hlava">Cévy</button>
                         <button class="btn lvl3" id="btn-orbity" data-action="show-details" data-target="form-orbity">Orbity</button>
                         <button class="btn lvl3" id="btn-vdn" data-action="show-details" data-target="form-vdn">VDN</button>
                     </div>
@@ -4092,7 +4092,7 @@
             let skeletHtml = [];
 
             ['HLAVA', 'KRK', 'HRUDNÍK', 'BŘICHO', 'SKELET'].forEach(reg => {
-                const isSel = reg === 'HLAVA' ? EXAM_STATE.regions.some(r => ['MOZEK', 'ORBITY', 'VDN'].includes(r)) : (reg === 'SKELET' ? EXAM_STATE.regions.some(r => ['KRK', 'HRUDNÍK', 'BŘICHO'].includes(r)) : EXAM_STATE.regions.includes(reg));
+                const isSel = reg === 'HLAVA' ? EXAM_STATE.regions.some(r => ['HLAVA', 'MOZEK', 'ORBITY', 'VDN'].includes(r)) : (reg === 'SKELET' ? EXAM_STATE.regions.some(r => ['KRK', 'HRUDNÍK', 'BŘICHO'].includes(r)) : EXAM_STATE.regions.includes(reg));
                 const isNeighbor = !isSel && ((reg === 'KRK' && EXAM_STATE.regions.includes('HRUDNÍK')) || (reg === 'HRUDNÍK' && (EXAM_STATE.regions.includes('KRK') || EXAM_STATE.regions.includes('BŘICHO'))) || (reg === 'BŘICHO' && EXAM_STATE.regions.includes('HRUDNÍK')));
                 
                 if (isSel || isNeighbor) {
@@ -4139,7 +4139,7 @@
             const minule = document.getElementById('input-minule')?.value, ind = document.getElementById('input-indikace').value.trim();
             const minuleHdr = minule && minule.split('-').length === 3 ? `Oproti minulému dostupnému vyšetření z ${parseInt(minule.split('-')[2])}. ${parseInt(minule.split('-')[1])}. ${minule.split('-')[0]}: ` : "";
             const mainConc = Array.from(document.querySelectorAll('.main-conclusion-items .drag-box')).map(b => b.textContent).join(' ') || "Bez patrných patologických ložisek.";
-            const incConc = Array.from(document.querySelectorAll('.incidental-items .drag-box')).map(b => b.textContent).join(' ') || "Bez dalších signifikantních změn.";
+            const incConcItems = Array.from(document.querySelectorAll('.incidental-items .drag-box')).map(b => b.textContent).join(' ').trim();
             
             // Nadpis se vkládá přímo do textového pole
             document.getElementById('modal-report-body').innerHTML = `
@@ -4149,7 +4149,7 @@
                 <div id="section-conclusion" style="border-top: 1px solid #30363d; padding-top: 8px;">
                     <strong style="font-size: 1.05em; color: #58a6ff;">ZÁVĚR:</strong><br>
                     ${minuleHdr ? `${minuleHdr}<br>` : ''}${mainConc}
-                    <div style="margin-top: 6px;"><strong style="color: #8b949e;">Vedlejší nálezy:</strong> ${incConc}</div>
+                    ${incConcItems ? `<div style="margin-top: 6px;"><strong style="color: #8b949e;">Vedlejší nálezy:</strong> ${incConcItems}</div>` : ''}
                 </div>`;
             
             // Skrytí horního nadpisu v hlavičce modálního okna
