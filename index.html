@@ -172,9 +172,9 @@
             <span class="exam-label">PET:</span>
             <button class="header-btn" data-action="set-exam" data-type="pet">FDG</button>
             <button class="header-btn" data-action="set-exam" data-type="pet">PSMA</button>
+            <button class="header-btn" data-action="set-exam" data-type="pet">DOTATOC</button>
             <button class="header-btn" data-action="set-exam" data-type="pet">DOPA</button>
             <button class="header-btn" data-action="set-exam" data-type="pet">FMM</button>
-            <button class="header-btn" data-action="set-exam" data-type="pet">DOTATOC</button>
         </div>
         <div class="exam-divider"></div>
         <div class="exam-group" id="tomo-group" style="padding: 0;">
@@ -223,6 +223,10 @@
             <div id="ref-slezina" style="display: none; gap: 6px; align-items: center;">
                 <span class="exam-label">SUVmax sleziny:</span>
                 <input type="text" class="global-input field-suv" data-val="20.0" value="20.0" >
+            </div>
+            <div id="ref-striatum" style="display: none; gap: 6px; align-items: center;">
+                <span class="exam-label">SUVmax striata:</span>
+                <input type="text" class="global-input field-suv" data-val="3.0" value="3.0" >
             </div>
             <div>
             <div>
@@ -306,6 +310,7 @@
                     <button class="btn lvl3" id="btn-zaludek" data-action="show-details" data-target="form-zaludek">Žaludek</button>
                     <button class="btn lvl3" id="btn-pankreas" data-action="show-details" data-target="form-pankreas">Pankreas</button>
                     <button class="btn lvl3" id="btn-tracnik" data-action="show-details" data-target="form-tracnik">Tračník</button>
+                    <button class="btn lvl3" id="btn-peritoneum" data-action="show-details" data-target="form-peritoneum">Peritoneum</button>
                     <button class="btn lvl3" id="btn-nadledviny" data-action="show-details" data-target="form-nadledviny">Nadledviny</button>
                     <button class="btn lvl3" id="btn-ledviny" data-action="show-details" data-target="form-ledviny">Ledviny</button>
                     <button class="btn lvl3" id="btn-moc-mechyr" data-action="show-details" data-target="form-moc-mechyr">Moč. měchýř</button>
@@ -359,6 +364,7 @@
             <div id="form-zaludek" class="detail-form" data-menu-id="btn-zaludek" data-region="BŘICHO" data-category="ŽALUDEK"><div class="flex-wrapper" id="zaludek-grid"></div></div>
             <div id="form-pankreas" class="detail-form" data-menu-id="btn-pankreas" data-region="BŘICHO" data-category="PANKREAS"><div class="flex-wrapper" id="pankreas-grid"></div></div>
             <div id="form-tracnik" class="detail-form" data-menu-id="btn-tracnik" data-region="BŘICHO" data-category="TRAČNÍK"><div class="flex-wrapper" id="tracnik-grid"></div></div>
+            <div id="form-peritoneum" class="detail-form" data-menu-id="btn-peritoneum" data-region="BŘICHO" data-category="PERITONEUM"><div class="flex-wrapper" id="peritoneum-grid"></div></div>
             <div id="form-nadledviny" class="detail-form" data-menu-id="btn-nadledviny" data-region="BŘICHO" data-category="NADLEDVINY"><div class="flex-wrapper" id="nadledviny-grid"></div></div>
             <div id="form-ledviny" class="detail-form" data-menu-id="btn-ledviny" data-region="BŘICHO" data-category="LEDVINY"><div class="flex-wrapper" id="ledviny-grid"></div></div>
             <div id="form-moc-mechyr" class="detail-form" data-menu-id="btn-moc-mechyr" data-region="BŘICHO" data-category="MOČOVÝ MĚCHÝŘ"><div class="flex-wrapper" id="moc-mechyr-grid"></div></div>
@@ -468,6 +474,7 @@
         let draggedItem = null;
         const LOCAL_STORAGE_KEY = 'mw_exam_state'; 
         const EXAM_STATE = { pet: null, tomo: null, regions: [] };
+        const CATEGORY_ORDER = {};
 
         function saveExamState() { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(EXAM_STATE)); }
         function loadExamState() {
@@ -796,6 +803,7 @@
             'form-zaludek': { init: initZaludekGrid, process: processZaludek },
             'form-pankreas': { init: initPankreasGrid, process: processPankreas },
             'form-tracnik': { init: initTracnikGrid, process: processTracnik },
+            'form-peritoneum': { init: initPeritoneumGrid, process: processPeritoneum },
             'form-nadledviny': { init: initNadledvinyGrid, process: processNadledviny },
             'form-ledviny': { init: initLedvinyGrid, process: processLedviny },
             'form-moc-mechyr': { init: initMocMechyrGrid, process: processMocMechyr },
@@ -2138,6 +2146,92 @@
                 }
                 if (rep) results.push({ id: `trac-${idx}`, rep, concl, conclType: cType });
             });
+            return results;
+        }
+
+        function initPeritoneumGrid() {
+            let h = `<div style="display: flex; flex-direction: column;">
+                <div class="table-2col" style="grid-template-columns: max-content auto auto 1fr;">
+                    <div class="table-header">Peritoneum a mesenterium</div>
+                    
+                    <div class="row-label">Misty Mesenterium</div>
+                    <div class="btn-col-1" style="display:flex; align-items:center;">${createDynamicButton(['zastření', 'panikulitis'], "0", "btn-misty")}</div>
+                    <div class="btn-col-2" style="display:flex; align-items:center;"></div>
+                    <div class="input-col" style="display:flex; align-items:center; width:100%; min-width:0;"></div>
+
+                    <div class="row-label">Ascites</div>
+                    <div class="btn-col-1" style="display:flex; align-items:center;">${createDynamicButton(['diskrétně', 'malý', 'střední', 'výrazný'], "0", "btn-ascites-curr")}</div>
+                    <div class="btn-col-2" style="display:flex; align-items:center;"></div>
+                    <div class="input-col" style="display:flex; align-items:center; width:100%; min-width:0;"></div>
+
+                    <div class="row-label minule-specific">Ascites minule</div>
+                    <div class="btn-col-1 minule-specific" style="display:flex; align-items:center;">${createDynamicButton(['diskrétně', 'malý', 'střední', 'výrazný'], "0", "btn-ascites-min")}</div>
+                    <div class="btn-col-2 minule-specific" style="display:flex; align-items:center;"></div>
+                    <div class="input-col minule-specific" style="display:flex; align-items:center; width:100%; min-width:0;"></div>
+                </div>
+            </div>`;
+            document.getElementById('peritoneum-grid').innerHTML = h;
+        }
+
+        function processPeritoneum(form) {
+            let results = [];
+            
+            const mistyP = form.querySelector('.btn-misty')?.textContent || '0';
+            if (mistyP === 'zastření') {
+                results.push({ id: 'peri-1', rep: 'Mírné nespecifické lokální zastření mesenteria.', concl: '', conclType: null });
+            } else if (mistyP === 'panikulitis') {
+                results.push({ id: 'peri-1', rep: 'Lokální zastření mesenteria s výraznějšími uzlinami.', concl: 'Mesenteriální panikulitis.', conclType: 'incidental' });
+            }
+
+            const ascCurr = form.querySelector('.btn-ascites-curr')?.textContent || '0';
+            const ascMin = form.querySelector('.btn-ascites-min')?.textContent || '0';
+            const isMinuleActive = !!document.getElementById('input-minule')?.value;
+
+            const ascMap = {
+                'diskrétně': { val: 1, r: 'Stopově tekutina v malé pánvi', c: '' },
+                'malý': { val: 2, r: 'Tekutina v pánvi a lehce mezikličkově', c: 'Malý ascites v pánvi' },
+                'střední': { val: 3, r: 'Tekutina v pánvi a mezikličkově, mírně pod játry', c: 'Přítomen ascites' },
+                'výrazný': { val: 4, r: 'Větší množství volné tekutiny okolo jater, sleziny, mezikličkově a v pánvi', c: 'Výrazný ascites' }
+            };
+
+            if (ascCurr !== '0' || (ascCurr === '0' && isMinuleActive && ascMin !== '0')) {
+                if (ascCurr === '0' && isMinuleActive && ascMin !== '0') {
+                    results.push({ id: 'peri-2', rep: 'Minule přítomný ascites zcela regredoval.', concl: 'Minule přítomný ascites zcela regredoval.', conclType: 'main' });
+                } else if (ascCurr !== '0') {
+                    const data = ascMap[ascCurr];
+                    let rep = data.r;
+                    let concl = data.c;
+                    let dyn = "";
+
+                    if (isMinuleActive) {
+                        if (ascMin === '0') {
+                            dyn = "nově";
+                            rep += " (minule nebyla)";
+                        } else {
+                            const vCurr = data.val;
+                            const vMin = ascMap[ascMin].val;
+                            
+                            if (vCurr > vMin) {
+                                dyn = "v progresi";
+                                rep += " (minule menší)";
+                            } else if (vCurr < vMin) {
+                                dyn = "v regresi";
+                                rep += " (minule větší)";
+                            } else {
+                                dyn = "obdobný";
+                                rep += " (minule obdobný)";
+                            }
+                        }
+                    }
+
+                    if (dyn && concl) {
+                        concl += " (" + dyn + ")";
+                    }
+
+                    results.push({ id: 'peri-2', rep: rep + '.', concl: concl ? concl + '.' : '', conclType: concl ? 'incidental' : null });
+                }
+            }
+            
             return results;
         }
 
@@ -3918,7 +4012,31 @@
                 let targetContainer = regionEl.querySelector('.category-items');
                 if (category !== targetRegion) {
                     const organArea = regionEl.querySelector('.organ-items'); let subSec = organArea.querySelector(`.subcategory-section[data-sub="${category}"]`);
-                    if (!subSec) { subSec = document.createElement('div'); subSec.className = 'subcategory-section'; subSec.setAttribute('data-sub', category); subSec.innerHTML = `<div class="category-header lvl-2">${category}</div><div class="subcategory-items"></div>`; organArea.appendChild(subSec); }
+                    if (!subSec) { 
+                        subSec = document.createElement('div'); 
+                        subSec.className = 'subcategory-section'; 
+                        subSec.setAttribute('data-sub', category); 
+                        subSec.innerHTML = `<div class="category-header lvl-2">${category}</div><div class="subcategory-items"></div>`; 
+                        
+                        const currentCatIndex = CATEGORY_ORDER[category] !== undefined ? CATEGORY_ORDER[category] : 9999;
+                        let inserted = false;
+                        const existingSections = Array.from(organArea.querySelectorAll('.subcategory-section'));
+                        
+                        for (let i = 0; i < existingSections.length; i++) {
+                            const existingCat = existingSections[i].getAttribute('data-sub');
+                            const existingIndex = CATEGORY_ORDER[existingCat] !== undefined ? CATEGORY_ORDER[existingCat] : 9999;
+                            
+                            if (currentCatIndex < existingIndex) {
+                                organArea.insertBefore(subSec, existingSections[i]);
+                                inserted = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!inserted) {
+                            organArea.appendChild(subSec); 
+                        }
+                    }
                     targetContainer = subSec.querySelector('.subcategory-items');
                 }
                 box = document.createElement('div'); box.className = 'drag-box'; box.setAttribute('draggable', 'true'); box.setAttribute('data-form-id', fullId); if(parentFormId) box.setAttribute('data-parent-form', parentFormId); addDragEvents(box); targetContainer.appendChild(box);
@@ -4280,9 +4398,11 @@
             setB('main-region-btn', sT, 'TRUP', 'CELOTĚLO'); setB('main-head-btn', sH, 'HLAVA', sH[0]);
 
             tV('#findings-panel .content-area, #report-panel .content-area, #conclusion-panel .content-area', EXAM_STATE.regions.length > 0);
-            tV('#ref-jatra', showPet, 'flex'); tV('#ref-parotidy', EXAM_STATE.pet === 'PSMA', 'flex'); tV('#ref-slezina', EXAM_STATE.pet === 'DOTATOC', 'flex');
-            tV('.minule-specific, .minule-ref-specific', !!document.getElementById('input-minule')?.value, 'flex');
-            document.querySelectorAll('.finding-btn, [data-action="show-details"], #btn-organy, #btn-hrudnik-organy, #btn-bricho-organy, #btn-hlava-organy, #btn-skelet-organy').forEach(b => b.disabled = !hasTomo);
+            tV('#ref-jatra', showPet && (EXAM_STATE.pet !== 'DOPA' || sT.length > 0), 'flex'); 
+            tV('#ref-parotidy', EXAM_STATE.pet === 'PSMA', 'flex'); 
+            tV('#ref-slezina', EXAM_STATE.pet === 'DOTATOC', 'flex'); 
+            tV('#ref-striatum', EXAM_STATE.pet === 'DOPA' && sH.length > 0, 'flex');
+            tV('.minule-specific, .minule-ref-specific', !!document.getElementById('input-minule')?.value, 'flex');document.querySelectorAll('.finding-btn, [data-action="show-details"], #btn-organy, #btn-hrudnik-organy, #btn-bricho-organy, #btn-hlava-organy, #btn-skelet-organy').forEach(b => b.disabled = !hasTomo);
             
             const visR = []; if (sH.length > 0) visR.push('HLAVA');
             ['KRK', 'HRUDNÍK', 'BŘICHO'].forEach(reg => {
@@ -4479,6 +4599,7 @@
                 "Žaludek": { name: "Žaludek", target: "btn-zaludek" },
                 "Pankreas": { name: "Pankreas", target: "btn-pankreas" },
                 "Tračník": { name: "Tračník", target: "btn-tracnik" },
+                "Peritoneum": { name: "Peritoneum", target: "btn-peritoneum" },
                 "Tenké střevo": { name: "Tenké střevo", target: "btn-tenke-strevo" },
                 "Močový měchýř": { name: "Močový měchýř", target: "btn-moc-mechyr" },
                 "Thymus": { name: "Thymus", target: "btn-thymus" },
@@ -4557,6 +4678,11 @@
             initAnatomySchematic();
             loadExamState();
             
+            document.querySelectorAll('.detail-form').forEach((form, index) => {
+                const cat = form.getAttribute('data-category');
+                if (cat && CATEGORY_ORDER[cat] === undefined) CATEGORY_ORDER[cat] = index;
+            });
+
             document.querySelectorAll('.header-btn[data-type]').forEach(btn => { if (EXAM_STATE[btn.dataset.type] === btn.textContent) btn.classList.add('selected'); });
             document.querySelectorAll('.region-btn').forEach(btn => { if (EXAM_STATE.regions.includes(btn.dataset.region)) btn.classList.add('selected'); });
             const sS = localStorage.getItem('mw_user_settings'); if (sS) APP_SETTINGS = { ...APP_SETTINGS, ...JSON.parse(sS) }; 
