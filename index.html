@@ -284,10 +284,10 @@
                 <button class="btn lvl2" id="btn-hrudnik-organy" data-action="toggle-sub" data-target="hrudnik-organy-sub">Orgány</button>
                 <div id="hrudnik-organy-sub" class="hidden lvl3-container">
                     <button class="btn lvl3" id="btn-plice" data-action="show-details" data-target="form-plice">Plíce</button>
+                    <button class="btn lvl3" id="btn-srdce" data-action="show-details" data-target="form-srdce">Srdce</button>
                     <button class="btn lvl3" id="btn-mamma" data-action="show-details" data-target="form-mamma">Mamma</button>
                     <button class="btn lvl3" id="btn-jicen" data-action="show-details" data-target="form-jicen">Jícen</button>
                     <button class="btn lvl3" id="btn-thymus" data-action="show-details" data-target="form-thymus">Thymus</button>
-                    <button class="btn lvl3" id="btn-srdce" data-action="show-details" data-target="form-srdce">Srdce</button>
                     <button class="btn lvl3" id="btn-devices" data-action="show-details" data-target="form-devices">Devices</button>
                 </div>
             </div>
@@ -348,8 +348,8 @@
             <div id="form-farynx" class="detail-form" data-menu-id="btn-farynx" data-region="KRK" data-category="FARYNX"><div class="flex-wrapper" id="farynx-grid"></div></div>
             <div id="form-zuby" class="detail-form" data-region="KRK" data-category="ZUBY">Formulář pro Zuby...</div>
             <div id="form-plice" class="detail-form" data-menu-id="btn-plice" data-region="HRUDNÍK" data-category="PLÍCE"><div class="flex-wrapper" id="plice-grid"></div></div>
-            <div id="form-thymus" class="detail-form" data-menu-id="btn-thymus" data-region="HRUDNÍK" data-category="THYMUS"><div class="flex-wrapper" id="thymus-grid"></div></div>
             <div id="form-srdce" class="detail-form" data-menu-id="btn-srdce" data-region="HRUDNÍK" data-category="SRDCE"><div class="flex-wrapper" id="srdce-grid"></div></div>
+            <div id="form-thymus" class="detail-form" data-menu-id="btn-thymus" data-region="HRUDNÍK" data-category="THYMUS"><div class="flex-wrapper" id="thymus-grid"></div></div>
             <div id="form-mamma" class="detail-form" data-menu-id="btn-mamma" data-region="HRUDNÍK" data-category="MAMMA"><div class="flex-wrapper" id="mamma-grid"></div></div>
             <div id="form-jicen" class="detail-form" data-menu-id="btn-jicen" data-region="HRUDNÍK" data-category="JÍCEN"><div class="flex-wrapper" id="jicen-grid"></div></div>
             <div id="form-devices" class="detail-form" data-menu-id="btn-devices" data-region="HRUDNÍK" data-category="DEVICES"><div class="flex-wrapper" id="devices-grid"></div></div>
@@ -434,6 +434,10 @@
             <div class="setting-item">
                 <span>Zobrazovat nativní texty</span>
                 <label class="switch"><input type="checkbox" id="setting-show-native-texts" onchange="updateSettings()"><span class="slider"></span></label>
+            </div>
+            <div class="setting-item">
+                <span>SUVmax vs játra (slovně)</span>
+                <label class="switch"><input type="checkbox" id="setting-suv-vs-jatra" onchange="updateSettings()"><span class="slider"></span></label>
             </div>
         </div>
     </div>
@@ -1509,64 +1513,34 @@
             const pleuraTable = form.querySelector('#pleura-table');
             if (pleuraTable) {
                 // 1. Zpracování tekutiny (včetně minulé)
-                const rInput = pleuraTable.querySelector('.fluid-curr[data-side="p"]');
-                const lInput = pleuraTable.querySelector('.fluid-curr[data-side="l"]');
-                const rMinInput = pleuraTable.querySelector('.fluid-min[data-side="p"]');
-                const lMinInput = pleuraTable.querySelector('.fluid-min[data-side="l"]');
+                const getVal = (s, cls) => parseInt(pleuraTable.querySelector(`.${cls}[data-side="${s}"]`)?.value) || 0;
+                const rv = getVal('p', 'fluid-curr'), rMin = getVal('p', 'fluid-min');
+                const lv = getVal('l', 'fluid-curr'), lMin = getVal('l', 'fluid-min');
 
-                const rVal = rInput ? parseInt(rInput.value) : NaN;
-                const lVal = lInput ? parseInt(lInput.value) : NaN;
-                const rMinVal = rMinInput ? parseInt(rMinInput.value) : NaN;
-                const lMinVal = lMinInput ? parseInt(lMinInput.value) : NaN;
-
-                if ((!isNaN(rVal) && rVal > 0) || (!isNaN(lVal) && lVal > 0)) {
-                    let fluidRep = [];
-                    let fluidConcl = [];
-                    const rv = isNaN(rVal) ? 0 : rVal;
-                    const lv = isNaN(lVal) ? 0 : lVal;
-
-                    const rDyn = calculateDynamicsText(rv, rMinVal);
-                    const lDyn = calculateDynamicsText(lv, lMinVal);
-
-                    const getMod = (v) => v >= 40 ? "výrazný" : (v <= 15 && v > 0 ? "malý" : "");
-                    
-                    const formatRepItem = (val, side, minVal) => {
-                        let txt = `šíře ${val} mm ${side}`;
-                        if (!isNaN(minVal) && minVal > 0) txt += ` (minule ${minVal})`;
-                        return txt;
+                if (rv || lv || rMin || lMin) {
+                    const getSide = (v, m, s) => {
+                        if (!v && !m) return null;
+                        if (!v) return { r: `${s} tekutina zcela regredovala (minule ${m} mm)`, c: `Fluidothorax ${s} zcela regredoval`, reg: 1 };
+                        const dyn = calculateDynamicsText(v, m), mod = v >= 40 ? "výrazný " : (v <= 15 ? "malý " : "");
+                        return { r: `šíře ${v} mm ${s}${m ? ` (minule ${m})` : ''}`, c: capitalize(`${dyn.prefix}${mod}fluidothorax ${s}${dyn.suffix}`), reg: 0, ...dyn, mod };
                     };
 
-                    if (rv > 0 && lv > 0) {
-                        fluidRep.push(`Pleurálně tekutina ${formatRepItem(rv, 'vpravo', rMinVal)} a ${formatRepItem(lv, 'vlevo', lMinVal)}.`);
-                        
-                        if (getMod(rv) === getMod(lv) && rDyn.prefix === lDyn.prefix && rDyn.suffix === lDyn.suffix) {
-                            const mod = getMod(rv);
-                            let base = `${mod ? mod + ' ' : ''}fluidothorax bilat.`.trim();
-                            fluidConcl.push(capitalize(rDyn.prefix + base + rDyn.suffix));
-                        } else {
-                            const rBase = `${getMod(rv) ? getMod(rv) + ' ' : ''}fluidothorax vpravo`.trim();
-                            const lBase = `${getMod(lv) ? getMod(lv) + ' ' : ''}fluidothorax vlevo`.trim();
-                            
-                            const rText = rDyn.prefix + rBase + rDyn.suffix;
-                            const lText = lDyn.prefix + lBase + lDyn.suffix;
-                            fluidConcl.push(`${capitalize(rText)}, ${lText}`);
-                        }
-                    } else if (rv > 0) {
-                        fluidRep.push(`Pleurálně tekutina ${formatRepItem(rv, 'vpravo', rMinVal)}.`);
-                        const base = `${getMod(rv) ? getMod(rv) + ' ' : ''}fluidothorax vpravo`.trim();
-                        fluidConcl.push(capitalize(rDyn.prefix + base + rDyn.suffix));
-                    } else if (lv > 0) {
-                        fluidRep.push(`Pleurálně tekutina ${formatRepItem(lv, 'vlevo', lMinVal)}.`);
-                        const base = `${getMod(lv) ? getMod(lv) + ' ' : ''}fluidothorax vlevo`.trim();
-                        fluidConcl.push(capitalize(lDyn.prefix + base + lDyn.suffix));
+                    const R = getSide(rv, rMin, 'vpravo'), L = getSide(lv, lMin, 'vlevo');
+                    let rep = '', concl = '';
+
+                    if (R && L && R.reg && L.reg) {
+                        rep = `tekutina bilat. zcela regredovala (minule vpravo ${rMin} mm, vlevo ${lMin} mm)`;
+                        concl = "Fluidothorax bilat. zcela regredoval";
+                    } else if (R && L && !R.reg && !L.reg) {
+                        rep = `tekutina ${R.r} a ${L.r}`;
+                        concl = (R.mod === L.mod && R.prefix === L.prefix && R.suffix === L.suffix) ? capitalize(`${R.prefix}${R.mod}fluidothorax bilat.${R.suffix}`) : `${R.c}, ${L.c.toLowerCase()}`;
+                    } else {
+                        const fmt = X => X.reg ? X.r : `tekutina ${X.r}`;
+                        rep = R && L ? `${fmt(R)}, ${fmt(L)}` : fmt(R || L);
+                        concl = [R?.c, L?.c].filter(Boolean).join('. ');
                     }
 
-                    results.push({ 
-                        id: 'pl-fluid', 
-                        rep: fluidRep.join(' '), 
-                        concl: fluidConcl.join('. ') + (fluidConcl.length > 0 && !fluidConcl[0].endsWith('.') ? '.' : ''), 
-                        conclType: 'main' 
-                    });
+                    results.push({ id: 'pl-fluid', rep: `Pleurálně ${rep}.`, concl: `${concl}.`.replace('..', '.'), conclType: 'main' });
                 }
 
                 // 2. Ostatní řádky v Pleuře (aktivita, talkáž - tlačítka)
@@ -1732,7 +1706,8 @@
             document.getElementById('srdce-grid').innerHTML = build2ColTable('Srdce a koronární tepny', [
                 { nazev: 'Dilatace', stavy: ['síní', 'celého'] },
                 { nazev: 'Náhrada chlopně', stavy: ['Ao', 'Mi', 'obou'] },
-                { nazev: 'AS koronárek', stavy: ['+'] }
+                { nazev: 'AS koronárek', stavy: ['+'] },
+                { nazev: 'Tekutina', stavy: ['+'], inlineInput: 'šíře v mm', inputClass: 'field-mm' }
             ]);
         }
 
@@ -1742,16 +1717,37 @@
                 const val = label.nextElementSibling.querySelector('.attr-btn').textContent;
                 if (val === '0') return;
                 const name = label.textContent.toLowerCase();
-                let rep = '';
+                const inputCol = label.nextElementSibling.nextElementSibling.nextElementSibling;
+                const inlineVal = inputCol ? inputCol.querySelector('.field-text')?.value.trim() : '';
+
+                let rep = '', concl = '', cType = 'incidental';
 
                 if (name === 'dilatace') {
                     rep = val === 'celého' ? "Dilatace všech srdečních oddílů." : "Dilatace srdečních síní.";
+                    cType = null;
                 } else if (name === 'náhrada chlopně') {
                     rep = val === 'obou' ? "Stav po náhradě Ao i Mi chlopně." : `Stav po náhradě ${val} chlopně.`;
+                    cType = null;
                 } else if (name === 'as koronárek') {
                     rep = "Aterosklerotické změny věnčitých tepen.";
+                    cType = null;
+                } else if (name === 'tekutina') {
+                    let sirka = parseInt(inlineVal);
+                    if (!isNaN(sirka)) {
+                        rep = `Tekutina v perikardiální dutině šíře ${sirka} mm.`;
+                        let mod = "";
+                        if (sirka <= 5) mod = "Diskrétní";
+                        else if (sirka <= 10) mod = "Malý";
+                        else if (sirka > 20) mod = "Výrazný";
+                        
+                        concl = mod ? `${mod} perikardiální výpotek.` : "Perikardiální výpotek.";
+                    } else {
+                        rep = "Tekutina v perikardiální dutině.";
+                        concl = "Perikardiální výpotek.";
+                    }
+                    cType = 'main';
                 }
-                if (rep) results.push({ id: `hr-${idx}`, rep, concl: '' });
+                if (rep) results.push({ id: `hr-${idx}`, rep, concl, conclType: cType });
             });
             return results;
         }
@@ -3055,7 +3051,7 @@
             </div>`;
 
             // D. Metriky
-            const rozmerBtns = `<input type="text" class="global-input field-size" placeholder="velikost" >${!isVasc ? `<span class="row-label pet-specific">SUVmax:</span><input type="text" class="global-input field-suv pet-specific" placeholder="SUV" ><span class="row-label pet-specific">aktivita:</span>${createDynamicButton(['nízká', 'intermed.', 'zvýšená', 'vysoká'], 'není', 'btn-aktivita pet-specific')}` : ''}`;
+            const rozmerBtns = `<input type="text" class="global-input field-size" placeholder="velikost" >${!isVasc ? `<span class="row-label pet-specific">SUVmax:</span><input type="text" class="global-input field-suv pet-specific" placeholder="SUV" ><span class="row-label pet-specific">aktivita:</span>${createDynamicButton(['není', 'nízká', 'intermed.', 'zvýšená', 'vysoká'], '0', 'btn-aktivita pet-specific')}` : ''}`;
             html += buildRow('row-metriky', 'Rozměr:', rozmerBtns);
 
             if (config.showMinule) {
@@ -3361,72 +3357,117 @@
 
         
 
-        function calculateRecistDynamics(currSize, minSize, currSuv, minSuv, hasMinDate, isRecistActive) {
-            if (!hasMinDate) return "";
-            let sState = null, aState = null;
+        // ==========================================
+        // VÝPOČTY METRIK A DYNAMIKY (METRICS ENGINE)
+        // ==========================================
+        const METRICS_ENGINE = {
+            getNormalizedSuv: (suv, refLiv) => (refLiv && refLiv > 0) ? (suv / refLiv) : suv,
+            getPctChange: (curr, min) => (!min || min <= 0) ? null : ((curr - min) / min) * 100,
             
-            if (currSize && minSize) {
-                const getMax = (s) => { const n = s.match(/\d+(\.\d+)?/g); return n ? Math.max(...n.map(Number)) : null; };
-                const cVal = getMax(currSize), mVal = getMax(minSize);
-                if (cVal !== null && mVal !== null && mVal > 0) {
-                    const pct = ((cVal - mVal) / mVal) * 100, absPct = Math.abs(pct);
-                    sState = { trend: 0, mod: "", pctStr: "" };
-                    if (absPct > 10) {
-                        sState.trend = pct > 0 ? 1 : -1;
-                        sState.mod = absPct < 20 ? "mírné" : absPct <= 50 ? "" : "výrazné";
-                        if (absPct >= 20 && isRecistActive) sState.pctStr = ` (${pct > 0 ? '+' : '-'}${Math.round(pct / 10) * 10}%)`;
+            getSuvVsLiverText: function(suvVal, refSuvVal) {
+                if (isNaN(suvVal) || isNaN(refSuvVal) || refSuvVal <= 0) return ` se SUVmax ${suvVal}`;
+                const r = suvVal / refSuvVal;
+                if (r < 0.2) return ` bez patrné akumulace RF`;
+                if (r < 0.8) return ` s akumulací RF o ${Math.round((1 - r) * 100 / 10) * 10} % nižší než ref. hodnota jater`;
+                if (r <= 1.2) return ` s akumulací RF na úrovni ref. hodnoty jater`;
+                if (r >= 1.95) return ` s akumulací RF ${Math.round(r)}x vyšší než ref. hodnota jater`;
+                return ` s akumulací RF o ${Math.round((r - 1) * 100 / 10) * 10} % vyšší než ref. hodnota jater`;
+            },
+            
+            getPastDynamicsText: function(currSuvVal, minSuvVal, cLiv, mLiv) {
+                if (isNaN(minSuvVal) || isNaN(currSuvVal) || minSuvVal <= 0) return `SUVmax ${minSuvVal}`;
+                const pct = this.getPctChange(this.getNormalizedSuv(currSuvVal, cLiv), this.getNormalizedSuv(minSuvVal, mLiv));
+                if (pct === null) return `SUVmax ${minSuvVal}`;
+                
+                if (pct >= 75) return 'akumulace byla výrazně nižší';
+                if (pct >= 50) return 'akumulace byla zřetelně nižší';
+                if (pct >= 20) return 'akumulace byla mírně nižší';
+                if (pct > -20) return 'akumulace byla obdobná';
+                if (pct > -50) return 'akumulace byla mírně vyšší';
+                if (pct > -75) return 'akumulace byla zřetelně vyšší';
+                return 'akumulace byla výrazně vyšší';
+            },
+
+            getAutoActivityLevel: function(suvVal, refSuvVal) {
+                const r = suvVal / refSuvVal;
+                return r < 0.2 ? 'není' : r < 0.8 ? 'nízká' : r <= 1.2 ? 'intermed.' : r <= 1.5 ? 'zvýšená' : 'vysoká';
+            },
+
+            calculateRecistDynamics: function(currSize, minSize, currSuv, minSuv, hasMinDate, isRecistActive) {
+                if (!hasMinDate) return "";
+                let sState = null, aState = null;
+                
+                if (currSize && minSize) {
+                    const getMax = (s) => { const n = s.match(/\d+(\.\d+)?/g); return n ? Math.max(...n.map(Number)) : null; };
+                    const cVal = getMax(currSize), mVal = getMax(minSize);
+                    if (cVal !== null && mVal !== null && mVal > 0) {
+                        const pct = this.getPctChange(cVal, mVal), absPct = Math.abs(pct);
+                        sState = { trend: 0, mod: "", pctStr: "" };
+                        if (absPct > 10) {
+                            sState.trend = pct > 0 ? 1 : -1;
+                            sState.mod = absPct < 20 ? "mírné" : absPct <= 50 ? "" : "výrazné";
+                            if (absPct >= 20 && isRecistActive) sState.pctStr = ` (${pct > 0 ? '+' : '-'}${Math.round(pct / 10) * 10}%)`;
+                        }
                     }
                 }
-            }
-            if (currSuv && minSuv) {
-                const cSuv = parseFloat(currSuv.replace(',', '.')), mSuv = parseFloat(minSuv.replace(',', '.'));
-                if (!isNaN(cSuv) && !isNaN(mSuv) && mSuv > 0) {
-                    const lInputs = document.querySelectorAll('#ref-jatra input.field-suv'), cLiv = lInputs[0] ? parseFloat(lInputs[0].value.replace(',', '.')) : NaN, mLiv = lInputs[1] ? parseFloat(lInputs[1].value.replace(',', '.')) : NaN;
-                    const pct = ((((cLiv > 0) ? (cSuv / cLiv) : cSuv) - ((mLiv > 0) ? (mSuv / mLiv) : mSuv)) / ((mLiv > 0) ? (mSuv / mLiv) : mSuv)) * 100, absPct = Math.abs(pct);
-                    aState = { trend: 0, mod: "" };
-                    if (absPct >= 20) { aState.trend = pct > 0 ? 1 : -1; aState.mod = absPct < 50 ? "mírné" : absPct < 100 ? "" : "výrazné"; }
+                if (currSuv && minSuv) {
+                    const cSuv = parseFloat(currSuv.replace(',', '.')), mSuv = parseFloat(minSuv.replace(',', '.'));
+                    if (!isNaN(cSuv) && !isNaN(mSuv) && mSuv > 0) {
+                        const lInputs = document.querySelectorAll('#ref-jatra input.field-suv');
+                        const cLiv = lInputs[0] ? parseFloat(lInputs[0].value.replace(',', '.')) : NaN;
+                        const mLiv = lInputs[1] ? parseFloat(lInputs[1].value.replace(',', '.')) : NaN;
+                        const pct = this.getPctChange(this.getNormalizedSuv(cSuv, cLiv), this.getNormalizedSuv(mSuv, mLiv));
+                        if (pct !== null) {
+                            const absPct = Math.abs(pct);
+                            aState = { trend: 0, mod: "" };
+                            if (absPct >= 20) { 
+                                aState.trend = pct > 0 ? 1 : -1; 
+                                aState.mod = absPct < 50 ? "mírné" : absPct < 75 ? "zřetelné" : "výrazné"; 
+                            }
+                        }
+                    }
                 }
-            }
 
-            const format = (st, isSize) => {
-                if (st.trend === 0) return isSize ? "rozměrově stacionární" : "akumulačně přibližně stacionární";
-                return `${st.mod ? 'v(e) ' + st.mod : 'v'} ${isSize ? 'rozměrové' + st.pctStr : 'akumulační'} ${st.trend === 1 ? 'progresi' : 'regresi'}`.replace('v(e) v', 've v').replace('v(e)', 'v');
-            };
-            
-            if (sState && aState) {
-                if (sState.trend === 0 && aState.trend === 0) return "rozměrově i metabolicky přibližně stacionární";
-                if (sState.trend === aState.trend && sState.trend !== 0) {
-                    const tW = sState.trend === 1 ? 'progresi' : 'regresi';
-                    return sState.mod === aState.mod ? `${sState.mod ? 'v(e) '+sState.mod : 'v'} rozměrové${sState.pctStr} i akumulační ${tW}`.replace('v(e) v', 've v').replace('v(e)', 'v') : `${sState.mod ? 'v(e) '+sState.mod : 'v'} rozměrové${sState.pctStr} a ${aState.mod} akumulační ${tW}`.replace('v(e) v', 've v').replace('v(e)', 'v');
+                const format = (st, isSize) => {
+                    if (st.trend === 0) return isSize ? "rozměrově stacionární" : "akumulačně přibližně stacionární";
+                    return `${st.mod ? 'v(e) ' + st.mod : 'v'} ${isSize ? 'rozměrové' + st.pctStr : 'akumulační'} ${st.trend === 1 ? 'progresi' : 'regresi'}`.replace('v(e) v', 've v').replace('v(e)', 'v');
+                };
+                
+                if (sState && aState) {
+                    if (sState.trend === 0 && aState.trend === 0) return "rozměrově i metabolicky přibližně stacionární";
+                    if (sState.trend === aState.trend && sState.trend !== 0) {
+                        const tW = sState.trend === 1 ? 'progresi' : 'regresi';
+                        return sState.mod === aState.mod ? `${sState.mod ? 'v(e) '+sState.mod : 'v'} rozměrové${sState.pctStr} i akumulační ${tW}`.replace('v(e) v', 've v').replace('v(e)', 'v') : `${sState.mod ? 'v(e) '+sState.mod : 'v'} rozměrové${sState.pctStr} a ${aState.mod} akumulační ${tW}`.replace('v(e) v', 've v').replace('v(e)', 'v');
+                    }
+                    return `${format(sState, true)} a ${format(aState, false)}`;
                 }
-                return `${format(sState, true)} a ${format(aState, false)}`;
-            }
-            return sState ? format(sState, true) : aState ? format(aState, false) : "";
-        }
+                return sState ? format(sState, true) : aState ? format(aState, false) : "";
+            },
 
-        // srovnání běžných nálezů - nově, progrese, regrese
-        function calculateDynamicsText(current, past) {
-            let res = { prefix: '', suffix: '' };
-            if (current === undefined || current === null || current === '') return res;
-            
-            const c = parseFloat(current);
-            if (isNaN(c) || c <= 0) return res;
-
-            if (past === undefined || past === null || past === '' || isNaN(parseFloat(past))) {
-                res.prefix = 'nově ';
+            calculateDynamicsText: function(current, past) {
+                let res = { prefix: '', suffix: '' };
+                if (current === undefined || current === null || current === '') return res;
+                const c = parseFloat(current);
+                if (isNaN(c) || c <= 0) return res;
+                if (past === undefined || past === null || past === '' || isNaN(parseFloat(past))) { res.prefix = 'nově '; return res; }
+                const p = parseFloat(past);
+                if (p === 0) res.prefix = 'nově ';
+                else {
+                    const ratio = c / p;
+                    if (ratio < 0.7) res.suffix = ' v regresi';
+                    else if (ratio > 1.3) res.suffix = ' v progresi';
+                    else res.suffix = ' přibližně stacionární';
+                }
                 return res;
             }
+        };
 
-            const p = parseFloat(past);
-            if (p === 0) {
-                res.prefix = 'nově ';
-            } else {
-                const ratio = c / p;
-                if (ratio < 0.7) res.suffix = ' v regresi';
-                else if (ratio > 1.3) res.suffix = ' v progresi';
-                else res.suffix = ' přibližně stacionární';
-            }
-            return res;
+        // Zpětná kompatibilita pro funkce volané mimo METRICS_ENGINE (např. v processPlice)
+        function calculateRecistDynamics(currSize, minSize, currSuv, minSuv, hasMinDate, isRecistActive) {
+            return METRICS_ENGINE.calculateRecistDynamics(currSize, minSize, currSuv, minSuv, hasMinDate, isRecistActive);
+        }
+        function calculateDynamicsText(current, past) {
+            return METRICS_ENGINE.calculateDynamicsText(current, past);
         }
 
         // Hlavní parser komponenty
@@ -3467,9 +3508,38 @@
             let reportStr = [druhAPocet, lokText, vzhledParts.length ? `(${vzhledParts.join(', ')})` : ''].filter(Boolean).join(' ');
             if (size) reportStr += ` ${size.includes('x') ? 'rozměru' : 'max. diametru'} ${size} mm`;
             if (nejvetsiVal) reportStr += nejvetsiVal;
-            if (suv) reportStr += ` se SUVmax ${suv}`;
+            
+            if (suv) {
+                if (APP_SETTINGS.suvVsJatra && EXAM_STATE.pet) {
+                    const refInp = document.querySelector('#ref-jatra > input.field-suv');
+                    const refSuv = refInp ? parseFloat(refInp.dataset.val || refInp.value.replace(',', '.')) : NaN;
+                    const suvVal = parseFloat(suv.replace(',', '.'));
+                    reportStr += METRICS_ENGINE.getSuvVsLiverText(suvVal, refSuv);
+                } else {
+                    reportStr += ` se SUVmax ${suv}`;
+                }
+            }
 
-            const minDate = !!document.getElementById('input-minule')?.value, minSize = form.querySelector('.field-size-minule')?.value, minSuv = form.querySelector('.field-suv-minule')?.value;if (minDate && (minSize || minSuv)) reportStr += ` (minule ${[minSize ? minSize+' mm' : null, minSuv ? 'SUVmax '+minSuv : null].filter(Boolean).join(', ')})`;
+            const minDate = !!document.getElementById('input-minule')?.value;
+            const minSize = form.querySelector('.field-size-minule')?.value;
+            const minSuv = form.querySelector('.field-suv-minule')?.value;
+            
+            if (minDate && (minSize || minSuv)) {
+                let minSuvStr = null;
+                if (minSuv) {
+                    if (APP_SETTINGS.suvVsJatra && EXAM_STATE.pet && suv) {
+                        const minSuvVal = parseFloat(minSuv.replace(',', '.'));
+                        const currSuvVal = parseFloat(suv.replace(',', '.'));
+                        const lInputs = document.querySelectorAll('#ref-jatra input.field-suv');
+                        const cLiv = lInputs[0] ? parseFloat(lInputs[0].value.replace(',', '.')) : NaN;
+                        const mLiv = lInputs[1] ? parseFloat(lInputs[1].value.replace(',', '.')) : NaN;
+                        minSuvStr = METRICS_ENGINE.getPastDynamicsText(currSuvVal, minSuvVal, cLiv, mLiv);
+                    } else {
+                        minSuvStr = `SUVmax ${minSuv}`;
+                    }
+                }
+                reportStr += ` (minule ${[minSize ? minSize + ' mm' : null, minSuvStr].filter(Boolean).join(', ')})`;
+            }
             
             reportStr = reportStr.length > 0 ? capitalize(reportStr.replace(/\s+,/g, ',')) + '.' + souvisReport : souvisReport.trim();
             
@@ -3989,45 +4059,54 @@
             const hrudnikContainer = hrudnikRegion ? hrudnikRegion.querySelector('.organ-items') : null;
             
             if (hrudnikRegion && hrudnikContainer) {
-                const pliceBoxes = Array.from(document.querySelectorAll('.drag-box[data-parent-form="form-plice"]'));
-                const loziskaHrudnik = Array.from(document.querySelectorAll('.detail-form[data-region="HRUDNÍK"][id^="lozisko-"]'));
+                const TEXT_DEFAULT = "Adekvátní plicní objem a vzdušnost.";
+                const TEXT_FOCAL = "Jinak adekvátní plicní objem a vzdušnost.";
+                const TEXT_SURGERY = "Zbylý parenchym s adekvátní vzdušností.";
+                const TEXT_HIDE = "";
+
+                let hasFocal = false;
+                let hasSurgery = false;
+                let hasDiffuseOrPleura = false;
+
+                const formPlice = document.getElementById('form-plice');
+                if (formPlice) {
+                    const focalTable = formPlice.querySelectorAll('.table-3col')[0];
+                    if (focalTable && Array.from(focalTable.querySelectorAll('.attr-btn.selected')).some(b => b.textContent !== '0')) hasFocal = true;
+
+                    const diffuseTable = formPlice.querySelector('.table-2col');
+                    if (diffuseTable && Array.from(diffuseTable.querySelectorAll('.attr-btn.selected')).some(b => b.textContent !== '0')) hasDiffuseOrPleura = true;
+
+                    const surgeryTable = formPlice.querySelectorAll('.table-3col')[1];
+                    if (surgeryTable && Array.from(surgeryTable.querySelectorAll('.attr-btn.selected')).some(b => b.textContent !== '0')) hasSurgery = true;
+
+                    const pleuraTable = formPlice.querySelector('#pleura-table');
+                    if (pleuraTable) {
+                        if (Array.from(pleuraTable.querySelectorAll('.attr-btn.selected')).some(b => b.textContent !== '0')) hasDiffuseOrPleura = true;
+                        if (Array.from(pleuraTable.querySelectorAll('.fluid-curr')).some(inp => parseFloat(inp.value) > 0)) hasDiffuseOrPleura = true;
+                    }
+                }
+
+                const loziskaHrudnik = document.querySelectorAll('.detail-form[data-region="HRUDNÍK"][id^="lozisko-"]');
+                if (loziskaHrudnik.length > 0) hasFocal = true;
+
+                let lungText = TEXT_DEFAULT;
+                if (hasFocal) lungText = TEXT_FOCAL;
+                if (hasSurgery) lungText = TEXT_SURGERY;
+                if (hasDiffuseOrPleura) lungText = TEXT_HIDE;
+
+                let pliceSubSec = hrudnikContainer.querySelector('.subcategory-section[data-sub="PLÍCE"]');
+                let pliceSubItems = pliceSubSec ? pliceSubSec.querySelector('.subcategory-items') : null;
                 
-                let hasRight = false;
-                let hasLeft = false;
+                let targetSub = (lungText !== TEXT_DEFAULT && lungText !== TEXT_HIDE && pliceSubItems) ? pliceSubItems : hrudnikContainer;
+                
+                updateOrCreateBox(hrudnikRegion, targetSub, 'native-lung-box', lungText, 'bottom');
 
-                let allText = pliceBoxes.map(b => b.textContent.toLowerCase()).join(' ');
-                loziskaHrudnik.forEach(f => {
-                    const repBox = document.querySelector(`#report-panel .drag-box[data-parent-form="${f.id}"]`);
-                    const conclBox = document.querySelector(`#conclusion-panel .drag-box[data-parent-form="${f.id}"]`);
-                    if (repBox) allText += " " + repBox.textContent.toLowerCase();
-                    if (conclBox) allText += " " + conclBox.textContent.toLowerCase();
-                });
-
-                const containsRight = /vpravo|prav|pdx|dx|l\.dx\./.test(allText);
-                const containsLeft = /vlevo|lev|psin|sin|l\.sin\./.test(allText);
-                const containsBilat = /bilat|obou|oboustran|difuzn/.test(allText);
-
-                if (containsBilat || (containsRight && containsLeft)) {
-                    hasRight = true; hasLeft = true;
-                } else if (containsRight) {
-                    hasRight = true;
-                } else if (containsLeft) {
-                    hasLeft = true;
+                if (pliceSubSec && pliceSubItems) {
+                    const hasRealFindings = Array.from(pliceSubItems.children).some(c => !c.classList.contains('native-lung-box'));
+                    if (!hasRealFindings) {
+                        pliceSubSec.remove();
+                    }
                 }
-
-                const hasAnyLungPathology = pliceBoxes.length > 0 || loziskaHrudnik.length > 0;
-
-                let lungText = "";
-                if (!hasAnyLungPathology) {
-                    lungText = "Adekvátní plicní objem a vzdušnost.";
-                } else if (hasRight && !hasLeft) {
-                    lungText = "Vlevo adekvátní plicní objem a vzdušnost.";
-                } else if (hasLeft && !hasRight) {
-                    lungText = "Vpravo adekvátní plicní objem a vzdušnost.";
-                }
-
-                let targetSub = hrudnikContainer.querySelector('.subcategory-section[data-sub="PLÍCE"] .subcategory-items') || hrudnikContainer;
-                updateOrCreateBox(hrudnikRegion, targetSub, 'native-lung-box', lungText, 'top');
             }
 
             // CONCLUSION LOGIC
@@ -4096,16 +4175,41 @@
                 const isNeighbor = !isSel && ((reg === 'KRK' && EXAM_STATE.regions.includes('HRUDNÍK')) || (reg === 'HRUDNÍK' && (EXAM_STATE.regions.includes('KRK') || EXAM_STATE.regions.includes('BŘICHO'))) || (reg === 'BŘICHO' && EXAM_STATE.regions.includes('HRUDNÍK')));
                 
                 if (isSel || isNeighbor) {
-                    const regionEl = document.querySelector(`.main-region[data-region="${reg}"]`); let regionParts = [];
+                    const regionEl = document.querySelector(`.main-region[data-region="${reg}"]`); 
+                    let regionParts = [];
+                    
                     if (regionEl) {
                         const patoItems = Array.from(regionEl.querySelectorAll('.category-items .drag-box'));
-                        if (patoItems.length > 0) regionParts.push(patoItems.map(b => b.textContent).join(' ')); 
-                        else if (isSel) regionParts.push(reg === 'SKELET' ? "Bez ložiskových změn skeletu či měkkých tkání." : "Bez patrné ložiskové patologie."); 
-                        else if (isNeighbor) regionParts.push("bez patrné patologie.");
+                        if (patoItems.length > 0) {
+                            regionParts.push(patoItems.map(b => b.textContent).join(' ')); 
+                        } else if (isSel) {
+                            regionParts.push(reg === 'SKELET' ? "Bez ložiskových změn skeletu či měkkých tkání." : "Bez patrné ložiskové patologie."); 
+                        } else if (isNeighbor) {
+                            regionParts.push("bez patrné patologie.");
+                        }
                         
                         let hasOrgan = false;
-                        regionEl.querySelectorAll('.subcategory-section').forEach(sec => { const subItems = Array.from(sec.querySelectorAll('.subcategory-items .drag-box')); if (subItems.length > 0) { hasOrgan = true; regionParts.push(`<b>${capitalize(sec.getAttribute('data-sub').toLowerCase())}:</b> ${subItems.map(b => b.textContent).join(' ')}`); } });
-                        if (isSel && !hasOrgan && reg !== 'SKELET') regionParts.push("Orgány jinak bez signifikantní patologie.");
+                        const organArea = regionEl.querySelector('.organ-items');
+                        
+                        if (organArea) {
+                            organArea.querySelectorAll('.subcategory-section').forEach(sec => { 
+                                const subItems = Array.from(sec.querySelectorAll('.subcategory-items .drag-box')); 
+                                if (subItems.length > 0) { 
+                                    hasOrgan = true; 
+                                    regionParts.push(`<b>${capitalize(sec.getAttribute('data-sub').toLowerCase())}:</b> ${subItems.map(b => b.textContent).join(' ')}`); 
+                                } 
+                            });
+                            
+                            const directOrganBoxes = Array.from(organArea.querySelectorAll(':scope > .drag-box'));
+                            if (directOrganBoxes.length > 0) {
+                                hasOrgan = true;
+                                regionParts.push(directOrganBoxes.map(b => b.textContent).join(' '));
+                            }
+                        }
+                        
+                        if (isSel && !hasOrgan && reg !== 'SKELET') {
+                            regionParts.push("Orgány jinak bez signifikantní patologie.");
+                        }
                     }
                     const sectionTitle = reg === 'SKELET' ? 'Skelet a měkké tkáně' : capitalize(reg.toLowerCase());
                     const partHtml = `<div style="margin-bottom: 4px;"><strong>${isSel ? `${sectionTitle}:` : `${sectionTitle} (v zachyceném rozsahu):`}</strong> ${regionParts.join(' ')}</div>`;
@@ -4207,7 +4311,7 @@
         }
 
         function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
-        let APP_SETTINGS = { expandedMenu: true, scrollValues: true, organyDohromady: false, compactMode: false, grammarMerging: false, showNativeTexts: true };
+        let APP_SETTINGS = { expandedMenu: true, scrollValues: true, organyDohromady: false, compactMode: false, grammarMerging: false, showNativeTexts: true, suvVsJatra: false };
         function updateSettings() { 
             APP_SETTINGS.expandedMenu = document.getElementById('setting-expanded-menu').checked; 
             APP_SETTINGS.scrollValues = document.getElementById('setting-scroll-values').checked; 
@@ -4215,11 +4319,14 @@
             APP_SETTINGS.compactMode = document.getElementById('setting-compact-mode').checked;
             APP_SETTINGS.grammarMerging = document.getElementById('setting-grammar-merging').checked;
             APP_SETTINGS.showNativeTexts = document.getElementById('setting-show-native-texts').checked;
+            APP_SETTINGS.suvVsJatra = document.getElementById('setting-suv-vs-jatra').checked;
             localStorage.setItem('mw_user_settings', JSON.stringify(APP_SETTINGS)); 
             
             applyMenuSettings();
-            applyExamVisibilityRules(); 
+            applyExamVisibilityRules();
+            document.querySelectorAll('.detail-form').forEach(f => triggerFormUpdate(f));
         }
+
         function applyMenuSettings() { 
             document.querySelectorAll('[id$="-sub"]').forEach(c => APP_SETTINGS.expandedMenu ? c.classList.remove('hidden') : c.classList.add('hidden')); 
             document.body.classList.toggle('compact-mode', APP_SETTINGS.compactMode);
@@ -4460,6 +4567,7 @@
             const cC = document.getElementById('setting-compact-mode'); if (cC) cC.checked = APP_SETTINGS.compactMode;
             const cG = document.getElementById('setting-grammar-merging'); if (cG) cG.checked = APP_SETTINGS.grammarMerging;
             const cNT = document.getElementById('setting-show-native-texts'); if (cNT) cNT.checked = APP_SETTINGS.showNativeTexts;
+            const cSJ = document.getElementById('setting-suv-vs-jatra'); if (cSJ) cSJ.checked = APP_SETTINGS.suvVsJatra;
             
             Object.keys(ORGAN_MODULES).forEach(formId => {
                 const module = ORGAN_MODULES[formId];
@@ -4506,7 +4614,9 @@
             if (!btnA) return;
             const suvVal = parseFloat(inp.dataset.val), refSuv = refInp ? parseFloat(refInp.dataset.val || refInp.value.replace(',', '.')) : NaN, s = JSON.parse(btnA.getAttribute('data-states'));
             if (isNaN(suvVal) || isNaN(refSuv) || refSuv <= 0) { if (parseInt(btnA.getAttribute('data-state-index')) !== -1 && isNaN(suvVal)) applyBtnState(btnA, -1, s); return; }
-            const r = suvVal / refSuv, t = r < 0.8 ? 'nízká' : r <= 1.2 ? 'intermed.' : r <= 1.5 ? 'zvýšená' : 'vysoká', tI = s.indexOf(t);
+            
+            const t = METRICS_ENGINE.getAutoActivityLevel(suvVal, refSuv);
+            const tI = s.indexOf(t);
             if (parseInt(btnA.getAttribute('data-state-index')) !== tI) applyBtnState(btnA, tI, s);
         }
 
