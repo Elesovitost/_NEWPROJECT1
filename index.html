@@ -3455,6 +3455,61 @@
         // VÝPOČTY METRIK A DYNAMIKY (METRICS ENGINE)
         // ==========================================
         const METRICS_ENGINE = {
+            getRefs: function() {
+                const parseVal = (sel) => { const el = document.querySelector(sel); return el ? parseFloat(el.dataset.val || el.value.replace(',', '.')) : NaN; };
+                return {
+                    liv: parseVal('#ref-jatra > input.field-suv'),
+                    par: parseVal('#ref-parotidy > input.field-suv'),
+                    spl: parseVal('#ref-slezina > input.field-suv'),
+                    str: parseVal('#ref-striatum > input.field-suv')
+                };
+            },
+
+            getTracerTexts: function(tracer, suvVal, btnState, isBrain) {
+                let res = { rep: '', concl: '' };
+                const refs = this.getRefs();
+                const hasSuv = !isNaN(suvVal);
+
+                const mapBtn = (t, b) => {
+                    if (!b || b === '0') return '';
+                    if (t === 'PSMA') return { 'není': 'bez patrné PSMA exprese', 'nízká': 's nízkou PSMA expresí', 'intermed.': 'se střední PSMA expresí', 'zvýšená': 'se zvýšenou PSMA expresí', 'vysoká': 's vysokou PSMA expresí' }[b];
+                    if (t === 'DOTATOC') return { 'není': 'bez exprese somatostatinových receptorů', 'nízká': 's nízkou koncentrací somatostatinových receptorů', 'intermed.': 'se střední koncentrací somatostatinových receptorů', 'zvýšená': 'se zvýšenou koncentrací somatostatinových receptorů', 'vysoká': 's vysokou koncentrací somatostatinových receptorů' }[b];
+                    if (t === 'DOPA') return { 'není': 'bez aktivity aminokyseliny', 'nízká': 's nízkou aktivitou aminokyseliny', 'intermed.': 'se střední aktivitou aminokyseliny', 'zvýšená': 'se zvýšenou aktivitou aminokyseliny', 'vysoká': 's vysokou aktivitou aminokyseliny' }[b];
+                    return { 'není': 'bez patrné metabolické aktivity', 'nízká': 's nízkou metabolickou aktivitou', 'intermed.': 's intermediární metabolickou aktivitou', 'zvýšená': 'se zvýšenou metabolickou aktivitou', 'vysoká': 's vysokou metabolickou aktivitou' }[b];
+                };
+
+                res.concl = mapBtn(tracer, btnState);
+
+                if (tracer === 'PSMA' && hasSuv && !isNaN(refs.liv) && !isNaN(refs.par)) {
+                    if (suvVal <= 0.5 * refs.liv) { res.rep = ' s akumulací RF výrazně pod ref. játry'; res.concl = 's velmi nízkou PSMA expresí'; }
+                    else if (suvVal <= refs.liv) { res.rep = ' s akumulací RF pod úrovní ref. jater'; res.concl = 's nízkou PSMA expresí'; }
+                    else if (suvVal <= refs.par) { res.rep = ' s akumulací RF nad ref. játry ale nižší než parotid'; res.concl = 'se zvýšenou PSMA expresí'; }
+                    else { res.rep = ' s akumulací RF nad úrovní ref. parotid'; res.concl = 's vysokou PSMA expresí'; }
+                    return res;
+                }
+
+                if (tracer === 'DOTATOC' && hasSuv && !isNaN(refs.liv) && !isNaN(refs.spl)) {
+                    if (suvVal <= 0.5 * refs.liv) { res.rep = ' s akumulací RF výrazně pod ref. játry'; res.concl = 's velmi nízkou koncentrací somatostatinových receptorů'; }
+                    else if (suvVal <= refs.liv) { res.rep = ' s akumulací RF do úrovně ref. jater'; res.concl = 's nízkou koncentrací somatostatinových receptorů'; }
+                    else if (suvVal <= refs.spl) { res.rep = ' s akumulací RF nad ref. játry ale nižší než sleziny'; res.concl = 'se zvýšenou koncentrací somatostatinových receptorů'; }
+                    else { res.rep = ' s akumulací RF nad úrovní ref. sleziny'; res.concl = 's vysokou koncentrací somatostatinových receptorů'; }
+                    return res;
+                }
+
+                if (tracer === 'DOPA' && isBrain && hasSuv && !isNaN(refs.str)) {
+                    if (suvVal < 0.8 * refs.str) { res.rep = ' s akumulací RF výrazně pod ref. kontralat. striatem'; res.concl = 's nízkou aktivitou aminokyseliny'; }
+                    else if (suvVal <= 1.05 * refs.str) { res.rep = ' s akumulací RF blížící se kontralat. striatu'; res.concl = 'se střední aktivitou aminokyseliny'; }
+                    else { res.rep = ' s akumulací RF nad ref. kontralat. striatem'; res.concl = 's vysokou aktivitou aminokyseliny'; }
+                    return res;
+                }
+
+                if ((tracer === 'FDG' || !tracer) && hasSuv && APP_SETTINGS.suvVsJatra) {
+                    res.rep = this.getSuvVsLiverText(suvVal, refs.liv);
+                }
+
+                return res;
+            },
+
             getNormalizedSuv: (suv, refLiv) => (refLiv && refLiv > 0) ? (suv / refLiv) : suv,
             getPctChange: (curr, min) => (!min || min <= 0) ? null : ((curr - min) / min) * 100,
             
@@ -3583,8 +3638,15 @@
                 }
             }
             
-            const size = form.querySelector('.row-metriky .field-size').value, suv = EXAM_STATE.pet ? form.querySelector('.row-metriky .field-suv').value : '';
-            const aBtn = EXAM_STATE.pet ? form.querySelector('.row-metriky .btn-aktivita.selected') : null, aMap = { 'není': 'bez akumulace RF', 'nízká': 's nízkou akumulací RF', 'intermed.': 's intermediární akumulací RF', 'zvýšená': 'se zvýšenou akumulací RF', 'vysoká': 's vysokou akumulací RF' };
+            const size = form.querySelector('.row-metriky .field-size').value;
+            const suvRaw = EXAM_STATE.pet ? form.querySelector('.row-metriky .field-suv').value.trim() : '';
+            const suvVal = parseFloat(suvRaw.replace(',', '.'));
+            
+            const aBtn = EXAM_STATE.pet ? form.querySelector('.row-metriky .btn-aktivita.selected') : null;
+            const btnState = aBtn ? aBtn.textContent : '';
+            const isBrain = form.getAttribute('data-region') === 'HLAVA';
+            
+            const tracerTexts = EXAM_STATE.pet ? METRICS_ENGINE.getTracerTexts(EXAM_STATE.pet, suvVal, btnState, isBrain) : { rep: '', concl: '' };
             
             const nejvetsiInput = form.querySelector('.row-nejvetsi-lok .nejvetsi-input');
             const nejvetsiVal = (nejvetsiInput && nejvetsiInput.closest('.row-nejvetsi-lok').style.display !== 'none' && nejvetsiInput.value.trim()) ? ` (největší ${nejvetsiInput.value.trim()})` : '';
@@ -3603,14 +3665,11 @@
             if (size) reportStr += ` ${size.includes('x') ? 'rozměru' : 'max. diametru'} ${size} mm`;
             if (nejvetsiVal) reportStr += nejvetsiVal;
             
-            if (suv) {
-                if (APP_SETTINGS.suvVsJatra && EXAM_STATE.pet) {
-                    const refInp = document.querySelector('#ref-jatra > input.field-suv');
-                    const refSuv = refInp ? parseFloat(refInp.dataset.val || refInp.value.replace(',', '.')) : NaN;
-                    const suvVal = parseFloat(suv.replace(',', '.'));
-                    reportStr += METRICS_ENGINE.getSuvVsLiverText(suvVal, refSuv);
+            if (suvRaw) {
+                if (tracerTexts.rep) {
+                    reportStr += tracerTexts.rep;
                 } else {
-                    reportStr += ` se SUVmax ${suv}`;
+                    reportStr += ` se SUVmax ${suvRaw}`;
                 }
             }
 
@@ -3621,9 +3680,9 @@
             if (minDate && (minSize || minSuv)) {
                 let minSuvStr = null;
                 if (minSuv) {
-                    if (APP_SETTINGS.suvVsJatra && EXAM_STATE.pet && suv) {
+                    if (APP_SETTINGS.suvVsJatra && EXAM_STATE.pet && suvRaw) {
                         const minSuvVal = parseFloat(minSuv.replace(',', '.'));
-                        const currSuvVal = parseFloat(suv.replace(',', '.'));
+                        const currSuvVal = parseFloat(suvRaw.replace(',', '.'));
                         const lInputs = document.querySelectorAll('#ref-jatra input.field-suv');
                         const cLiv = lInputs[0] ? parseFloat(lInputs[0].value.replace(',', '.')) : NaN;
                         const mLiv = lInputs[1] ? parseFloat(lInputs[1].value.replace(',', '.')) : NaN;
@@ -3637,10 +3696,10 @@
             
             reportStr = reportStr.length > 0 ? capitalize(reportStr.replace(/\s+,/g, ',')) + '.' + souvisReport : souvisReport.trim();
             
-            let conclStr = [druhAPocet, lokText, aBtn ? aMap[aBtn.textContent] : ''].filter(Boolean).join(' ');
+            let conclStr = [druhAPocet, lokText, tracerTexts.concl].filter(Boolean).join(' ');
             if (souvisConclArr.length > 0) conclStr += ` ${souvisConclArr.join(', ')}`;
 
-            const recistStr = calculateRecistDynamics(size, minSize, suv, minSuv, minDate, document.querySelector('.recist-btn')?.classList.contains('selected'));
+            const recistStr = calculateRecistDynamics(size, minSize, suvRaw, minSuv, minDate, document.querySelector('.recist-btn')?.classList.contains('selected'));
             if (recistStr) conclStr += conclStr ? `, ${recistStr}` : recistStr;
             
             const finalEtio = parseEtiologie(form);
@@ -4250,7 +4309,10 @@
                     // Zachytává: tumor, tumorozní, meta, metastáza, maligní, malignita, nelze vyloučit...
                     const hasMalignancyWord = /(tumor|meta|malign|nelze)/.test(mainTextCombined);
                     if (!hasMain || !hasMalignancyWord) {
-                        conclusionText = "Bez známek přítomnosti viabilní neoplazie.";
+                        if (EXAM_STATE.pet === 'PSMA') conclusionText = "Bez známek přítomnosti ložisek zvýšené exprese PSMA.";
+                        else if (EXAM_STATE.pet === 'DOTATOC') conclusionText = "Bez známek přítomnosti ložisek se zvýšeným nakupením somatostatinových receptorů.";
+                        else if (EXAM_STATE.pet === 'DOPA') conclusionText = "Bez známek přítomnosti ložisek se zvýšenou konzumpcí aminokyseliny.";
+                        else conclusionText = "Bez známek přítomnosti FDG-avidní neoplazie.";
                     }
                 } else {
                     if (!hasMain && !hasIncidental) {
@@ -4430,6 +4492,8 @@
             generateNativeTexts();
         }
 
+
+        
         function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
         let APP_SETTINGS = { expandedMenu: true, scrollValues: true, organyDohromady: false, compactMode: false, grammarMerging: false, showNativeTexts: true, suvVsJatra: false };
         function updateSettings() { 
