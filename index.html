@@ -583,7 +583,8 @@
                 { id: 'c', c: 'Celiakálně' },
                 { id: 'g', c: 'Perigastricky' },
                 { id: 'm', c: 'Mesenteriálně' },
-                { id: 'rp', p: 'Parakaválně', c: 'Interaortokaválně', l: 'Paraaortálně' },
+                { id: 'rp', c: 'Retroperitonea' },
+                { id: 'pa', c: 'Paraaortálně' },
                 { id: 'cia', p: 'CIA', l: 'CIA' },
                 { id: 'eia', p: 'EIA', l: 'EIA' },
                 { id: 'iia', p: 'IIA', l: 'IIA' },
@@ -754,7 +755,7 @@
                 'perigastricky': { g: 'X', '2s': 'perigastricky' },
                 'mesenteriálně': { g: 'X', '2s': 'mesenteriálně' },
                 'parakaválně': { g: 'X', '2s': 'parakaválně' },
-                'interaortokaválně': { g: 'X', '2s': 'interaortokaválně' },
+                'retroperitonea': { g: 'X', '2s': 'v retroperitoneu' },
                 'paraaortálně': { g: 'X', '2s': 'paraaortálně' },
                 'cia': { g: 'X', '2s': 'podél a. iliaca communis' },
                 'eia': { g: 'X', '2s': 'podél a. iliaca externa' },
@@ -766,10 +767,16 @@
                 'axila p': { g: 'X', '2s': 'v axile vpravo' },
                 'axila l': { g: 'X', '2s': 'v axile vlevo' },
                 'im p': { g: 'X', '2s': 'při a. mammaria int. vpravo' },
-                'im l': { g: 'X', '2s': 'při a. mammaria int. vlevo' }
+                'im l': { g: 'X', '2s': 'při a. mammaria int. vlevo' },
 
+                // SKELET A TRAUMA
+                'c obratel': { g: 'M', '2s': 'C obratle' }, 't obratel': { g: 'M', '2s': 'T obratle' }, 'l obratel': { g: 'M', '2s': 'L obratle' },
+                'sakrum': { g: 'N', '2s': 'kosti křížové' }, 'sternum': { g: 'N', '2s': 'sterna' }, 'klavikula': { g: 'F', '2s': 'klavikuly' },
+                'scapula': { g: 'F', '2s': 'lopatky' }, 'humerus': { g: 'M', '2s': 'humeru' }, 'žebro': { g: 'N', '2s': 'žebra' },
+                'kyčelní k.': { g: 'F', '2s': 'kosti kyčelní' }, 'sedací k.': { g: 'F', '2s': 'kosti sedací' }, 'stydká kost': { g: 'F', '2s': 'kosti stydké' },
+                'femur': { g: 'M', '2s': 'femuru' }, 'měkké tkáně': { g: 'F', '2s': 'měkkých tkání' }
                 },
-                adjectives: { 
+                adjectives: {
                     // POČTY A TVARY
                     'solitární': { num: 'S', 'M': 'solitární', 'F': 'solitární', 'N': 'solitární' }, 
                     'dvě': { num: 'P', 'M': 'dva', 'F': 'dvě', 'N': 'dvě' }, 
@@ -2691,10 +2698,10 @@
             const buildTraumaTable = (title, subType) => `
                 <div class="table-3col" data-sub-type="${subType}" style="grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 8px;">
                     <div class="table-header">${title}</div>
-                    <div class="table-col-title">R</div><div class="table-col-title">C</div><div class="table-col-title">L</div>
+                    <div class="table-col-title">R</div><div class="table-col-title">C</div ><div class="table-col-title">L</div>
                     
                     <div></div><div>${createDynamicButton(vC, "C obratel", "central-btn")}</div><div></div>
-                    <div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div>
+                    <div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div><div>${createDynamicButton(['+'], "Sternum", "central-btn static-text")}</div><div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div>
                     <div>${createDynamicButton(['+'], "Scapula", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Scapula", "side-btn static-text")}</div>
                     <div>${createDynamicButton(['+'], "Humerus", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Humerus", "side-btn static-text")}</div>
                     <div></div><div>${createDynamicButton(vT, "T obratel", "central-btn")}</div><div></div>
@@ -2750,6 +2757,7 @@
                     const val = btn.dataset.customVal || btn.querySelector('span').textContent;
                     if (def.includes('obratel')) locsVert.push(val);
                     else if (def === 'Sakrum') locsOther.push("kosti křížové");
+                    else if (def === 'Sternum') locsOther.push("sterna");
                 });
 
                 const sideBtns = Array.from(table.querySelectorAll('.side-btn'));
@@ -3775,7 +3783,6 @@
             form.querySelectorAll('.compact-loc-wrapper .attr-btn.selected').forEach(btn => {
                 const parentRow = btn.parentElement.parentElement;
                 const colIdx = Array.from(parentRow.children).indexOf(btn.parentElement) % 3;
-                // Pro hrudník nepřipojujeme strany explicitně, zkratky je již obsahují
                 const side = (formRegion !== 'HRUDNÍK') ? (colIdx === 0 ? ' vpravo' : (colIdx === 2 ? ' vlevo' : '')) : '';
                 lokaceArr.push(getGenitive(btn.textContent) + side);
             });
@@ -4069,6 +4076,7 @@
         }
 
         function renderDragBox(panelId, fullId, text, category, targetRegion, parentFormId, conclType = null) {
+            if (typeof text === 'string') text = text.replace(/\.\./g, '.');
             const container = document.querySelector(`#${panelId} .content-area`); let box = container.querySelector(`.drag-box[data-form-id="${fullId}"]`);
             if (panelId === 'conclusion-panel') {
                 if (!container.querySelector('.conclusion-section')) {
@@ -4203,7 +4211,7 @@
                     if (!hasMaligLozisko && !hasMaligLymf) {
                         text = skipLymf ? "Nejsou patrna patologická hyperakumující ložiska." : "Nejsou patrna patologická hyperakumující ložiska či lymfadenopatie.";
                     } else if (hasMaligLozisko && !hasMaligLymf && !skipLymf) {
-                        text = "Není patrna patologická hypermetabolická lymfadenopatie.";
+                        text = "Není patrna patologická hyperakumující lymfadenopatie.";
                     }
                 } else {
                     if (!hasMaligLozisko && !hasMaligLymf) {
@@ -4654,10 +4662,11 @@
             groups.forEach((prefixesSet, suffixStr) => {
                 let prefixes = Array.from(prefixesSet);
                 prefixes = optimizeTerms(prefixes);
-                let joinedPrefixes = joinWithAnd(prefixes);
+                
                 if (suffixStr === '') {
-                    finalPhrases.push(joinedPrefixes);
+                    finalPhrases.push(...prefixes);
                 } else {
+                    let joinedPrefixes = joinWithAnd(prefixes);
                     finalPhrases.push(`${joinedPrefixes} ${suffixStr}`);
                 }
             });
