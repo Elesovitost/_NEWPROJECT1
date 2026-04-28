@@ -561,6 +561,7 @@
         const LYMF_DATA = { 
             krk: [ { nazev: 'krk', stavy: ['+'] }, { nazev: '1A', stavy: ['+'] }, { nazev: '1B', stavy: ['+'] }, { nazev: '2A', stavy: ['+'] }, { nazev: '2B', stavy: ['+'] }, { nazev: '3', stavy: ['+'] }, { nazev: '4', stavy: ['+'] }, { nazev: '5', stavy: ['+'] }, { nazev: '6', stavy: ['+'] } ], 
             hrudnik: [
+                { id: 'med', p: 'Med P', c: 'Med', l: 'Med L' },
                 { id: '1', p: '1R', l: '1L' },
                 { id: '2', p: '2R', l: '2L' },
                 { id: '3A', c: '3A' },
@@ -570,6 +571,7 @@
                 { id: '6', c: '6' },
                 { id: '7', c: '7' },
                 { id: '8', p: '8R', l: '8L' },
+                { id: 'hil', p: 'Hilus P', l: 'Hilus L' },
                 { id: '10', p: '10R', l: '10L' },
                 { id: '11-14', p: '11-14R', l: '11-14L' },
                 { id: 'ax', p: 'Axila P', l: 'Axila L' },
@@ -663,6 +665,12 @@
                 'dolní lalok': { g: 'M', '2s': 'dolního laloku' }, 'pleura': { g: 'F', '2s': 'pleury' }, 'hrudní stěna': { g: 'F', '2s': 'hrudní stěny' }, 
                 'parakard. tuk': { g: 'M', '2s': 'parakardiálního tuku' }, 'thymus': { g: 'M', '2s': 'thymu' }, 'mamma': { g: 'F', '2s': 'mammy' }, 
                 'jícen': { g: 'M', '2s': 'jícnu' }, 'horní': { g: 'X', '2s': 'v horní třetině' }, 'střední': { g: 'X', '2s': 've střední třetině' }, 'dolní': { g: 'X', '2s': 'v dolní třetině' },
+
+                'med p': { g: 'X', '2s': 'v mediastinu vpravo' },
+                'med l': { g: 'X', '2s': 'v mediastinu vlevo' },
+                'med': { g: 'X', '2s': 'v mediastinu' },
+                'hilus p': { g: 'X', '2s': 'v pravém hilu' },
+                'hilus l': { g: 'X', '2s': 'v levém hilu' },
 
                 // MOZEK - PARENCHYM
                 'frontální lalok': { g: 'M', '2s': 'frontálně' }, 'parietální lalok': { g: 'M', '2s': 'parietálně' },
@@ -3651,14 +3659,22 @@
             const nejvetsiInput = form.querySelector('.row-nejvetsi-lok .nejvetsi-input');
             const nejvetsiVal = (nejvetsiInput && nejvetsiInput.closest('.row-nejvetsi-lok').style.display !== 'none' && nejvetsiInput.value.trim()) ? ` (největší ${nejvetsiInput.value.trim()})` : '';
 
-            let lokText = formatCzechList(lokaceArr);
+            let lokText = "";
             if (isLymf && form.getAttribute('data-region') === 'HRUDNÍK') {
                 const levels = lokaceArr.filter(l => /^\d/.test(l));
-                const others = lokaceArr.filter(l => !/^\d/.test(l));
+                let others = lokaceArr.filter(l => !/^\d/.test(l));
+                
+                if (others.includes('v pravém hilu') && others.includes('v levém hilu')) {
+                    others = others.filter(o => o !== 'v pravém hilu' && o !== 'v levém hilu');
+                    others.push('v obou hilech');
+                }
+
                 let parts = [];
                 if (levels.length > 0) parts.push("levelu " + levels.join(', '));
-                if (others.length > 0) parts.push(others.join(', '));
+                if (others.length > 0) parts.push(formatCzechList(others));
                 lokText = parts.join(', ');
+            } else {
+                lokText = formatCzechList(lokaceArr);
             }
 
             let reportStr = [druhAPocet, lokText, vzhledParts.length ? `(${vzhledParts.join(', ')})` : ''].filter(Boolean).join(' ');
@@ -4421,8 +4437,8 @@
             }
 
             const minule = document.getElementById('input-minule')?.value, ind = document.getElementById('input-indikace').value.trim();
-            const minuleHdr = minule && minule.split('-').length === 3 ? `Oproti minulému dostupnému vyšetření z ${parseInt(minule.split('-')[2])}. ${parseInt(minule.split('-')[1])}. ${minule.split('-')[0]}: ` : "";
-            const mainConc = Array.from(document.querySelectorAll('.main-conclusion-items .drag-box')).map(b => b.textContent).join(' ') || "Bez patrných patologických ložisek.";
+           const minuleHdr = minule && minule.split('-').length === 3 ? `Oproti minulému dostupnému vyšetření z ${minule.split('-')[2]}.${minule.split('-')[1]}.${minule.split('-')[0]}: ` : "";
+           const mainConc = Array.from(document.querySelectorAll('.main-conclusion-items .drag-box')).map(b => b.textContent).join(' ') || "Bez patrných patologických ložisek.";
             const incConcItems = Array.from(document.querySelectorAll('.incidental-items .drag-box')).map(b => b.textContent).join(' ').trim();
             
             // Nadpis se vkládá přímo do textového pole
@@ -4552,7 +4568,8 @@
                 const arrL = Array.from(groups.get('vlevo')).sort();
                 const isIdentical = arrR.length === arrL.length && arrR.every((val, i) => val === arrL[i]);
                 if (isIdentical) {
-                    groups.set('bilat.', new Set(arrR));
+                    if (!groups.has('bilat.')) groups.set('bilat.', new Set());
+                    arrR.forEach(val => groups.get('bilat.').add(val));
                     groups.delete('vpravo');
                     groups.delete('vlevo');
                 }
