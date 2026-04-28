@@ -2594,9 +2594,18 @@
                 { nazev: 'Stentgraft', stavy: ['+'], inlineInput: 'poznámka (typ)' }
             ], 'max-content 1fr');
 
-            const vascularRows = [ { nazev: 'Aorta' }, { nazev: 'TC' }, { nazev: 'AMS' }, { nazev: 'CIA' }, { nazev: 'EIA' }, { nazev: 'IIA' }, { nazev: 'FA' } ];
-            h += build3ColTable('Ateroskleróza', vascularRows, 'data-sub-type="skleroza"');
-            h += build3ColTable('Stenty', vascularRows, 'data-sub-type="stent"');
+            const rclVascularRows = [
+                { central: { nazev: 'Aorta', stavy: ['+'], extraClass: 'static-text' } },
+                { central: { nazev: 'TC', stavy: ['+'], extraClass: 'static-text' } },
+                { central: { nazev: 'AMS', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'CIA', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'EIA', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'IIA', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'FA', stavy: ['+'], extraClass: 'static-text' } }
+            ];
+            
+            h += build3RCLTable('Ateroskleróza', rclVascularRows, 'data-sub-type="skleroza"');
+            h += build3RCLTable('Stenty', rclVascularRows, 'data-sub-type="stent"');
             
             const bypassRows = [ { nazev: 'Aortofemorální' }, { nazev: 'Iliofemorální' }, { nazev: 'Femorofemorální' } ];
             h += build3ColTable('Bypassy', bypassRows, 'data-sub-type="bypass"');
@@ -2607,13 +2616,11 @@
         function processVelkeCevy(form) {
             let results = [];
             
-            // Pomocné mapování názvů pro report
             const vascNameMap = {
                 'Aorta': 'aorta', 'TC': 'truncus coeliacus', 'AMS': 'a. mesenterica sup.',
                 'CIA': 'společné iliky', 'EIA': 'zevní iliky', 'IIA': 'vnitřní iliky', 'FA': 'femorální arterie'
             };
 
-            // 1. Zjištění stavu stentgraftu pro sjednocení s aneurysmatem
             let stentgraftActive = false;
             let stentgraftNote = '';
             const rows2col = form.querySelectorAll('.table-2col .row-label');
@@ -2627,7 +2634,6 @@
                 }
             });
 
-            // 2. Aneurysma (s logikou ošetření)
             rows2col.forEach((label, idx) => {
                 if (label.textContent === 'Aneurysma aorty') {
                     const p = label.nextElementSibling.querySelector('.attr-btn').textContent;
@@ -2645,38 +2651,55 @@
                 }
             });
 
-            // Pokud je stentgraft bez aneurysmatu (v.s. kontrola)
             if (stentgraftActive && !results.some(r => r.id.startsWith('aneur'))) {
                 results.push({ id: 'stentg-alone', rep: `Zaveden stentgraft${stentgraftNote ? ' (' + stentgraftNote + ')' : ''}.`, concl: `Stentgraft in situ.` });
             }
 
-            // 3. Ateroskleróza, Stenty, Bypassy
             form.querySelectorAll('.table-3col').forEach(table => {
                 const type = table.getAttribute('data-sub-type');
+                if (!type) return;
                 let locs = [];
                 
-                table.querySelectorAll('.row-label').forEach(label => {
-                    const name = label.textContent;
-                    const p = label.previousElementSibling.querySelector('.attr-btn').textContent;
-                    const l = label.nextElementSibling.querySelector('.attr-btn').textContent;
-                    if (p === '0' && l === '0') return;
-                    
-                    const isCentral = ['Aorta', 'TC', 'AMS'].includes(name);
-                    const isFFBypass = name === 'Femorofemorální';
-                    const reportName = vascNameMap[name] || name.toLowerCase();
+                if (type === 'bypass') {
+                    table.querySelectorAll('.row-label').forEach(label => {
+                        const name = label.textContent;
+                        const p = label.previousElementSibling.querySelector('.attr-btn').textContent;
+                        const l = label.nextElementSibling.querySelector('.attr-btn').textContent;
+                        if (p === '0' && l === '0') return;
+                        
+                        const isFFBypass = name === 'Femorofemorální';
+                        const reportName = vascNameMap[name] || name.toLowerCase();
 
-                    if (isFFBypass) {
-                        locs.push("femorofemorální crossover");
-                    } else if (isCentral) {
-                        locs.push(reportName);
-                    } else {
-                        const sideStr = (p !== '0' && l !== '0') ? ' bilat.' : (p !== '0' ? ' vpravo' : ' vlevo');
+                        if (isFFBypass) {
+                            locs.push("femorofemorální crossover");
+                        } else {
+                            const sideStr = (p !== '0' && l !== '0') ? ' bilat.' : (p !== '0' ? ' vpravo' : ' vlevo');
+                            locs.push(reportName + sideStr);
+                        }
+                    });
+                } else if (type === 'skleroza' || type === 'stent') {
+                    table.querySelectorAll('.central-btn.selected').forEach(btn => {
+                        const name = btn.getAttribute('data-default-text');
+                        locs.push(vascNameMap[name] || name.toLowerCase());
+                    });
+
+                    const sideBtns = Array.from(table.querySelectorAll('.side-btn'));
+                    const uniqueSideNames = [...new Set(sideBtns.map(b => b.getAttribute('data-default-text')))];
+
+                    uniqueSideNames.forEach(name => {
+                        const pair = sideBtns.filter(b => b.getAttribute('data-default-text') === name);
+                        const p = pair[0].classList.contains('selected');
+                        const l = pair[1].classList.contains('selected');
+                        if (!p && !l) return;
+
+                        const reportName = vascNameMap[name] || name.toLowerCase();
+                        const sideStr = (p && l) ? ' bilat.' : (p ? ' vpravo' : ' vlevo');
                         locs.push(reportName + sideStr);
-                    }
-                });
+                    });
+                }
 
                 if (locs.length > 0) {
-                    const formatted = formatCzechList(locs); // Zde se aplikuje gramatická úprava
+                    const formatted = formatCzechList(locs);
                     if (type === 'skleroza') {
                         results.push({ id: `v-sk`, rep: `Pokročilé aterosklerotické změny ${formatted}.`, concl: '', conclType: null });
                     } else if (type === 'stent') {
@@ -2688,31 +2711,36 @@
             });
             return results;
         }
-
         function initKostiKloubyGrid() {
             const vC = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'vlastní'];
             const vT = [...Array.from({length: 12}, (_, i) => `T${i+1}`), 'vlastní'];
             const vL = [...Array.from({length: 5}, (_, i) => `L${i+1}`), 'vlastní'];
             const vR = [...Array.from({length: 12}, (_, i) => `${i+1}.`), 'vlastní'];
 
-            const buildTraumaTable = (title, subType) => `
-                <div class="table-3col" data-sub-type="${subType}" style="grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 8px;">
-                    <div class="table-header">${title}</div>
-                    <div class="table-col-title">R</div><div class="table-col-title">C</div ><div class="table-col-title">L</div>
-                    
-                    <div></div><div>${createDynamicButton(vC, "C obratel", "central-btn")}</div><div></div>
-                    <div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div><div>${createDynamicButton(['+'], "Sternum", "central-btn static-text")}</div><div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div>
-                    <div>${createDynamicButton(['+'], "Scapula", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Scapula", "side-btn static-text")}</div>
-                    <div>${createDynamicButton(['+'], "Humerus", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Humerus", "side-btn static-text")}</div>
-                    <div></div><div>${createDynamicButton(vT, "T obratel", "central-btn")}</div><div></div>
-                    <div>${createDynamicButton(vR, "Žebro", "side-btn")}</div><div></div><div>${createDynamicButton(vR, "Žebro", "side-btn")}</div>
-                    <div></div><div>${createDynamicButton(vL, "L obratel", "central-btn")}</div><div></div>
-                    <div></div><div>${createDynamicButton(['+'], "Sakrum", "central-btn static-text")}</div><div></div>
-                    <div>${createDynamicButton(['+'], "Kyčelní k.", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Kyčelní k.", "side-btn static-text")}</div>
-                    <div>${createDynamicButton(['+'], "Sedací k.", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Sedací k.", "side-btn static-text")}</div>
-                    <div>${createDynamicButton(['+'], "Stydká kost", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Stydká kost", "side-btn static-text")}</div>
-                    <div>${createDynamicButton(['+'], "Femur", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Femur", "side-btn static-text")}</div>
-                </div>`;
+            const traumaRows = [
+                { central: { nazev: 'C obratel', stavy: vC } },
+                { bilat: { nazev: 'Klavikula', stavy: ['+'], extraClass: 'static-text' }, central: { nazev: 'Sternum', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Scapula', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Humerus', stavy: ['+'], extraClass: 'static-text' } },
+                { central: { nazev: 'T obratel', stavy: vT } },
+                { bilat: { nazev: 'Žebro', stavy: vR } },
+                { central: { nazev: 'L obratel', stavy: vL } },
+                { central: { nazev: 'Sakrum', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Kyčelní k.', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Sedací k.', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Stydká kost', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Femur', stavy: ['+'], extraClass: 'static-text' } }
+            ];
+
+            const degRows = [
+                { central: { nazev: 'C páteř', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'AC', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Rameno', stavy: ['+'], extraClass: 'static-text' } },
+                { central: { nazev: 'T páteř', stavy: ['+'], extraClass: 'static-text' } },
+                { central: { nazev: 'L páteř', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Kyčel', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'SI', stavy: ['+'], extraClass: 'static-text' } }
+            ];
 
             let h = `<div style="display: flex; flex-direction: column;">`;
             
@@ -2722,22 +2750,11 @@
                 { nazev: 'Enostózy', stavy: ['1', 'více'] }
             ], 'max-content 1fr');
 
-            h += `<div class="table-3col" data-sub-type="degenerace" style="grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
-                <div class="table-header">Degenerativní změny</div>
-                <div class="table-col-title">R</div><div class="table-col-title">C</div><div class="table-col-title">L</div>
-                
-                <div></div><div>${createDynamicButton(['+'], "C páteř", "central-btn static-text")}</div><div></div>
-                <div>${createDynamicButton(['+'], "AC", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "AC", "side-btn static-text")}</div>
-                <div>${createDynamicButton(['+'], "Rameno", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Rameno", "side-btn static-text")}</div>
-                <div></div><div>${createDynamicButton(['+'], "T páteř", "central-btn static-text")}</div><div></div>
-                <div></div><div>${createDynamicButton(['+'], "L páteř", "central-btn static-text")}</div><div></div>
-                <div>${createDynamicButton(['+'], "Kyčel", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Kyčel", "side-btn static-text")}</div>
-                <div>${createDynamicButton(['+'], "SI", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "SI", "side-btn static-text")}</div>
-            </div>`;
-            
+            h += build3RCLTable('Degenerativní změny', degRows, 'data-sub-type="degenerace"');
             h += build2ColTable('DISH', [{ nazev: 'DISH', stavy: ['+'] }], 'max-content 1fr');
-            h += buildTraumaTable('Akutní trauma', 'trauma-akutni');
-            h += buildTraumaTable('Chronické trauma', 'trauma-chronicke');
+            h += build3RCLTable('Akutní trauma', traumaRows, 'data-sub-type="trauma-akutni"');
+            h += build3RCLTable('Chronické trauma', traumaRows, 'data-sub-type="trauma-chronicke"');
+            
             document.getElementById('kostiklouby-grid').innerHTML = h + `</div>`;
         }
 
@@ -2881,26 +2898,22 @@
             const vL = [...Array.from({length: 5}, (_, i) => `L${i+1}`), 'vlastní'];
             const vR = [...Array.from({length: 12}, (_, i) => `${i+1}.`), 'vlastní'];
 
-            const buildTable = (title, subType) => `
-                <div class="table-3col" data-sub-type="${subType}" style="grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 8px;">
-                    <div class="table-header">${title}</div>
-                    <div class="table-col-title">R</div><div class="table-col-title">C</div><div class="table-col-title">L</div>
-                    
-                    <div></div><div>${createDynamicButton(vC, "C obratel", "central-btn")}</div><div></div>
-                    <div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Klavikula", "side-btn static-text")}</div>
-                    <div>${createDynamicButton(['+'], "Scapula", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Scapula", "side-btn static-text")}</div>
-                    <div>${createDynamicButton(['+'], "Humerus", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Humerus", "side-btn static-text")}</div>
-                    <div></div><div>${createDynamicButton(vT, "T obratel", "central-btn")}</div><div></div>
-                    <div>${createDynamicButton(vR, "Žebro", "side-btn")}</div><div></div><div>${createDynamicButton(vR, "Žebro", "side-btn")}</div>
-                    <div></div><div>${createDynamicButton(vL, "L obratel", "central-btn")}</div><div></div>
-                    <div></div><div>${createDynamicButton(['+'], "Sakrum", "central-btn static-text")}</div><div></div>
-                    <div>${createDynamicButton(['+'], "Kyčelní k.", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Kyčelní k.", "side-btn static-text")}</div>
-                    <div>${createDynamicButton(['+'], "Sedací k.", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Sedací k.", "side-btn static-text")}</div>
-                    <div>${createDynamicButton(['+'], "Stydká kost", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Stydká kost", "side-btn static-text")}</div>
-                    <div>${createDynamicButton(['+'], "Femur", "side-btn static-text")}</div><div></div><div>${createDynamicButton(['+'], "Femur", "side-btn static-text")}</div>
-                </div>`;
+            const traumaRows = [
+                { central: { nazev: 'C obratel', stavy: vC } },
+                { bilat: { nazev: 'Klavikula', stavy: ['+'], extraClass: 'static-text' }, central: { nazev: 'Sternum', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Scapula', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Humerus', stavy: ['+'], extraClass: 'static-text' } },
+                { central: { nazev: 'T obratel', stavy: vT } },
+                { bilat: { nazev: 'Žebro', stavy: vR } },
+                { central: { nazev: 'L obratel', stavy: vL } },
+                { central: { nazev: 'Sakrum', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Kyčelní k.', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Sedací k.', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Stydká kost', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Femur', stavy: ['+'], extraClass: 'static-text' } }
+            ];
 
-            document.getElementById('trauma-grid').innerHTML = buildTable('Akutní trauma', 'trauma-akutni') + buildTable('Chronické trauma', 'trauma-chronicke');
+            document.getElementById('trauma-grid').innerHTML = build3RCLTable('Akutní trauma', traumaRows, 'data-sub-type="trauma-akutni"') + build3RCLTable('Chronické trauma', traumaRows, 'data-sub-type="trauma-chronicke"');
         }
 
         function processTrauma(form) {
@@ -3975,6 +3988,30 @@
                 return `<div class="${isPet.trim()}${rc}">${createDynamicButton(i.stavy || ['+'], "0", i.trigger ? 'dynamic-trigger ' + (i.extraClass || '') : (i.extraClass || ''))}</div><div class="row-label${isPet}${rc}">${i.nazev}</div><div class="${isPet.trim()}${rc}">${createDynamicButton(i.stavy || ['+'], "0", i.trigger ? 'dynamic-trigger ' + (i.extraClass || '') : (i.extraClass || ''))}</div>`; 
             }).join('')}</div>`; 
         }
+        function build3RCLTable(title, rows, extraAttrs = '') {
+            let html = `<div class="table-3col" ${extraAttrs} style="grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 8px;">`;
+            html += `<div class="table-header">${title}</div>`;
+            html += `<div class="table-col-title">R</div><div class="table-col-title">C</div><div class="table-col-title">L</div>`;
+
+            rows.forEach(r => {
+                let leftBtn = '', centerBtn = '', rightBtn = '';
+
+                if (r.bilat) {
+                    const ex = r.bilat.extraClass ? ` ${r.bilat.extraClass}` : '';
+                    leftBtn = createDynamicButton(r.bilat.stavy, r.bilat.nazev, `side-btn${ex}`);
+                    rightBtn = createDynamicButton(r.bilat.stavy, r.bilat.nazev, `side-btn${ex}`);
+                }
+                if (r.central) {
+                    const ex = r.central.extraClass ? ` ${r.central.extraClass}` : '';
+                    centerBtn = createDynamicButton(r.central.stavy, r.central.nazev, `central-btn${ex}`);
+                }
+
+                html += `<div>${leftBtn}</div><div>${centerBtn}</div><div>${rightBtn}</div>`;
+            });
+
+            html += `</div>`;
+            return html;
+        }
 
         function checkDynamicInputs(btn) {
             if (!btn) return; 
@@ -4411,7 +4448,7 @@
                             }
                         }
                         
-                        if (isSel && !hasOrgan && reg !== 'SKELET') {
+                        if (isSel && !hasOrgan && reg !== 'SKELET' && reg !== 'KRK') {
                             regionParts.push("Orgány jinak bez signifikantní patologie.");
                         }
                     }
