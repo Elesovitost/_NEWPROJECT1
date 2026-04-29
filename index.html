@@ -1532,6 +1532,43 @@
                 results.push({ id: 'op-combined', rep: `Stav po ${formatCzechList(allOps)}.`, concl: '' });
             }
 
+            // --- DIFUZNÍ ZMĚNY PARENCHYMU ---
+            form.querySelectorAll('.table-2col .row-label').forEach((label, idx) => {
+                const pBtn = label.nextElementSibling.querySelector('.attr-btn');
+                if (!pBtn || pBtn.textContent === '0') return;
+                
+                const p = pBtn.textContent;
+                const sBtn = label.nextElementSibling.nextElementSibling.querySelector('.attr-btn');
+                const s = sBtn ? sBtn.textContent : '';
+                
+                const name = label.textContent.toLowerCase();
+                const loc = s === 'lokace' ? '' : s;
+                
+                let rep = '', concl = '', cType = null;
+
+                if (name === 'fibróza') {
+                    rep = `${capitalize(p)} fibrotické změny plicního parenchymu ${loc}.`;
+                    // Do závěru pouze střední a výrazná
+                    if (p === 'střední' || p === 'výrazná') {
+                        concl = `${capitalize(p)} plicní fibróza.`;
+                        cType = 'incidental';
+                    }
+                } else if (name === 'emfyzém') {
+                    const mapEmf = { 'parsept.': 'paraseptální', 'centrilob.': 'centrilobulární', 'PAN': 'panacinární' };
+                    const typ = mapEmf[p] || p;
+                    rep = `${capitalize(typ)} emfyzém ${loc}.`;
+                    // Do závěru dáváme závažnější formy (PAN, centrilobulární)
+                    if (p === 'PAN' || p === 'centrilob.') {
+                        concl = `${capitalize(typ)} plicní emfyzém.`;
+                        cType = 'incidental';
+                    }
+                }
+
+                if (rep) {
+                    results.push({ id: `pl-dif-${idx}`, rep, concl, conclType: cType });
+                }
+            });
+
             // --- PLEURA ZPRACOVÁNÍ ---
             const pleuraTable = form.querySelector('#pleura-table');
             if (pleuraTable) {
