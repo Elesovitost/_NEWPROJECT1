@@ -142,6 +142,7 @@
         
         #details-panel > h2, #details-panel > #details-container { position: relative; z-index: 1; pointer-events: none; }
         #details-container > * { pointer-events: auto; }
+        #details-panel:has(.detail-form.active) #details-container { pointer-events: auto; }
         #details-container { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-start; align-content: flex-start; }
 
         .form-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 4px; }
@@ -201,10 +202,6 @@
                 </div>
             </div>
         </div>
-        <div class="exam-group" style="gap: 6px; padding: 0 0 0 15px; border-left: 1px solid var(--border-color);">
-            <span class="exam-label">Indikace:</span>
-            <input type="text" id="input-indikace" class="global-input field-text" style="width: 100%; max-width: 350px;" placeholder="Zadejte indikaci k vyšetření...">
-        </div>
         <div class="settings-trigger" data-action="open-settings" style="margin-left: auto;">⚙️</div>
 
         <div id="reference-suv-container" style="grid-column: 1 / span 3; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
@@ -238,6 +235,10 @@
         <div></div> <div class="exam-group" style="gap: 6px; padding: 0;">
             <span class="exam-label">Minulé vyšetření:</span>
             <input type="date" id="input-minule" class="global-input" style="color-scheme: dark; font-family: inherit;">
+        </div>
+        <div class="exam-group" style="gap: 6px; padding: 0 0 0 15px; border-left: 1px solid var(--border-color);">
+            <span class="exam-label">Indikace:</span>
+            <input type="text" id="input-indikace" class="global-input field-text" style="width: 100%; max-width: 350px;" placeholder="Zadejte indikaci k vyšetření...">
         </div>
         <div style="grid-column: span 2;"></div> 
     </header>
@@ -559,6 +560,8 @@
                 { nazev: 'Moč. měchýř', stavy: ['+'], central: true, col: 2 }
             ],
             skelet: [
+                { central: { nazev: 'Celý skelet', stavy: ['+'], extraClass: 'static-text' } },
+                { central: { nazev: 'Kostní dřeň', stavy: ['+'], extraClass: 'static-text' } },
                 { central: { nazev: 'C obratel', stavy: vC_skelet } },
                 { bilat: { nazev: 'Klavikula', stavy: ['+'], extraClass: 'static-text' }, central: { nazev: 'Sternum', stavy: ['+'], extraClass: 'static-text' } },
                 { bilat: { nazev: 'Scapula', stavy: ['+'], extraClass: 'static-text' } },
@@ -649,9 +652,13 @@
             nouns: { 
                 // ZÁKLADNÍ LÉZE A METRIKY
                 'ložisko': { g: 'N', '1s': 'ložisko', '2s': 'ložiska', '1p': 'ložiska', '2p': 'ložisek' }, 
+                'sklerotické ložisko': { g: 'N', '1s': 'sklerotické ložisko', '2s': 'sklerotického ložiska', '1p': 'sklerotická ložiska', '2p': 'sklerotických ložisek' },
+                'lytické ložisko': { g: 'N', '1s': 'lytické ložisko', '2s': 'lytického ložiska', '1p': 'lytická ložiska', '2p': 'lytických ložisek' },
+                'smíšené ložisko': { g: 'N', '1s': 'smíšené ložisko', '2s': 'smíšeného ložiska', '1p': 'smíšená ložiska', '2p': 'smíšených ložisek' }, 
                 'expanze': { g: 'F', '1s': 'expanze', '2s': 'expanze', '1p': 'expanze', '2p': 'expanzí' }, 
                 'infiltrace': { g: 'F', '1s': 'infiltrace', '2s': 'infiltrace', '1p': 'infiltrace', '2p': 'infiltrací' }, 
                 'kolekce': { g: 'F', '1s': 'kolekce', '2s': 'kolekce', '1p': 'kolekce', '2p': 'kolekcí' }, 
+                'fokus': { g: 'M', '1s': 'fokus', '2s': 'fokusu', '1p': 'fokusy', '2p': 'fokusů' }, 
                 'uzlina': { g: 'F', '1s': 'uzlina', '2s': 'uzliny', '1p': 'uzliny', '2p': 'uzlin' }, 
                 'paket uzlin': { g: 'M', '1s': 'paket uzlin', '2s': 'paketu uzlin', '1p': 'pakety uzlin', '2p': 'paketů uzlin' }, 
                 'cysta': { g: 'F', '1s': 'cysta', '2s': 'cysty', '1p': 'cysty', '2p': 'cyst', '1': 'cysta', 'multi': 'cysty' }, 
@@ -790,7 +797,8 @@
                 'sakrum': { g: 'N', '2s': 'kosti křížové' }, 'sternum': { g: 'N', '2s': 'sterna' }, 'klavikula': { g: 'F', '2s': 'klavikuly' },
                 'scapula': { g: 'F', '2s': 'lopatky' }, 'humerus': { g: 'M', '2s': 'humeru' }, 'žebro': { g: 'N', '2s': 'žebra' },
                 'kyčelní k.': { g: 'F', '2s': 'kosti kyčelní' }, 'sedací k.': { g: 'F', '2s': 'kosti sedací' }, 'stydká kost': { g: 'F', '2s': 'kosti stydké' },
-                'femur': { g: 'M', '2s': 'femuru' }, 'měkké tkáně': { g: 'F', '2s': 'měkkých tkání' }
+                'femur': { g: 'M', '2s': 'femuru' }, 'měkké tkáně': { g: 'F', '2s': 'měkkých tkání' },
+                'kostní dřeň': { g: 'F', '2s': 'v kostní dřeni' }, 'celý skelet': { g: 'M', '2s': 'v celém skeletu' },
                 },
                 adjectives: {
                     // POČTY A TVARY
@@ -1590,13 +1598,17 @@
                 const getVal = (s, cls) => parseInt(pleuraTable.querySelector(`.${cls}[data-side="${s}"]`)?.value) || 0;
                 const rv = getVal('p', 'fluid-curr'), rMin = getVal('p', 'fluid-min');
                 const lv = getVal('l', 'fluid-curr'), lMin = getVal('l', 'fluid-min');
+                const hasMinDate = !!document.getElementById('input-minule')?.value;
 
                 if (rv || lv || rMin || lMin) {
                     const getSide = (v, m, s) => {
                         if (!v && !m) return null;
                         if (!v) return { r: `${s} tekutina zcela regredovala (minule ${m} mm)`, c: `Fluidothorax ${s} zcela regredoval`, reg: 1 };
-                        const dyn = calculateDynamicsText(v, m), mod = v >= 40 ? "výrazný " : (v <= 15 ? "malý " : "");
-                        return { r: `šíře ${v} mm ${s}${m ? ` (minule ${m})` : ''}`, c: capitalize(`${dyn.prefix}${mod}fluidothorax ${s}${dyn.suffix}`), reg: 0, ...dyn, mod };
+                        
+                        const dyn = hasMinDate ? calculateDynamicsText(v, m) : { prefix: '', suffix: '' };
+                        const mod = v >= 40 ? "výrazný " : (v <= 15 ? "malý " : "");
+                        
+                        return { r: `šíře ${v} mm ${s}${(m && hasMinDate) ? ` (minule ${m})` : ''}`, c: capitalize(`${dyn.prefix}${mod}fluidothorax ${s}${dyn.suffix}`), reg: 0, ...dyn, mod };
                     };
 
                     const R = getSide(rv, rMin, 'vpravo'), L = getSide(lv, lMin, 'vlevo');
@@ -2806,8 +2818,8 @@
                 { bilat: { nazev: 'Rameno', stavy: ['+'], extraClass: 'static-text' } },
                 { central: { nazev: 'T páteř', stavy: ['+'], extraClass: 'static-text' } },
                 { central: { nazev: 'L páteř', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'SI', stavy: ['+'], extraClass: 'static-text' } },
                 { bilat: { nazev: 'Kyčel', stavy: ['+'], extraClass: 'static-text' } },
-                { bilat: { nazev: 'SI', stavy: ['+'], extraClass: 'static-text' } }
             ];
 
             let h = `<div style="display: flex; flex-direction: column;">`;
@@ -2819,7 +2831,12 @@
             ], 'max-content 1fr');
 
             h += build3RCLTable('Degenerativní změny', degRows, 'data-sub-type="degenerace"');
-            h += build2ColTable('DISH', [{ nazev: 'DISH', stavy: ['+'] }], 'max-content 1fr');
+            h += build3RCLTable('Zánětlivé změny', degRows, 'data-sub-type="zanet"'); 
+            h += build2ColTable('Systémové procesy', [
+                { nazev: 'DISH', stavy: ['+'] },
+                { nazev: 'Bechterew', stavy: ['+'] },
+                { nazev: 'Polymyalgia FDG+', stavy: ['+'] }
+            ], 'max-content 1fr');
             h += build3RCLTable('Akutní trauma', traumaRows, 'data-sub-type="trauma-akutni"');
             h += build3RCLTable('Chronické trauma', traumaRows, 'data-sub-type="trauma-chronicke"');
             
@@ -2950,11 +2967,65 @@
                 if (locs.length > 0) results.push({ id: `sk3-deg`, rep: `Pokročilé degenerativní změny ${formatCzechList(locs)}.`, concl: `Degenerativní změny skeletu.`, conclType: 'incidental' });
             }
 
-            // --- SEKCE DISH ---
-            const dishTable = form.querySelectorAll('.table-2col')[1];
-            dishTable?.querySelectorAll('.row-label').forEach((label, idx) => {
-                if (label.nextElementSibling.querySelector('.attr-btn').textContent !== '0')
-                    results.push({ id: `dish-${idx}`, rep: "Osifikace v oblasti předního longitudinálního lig. páteře, nejvýrazněji v thorakálním úseku, s tvorbou osteofytů. Zachovaná výška meziobratlových plotének a bez známek erozí SI či sakroiliitidy. Osifikační změny v oblasti entézí pánevního skeletu.", concl: "Strukturální změny skeletu obrazu DISH.", conclType: 'incidental' });
+            // --- SEKCE ZÁNĚT ---
+            const zanetTable = form.querySelector('.table-3col[data-sub-type="zanet"]');
+            if (zanetTable) {
+                let locs = [];
+                zanetTable.querySelectorAll('.central-btn.selected').forEach(btn => {
+                    const name = btn.getAttribute('data-default-text').toLowerCase();
+                    // Změněno na 1. pád
+                    const map = { 'c páteř': 'krční páteř', 't páteř': 'hrudní páteř', 'l páteř': 'bederní páteř' };
+                    locs.push(map[name] || name);
+                });
+                const sideBtns = Array.from(zanetTable.querySelectorAll('.side-btn'));
+                const uniqueSideNames = [...new Set(sideBtns.map(b => b.getAttribute('data-default-text')))];
+                uniqueSideNames.forEach(sideName => {
+                    const pair = sideBtns.filter(b => b.getAttribute('data-default-text') === sideName);
+                    const p = pair[0].classList.contains('selected'), l = pair[1].classList.contains('selected');
+                    if (!p && !l) return;
+                    // Změněno na 1. pád
+                    const map = { 'ac': 'AC skloubení', 'rameno': p && l ? 'ramenní klouby' : 'ramenní kloub', 'kyčel': p && l ? 'kyčelní klouby' : 'kyčelní kloub', 'si': 'SI skloubení' };
+                    const reportName = map[sideName.toLowerCase()] || sideName;
+                    locs.push(reportName + (p && l ? ' bilat.' : (p ? ' vpravo' : ' vlevo')));
+                });
+                if (locs.length > 0) {
+                    results.push({ 
+                        id: `sk3-zanet`, 
+                        rep: `${capitalize(formatCzechList(locs))} se zvýšenou aktivitou okolních měkkých tkání v rámci nespec. zánětlivých změn.`, 
+                        concl: ``, 
+                        conclType: 'incidental' 
+                    });
+                }
+            }
+
+            // --- SEKCE SYSTÉMOVÉ PROCESY ---
+            const sysTable = form.querySelectorAll('.table-2col')[1];
+            sysTable?.querySelectorAll('.row-label').forEach((label) => {
+                if (label.nextElementSibling.querySelector('.attr-btn').textContent !== '0') {
+                    const name = label.textContent.toLowerCase();
+                    if (name === 'dish') {
+                        results.push({ 
+                            id: `sys-dish`, 
+                            rep: "Osifikace v oblasti předního longitudinálního lig. páteře, nejvýrazněji v thorakálním úseku, s tvorbou osteofytů. Zachovaná výška meziobratlových plotének a bez známek erozí SI či sakroiliitidy. Osifikační změny v oblasti entézí pánevního skeletu.", 
+                            concl: "Strukturální změny skeletu obrazu DISH.", 
+                            conclType: 'incidental' 
+                        });
+                    } else if (name === 'bechterew') {
+                        results.push({ 
+                            id: `sys-becht`, 
+                            rep: "Změny v oblasti sakroiliakálních kloubů, bilaterálně, s ankylózou. Osifikace zejména předních longitudinálních ligament a interspinozní úponů.", 
+                            concl: "Obraz suspektní ze spondyloartritidy charakteru m. Bechtěrev. Bilaterální sakroiliitida, entrzopatie axiálního skeletu.", 
+                            conclType: 'main' 
+                        });
+                    } else if (name === 'polymyalgia FDG+') {
+                        results.push({ 
+                            id: `sys-poly`, 
+                            rep: "Zvýšená akumulace RF v oblastech ramenních, SC, AC, kyčelních kloubech, při symfýze, velkých trochanterech, interspinózně.", 
+                            concl: "Obraz suspektní z polymyalgia rheumatica. Zvýšená metabolická aktivita v mnohočetných kloubních lokalizacích a při šlachových úponech v rámci burzitis, entezitis a synovitis.", 
+                            conclType: 'main' 
+                        });
+                    }
+                }
             });
 
             return results;
@@ -3197,7 +3268,7 @@
                 showVzhledTomo: !isVasc && !isLymf,
                 showMinule: !isVasc,
                 showSouvisejici: !isLymf,
-                druhOptions: isLymf ? ['uzlina', 'paket uzlin', 'vlastní'] : (isVasc ? ['ischemie', 'hemoragie', 'prosáknutí'] : ['ložisko', 'expanze', 'infiltrace', 'kolekce', 'vlastní'])
+                druhOptions: isLymf ? ['uzlina', 'paket uzlin', 'vlastní'] : (isVasc ? ['ischemie', 'hemoragie', 'prosáknutí'] : (region === 'skelet' ? ['ložisko', 'sklerotické', 'lytické', 'smíšené', 'expanze', 'fokus', 'vlastní'] : ['ložisko', 'expanze', 'infiltrace', 'kolekce', 'vlastní']))
             };
 
             let html = '<div class="lozisko-main-container">';
@@ -3284,7 +3355,10 @@
         // Pomocné funkce pro parsování ložisek/uzlin
         const parseBasicInfo = (form) => {
             const druhBtn = form.querySelector('.row-druh .attr-btn.selected'), pocetBtn = form.querySelector('.row-pocet .attr-btn.selected');
-            const druhRaw = druhBtn ? (druhBtn.textContent === 'vlastní' ? form.querySelector('.row-druh .field-text').value.trim() : druhBtn.textContent) : '';
+            let druhRaw = druhBtn ? (druhBtn.textContent === 'vlastní' ? form.querySelector('.row-druh .field-text').value.trim() : druhBtn.textContent) : '';
+
+            if (['sklerotické', 'lytické', 'smíšené'].includes(druhRaw)) druhRaw += ' ložisko';
+            
             return { druhRaw, druhAPocet: applyGrammar(pocetBtn?.textContent || '', druhRaw) };
         };
 
@@ -4839,6 +4913,7 @@
                 "Pharynx": { name: "Hltan", target: "btn-farynx" },
                 "Játra": { name: "Játra", target: "btn-jatra" },
                 "Žlučník": { name: "Žlučník", target: "btn-zlucnik" },
+                "Thymus": { name: "Thymus", target: "btn-thymus" },
                 "Srdce": { name: "Srdce", target: "btn-srdce" },
                 "Plíce": { name: "Plíce", target: "btn-plice" },
                 "Devices": { name: "Devices", target: "btn-devices" },
@@ -4850,7 +4925,6 @@
                 "Peritoneum": { name: "Peritoneum", target: "btn-peritoneum" },
                 "Tenké střevo": { name: "Tenké střevo", target: "btn-tenke-strevo" },
                 "Močový měchýř": { name: "Močový měchýř", target: "btn-moc-mechyr" },
-                "Thymus": { name: "Thymus", target: "btn-thymus" },
                 "Ovária": { name: "Ovária", target: "btn-ovaria" },
                 "Děloha": { name: "Děloha", target: "btn-deloha" },
                 "Testes": { name: "Testes", target: "btn-testes" },
@@ -4870,7 +4944,10 @@
                 "Soft Tissues Lesion": { name: "Léze (Skelet / Měkké tkáně)", action: "add-finding", container: "loziska-skelet-container", region: "skelet", type: "lozisko" },
                 "Neck Lymph Node": { name: "Lymfadenopatie (Krk)", action: "add-finding", container: "lymf-krk-container", region: "krk", type: "lymf" },
                 "Thorax Lymph Node": { name: "Lymfadenopatie (Hrudník)", action: "add-finding", container: "lymf-hrudnik-container", region: "hrudnik", type: "lymf" },
-                "Abdomen Lymph Node": { name: "Lymfadenopatie (Břicho)", action: "add-finding", container: "lymf-bricho-container", region: "bricho", type: "lymf" }
+                "Abdomen Lymph Node": { name: "Lymfadenopatie (Břicho)", action: "add-finding", container: "lymf-bricho-container", region: "bricho", type: "lymf" },
+                "Chest Wall": { name: "Hrudní stěna", target: "btn-hrudni-stena" },
+                "Abdominal Wall": { name: "Břišní stěna", target: "btn-brisni-stena" },
+                "Neck Tissues": { name: "Krk měkké tkáně", target: "btn-krk-měkke-tkane" },
             };
 
             const svg = document.querySelector('#anatomy-schematic svg');
