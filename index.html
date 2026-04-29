@@ -1548,7 +1548,6 @@
 
                 if (name === 'fibróza') {
                     rep = `${capitalize(p)} fibrotické změny plicního parenchymu ${loc}.`;
-                    // Do závěru pouze střední a výrazná
                     if (p === 'střední' || p === 'výrazná') {
                         concl = `${capitalize(p)} plicní fibróza.`;
                         cType = 'incidental';
@@ -1557,7 +1556,6 @@
                     const mapEmf = { 'parsept.': 'paraseptální', 'centrilob.': 'centrilobulární', 'PAN': 'panacinární' };
                     const typ = mapEmf[p] || p;
                     rep = `${capitalize(typ)} emfyzém ${loc}.`;
-                    // Do závěru dáváme závažnější formy (PAN, centrilobulární)
                     if (p === 'PAN' || p === 'centrilob.') {
                         concl = `${capitalize(typ)} plicní emfyzém.`;
                         cType = 'incidental';
@@ -1982,11 +1980,11 @@
                 let rep = '', concl = '', cType = 'incidental';
 
                 if (name === 'litiáza') {
-                    const m = { 'sludge': 'se sludgem', '1': 'se solitárním konkrementem', 'více': 's vícečetnou litiázou' };
-                    rep = `Žlučník ${m[val]}.`;
+                    const m = { 'sludge': 'V lumen sludgem', '1': 'Solitární konkrement', 'více': 'Vícečetné konkrementy' };
+                    rep = `${m[val]}.`;
                     concl = val === 'sludge' ? "Sludge ve žlučníku." : "Cholecystolitiáza.";
                 } else if (name === 'cholecystitis') {
-                    rep = `${capitalize(val)} zesílení stěny žlučníku, edém okolí.`;
+                    rep = `${capitalize(val)} zesílení stěny, edém okolí.`;
                     concl = `${capitalize(val)} cholecystitis.`;
                     cType = 'main';
                 } else if (name.includes('choledochus')) {
