@@ -488,6 +488,12 @@
         // ==========================================
         // 1. DATA A SLOVNÍKY
         // ==========================================
+        
+        const vC_skelet = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'vlastní'];
+        const vT_skelet = [...Array.from({length: 12}, (_, i) => `T${i+1}`), 'vlastní'];
+        const vL_skelet = [...Array.from({length: 5}, (_, i) => `L${i+1}`), 'vlastní'];
+        const vR_skelet = [...Array.from({length: 12}, (_, i) => `${i+1}.`), 'vlastní'];
+
         const LOZISKO_DATA = { 
             hlava: [
                 { nazev: 'Frontální lalok', stavy: ['+'] },
@@ -553,9 +559,19 @@
                 { nazev: 'Moč. měchýř', stavy: ['+'], central: true, col: 2 }
             ],
             skelet: [
-                { nazev: 'Páteř krční', stavy: ['+'] }, { nazev: 'Páteř hrudní', stavy: ['+'] }, { nazev: 'Páteř bederní', stavy: ['+'] },
-                { nazev: 'Žebra', stavy: ['+'] }, { nazev: 'Pánev', stavy: ['+'] }, { nazev: 'Sternum', stavy: ['+'], central: true },
-                { nazev: 'Humerus', stavy: ['+'], rightCol: true }, { nazev: 'Femur', stavy: ['+'], rightCol: true }, { nazev: 'Měkké tkáně', stavy: ['+'], rightCol: true }
+                { central: { nazev: 'C obratel', stavy: vC_skelet } },
+                { bilat: { nazev: 'Klavikula', stavy: ['+'], extraClass: 'static-text' }, central: { nazev: 'Sternum', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Scapula', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Humerus', stavy: ['+'], extraClass: 'static-text' } },
+                { central: { nazev: 'T obratel', stavy: vT_skelet } },
+                { bilat: { nazev: 'Žebro', stavy: vR_skelet } },
+                { central: { nazev: 'L obratel', stavy: vL_skelet } },
+                { central: { nazev: 'Sakrum', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Kyčelní k.', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Sedací k.', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Stydká kost', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Femur', stavy: ['+'], extraClass: 'static-text' } },
+                { bilat: { nazev: 'Měkké tkáně', stavy: ['+'], extraClass: 'static-text' } }
             ],
         };
         const LYMF_DATA = { 
@@ -1787,7 +1803,7 @@
                     rep = val === 'obou' ? "Stav po náhradě Ao i Mi chlopně." : `Stav po náhradě ${val} chlopně.`;
                     cType = null;
                 } else if (name === 'as koronárek') {
-                    rep = "Aterosklerotické změny věnčitých tepen.";
+                    rep = "Aterosklerotické změny koronárních tepen.";
                     cType = null;
                 } else if (name === 'tekutina') {
                     let sirka = parseInt(inlineVal);
@@ -2630,7 +2646,7 @@
             ], 'max-content 1fr');
 
             const rclVascularRows = [
-                { central: { nazev: 'Aorty', stavy: ['+'], extraClass: 'static-text' } },
+                { central: { nazev: 'Aorta', stavy: ['+'], extraClass: 'static-text' } },
                 { central: { nazev: 'TC', stavy: ['+'], extraClass: 'static-text' } },
                 { central: { nazev: 'AMS', stavy: ['+'], extraClass: 'static-text' } },
                 { bilat: { nazev: 'CIA', stavy: ['+'], extraClass: 'static-text' } },
@@ -2652,8 +2668,13 @@
             let results = [];
             
             const vascNameMap = {
-                'Aorta': 'aorta', 'TC': 'truncus coeliacus', 'AMS': 'a. mesenterica sup.',
-                'CIA': 'společné iliky', 'EIA': 'zevní iliky', 'IIA': 'vnitřní iliky', 'FA': 'femorální arterie'
+                'Aorta': { sg: 'aorty', pl: 'aorty' }, 
+                'TC': { sg: 'truncus coeliacus', pl: 'truncus coeliacus' }, 
+                'AMS': { sg: 'a. mesenterica sup.', pl: 'a. mesenterica sup.' },
+                'CIA': { sg: 'společné iliky', pl: 'společných ilik' }, 
+                'EIA': { sg: 'zevní iliky', pl: 'zevních ilik' }, 
+                'IIA': { sg: 'vnitřní iliky', pl: 'vnitřních ilik' }, 
+                'FA': { sg: 'femorální arterie', pl: 'femorálních arterií' }
             };
 
             let stentgraftActive = false;
@@ -2715,7 +2736,9 @@
                 } else if (type === 'skleroza' || type === 'stent') {
                     table.querySelectorAll('.central-btn.selected').forEach(btn => {
                         const name = btn.getAttribute('data-default-text');
-                        locs.push(vascNameMap[name] || name.toLowerCase());
+                        // Pro centrální struktury můžeme použít tvar pl, protože jsou uprostřed, i když je to jedno
+                        const reportName = vascNameMap[name] ? vascNameMap[name].pl : name.toLowerCase();
+                        locs.push(reportName);
                     });
 
                     const sideBtns = Array.from(table.querySelectorAll('.side-btn'));
@@ -2727,8 +2750,18 @@
                         const l = pair[1].classList.contains('selected');
                         if (!p && !l) return;
 
-                        const reportName = vascNameMap[name] || name.toLowerCase();
-                        const sideStr = (p && l) ? ' bilat.' : (p ? ' vpravo' : ' vlevo');
+                        let reportName = name.toLowerCase();
+                        let sideStr = '';
+
+                        // Použití logiky sg/pl z mapy podle strany
+                        if (p && l) {
+                            reportName = vascNameMap[name] ? vascNameMap[name].pl : name.toLowerCase();
+                            sideStr = ' bilat.';
+                        } else {
+                            reportName = vascNameMap[name] ? vascNameMap[name].sg : name.toLowerCase();
+                            sideStr = p ? ' vpravo' : ' vlevo';
+                        }
+                        
                         locs.push(reportName + sideStr);
                     });
                 }
@@ -3180,7 +3213,11 @@
             html += buildRow('row-druh exclusive-group', isVasc ? 'Typ:' : 'Druh:', druhBtns);
 
             // B. Lokalizace
-            html += buildLocationGrid(data);
+            if (region === 'skelet' && type === 'lozisko') {
+                html += build3RCLTable('Lokalizace', data, 'data-sub-type="lozisko-rcl"');
+            } else {
+                html += buildLocationGrid(data);
+            }
 
             if (config.showVlastniLok) {
                 html += `<div class="form-row row-vlastni-lok" style="width: 100%; flex-wrap: nowrap;">
@@ -3835,7 +3872,58 @@
                 lokaceArr.push(getGenitive(btn.textContent) + side);
             });
 
-            const vlBtn = form.querySelector('.row-vlastni-lok .attr-btn.selected'); 
+            form.querySelectorAll('.table-3col[data-sub-type="lozisko-rcl"]').forEach(table => {
+                table.querySelectorAll('.central-btn.selected').forEach(btn => {
+                    const def = btn.getAttribute('data-default-text');
+                    const val = btn.dataset.customVal || btn.querySelector('span').textContent;
+                    
+                    if (def.includes('obratel')) lokaceArr.push(`obratlového těla ${val}`);
+                    else if (def === 'Sakrum') lokaceArr.push("kosti křížové");
+                    else if (def === 'Sternum') lokaceArr.push("sterna");
+                    else lokaceArr.push(getGenitive(val));
+                });
+
+                const sideBtns = Array.from(table.querySelectorAll('.side-btn'));
+                const names = [...new Set(sideBtns.map(b => b.getAttribute('data-default-text')))];
+
+                names.forEach(name => {
+                    const pair = sideBtns.filter(b => b.getAttribute('data-default-text') === name);
+                    if (pair.length !== 2) return;
+                    const p = pair[0].classList.contains('selected');
+                    const l = pair[1].classList.contains('selected');
+                    if (!p && !l) return;
+
+                    const map = { 
+                        'Klavikula': 'klavikuly', 
+                        'Scapula': 'lopatky', 
+                        'Humerus': 'prox. humeru', 
+                        'Žebro': 'žebra', 
+                        'Kyčelní k.': 'kosti kyčelní', 
+                        'Sedací k.': 'kosti sedací', 
+                        'Stydká kost': 'kosti stydké', 
+                        'Femur': 'prox. femuru',
+                        'Měkké tkáně': 'měkkých tkání'
+                    };
+                    const base = map[name] || getGenitive(name);
+
+                    if (name === 'Žebro') {
+                        if (p) {
+                            const val = pair[0].dataset.customVal || pair[0].querySelector('span').textContent;
+                            lokaceArr.push(`${val} žebra vpravo`);
+                        }
+                        if (l) {
+                            const val = pair[1].dataset.customVal || pair[1].querySelector('span').textContent;
+                            lokaceArr.push(`${val} žebra vlevo`);
+                        }
+                    } else {
+                        if (p && l) lokaceArr.push(`${base} bilat.`);
+                        else if (p) lokaceArr.push(`${base} vpravo`);
+                        else if (l) lokaceArr.push(`${base} vlevo`);
+                    }
+                });
+            });
+
+            const vlBtn = form.querySelector('.row-vlastni-lok .attr-btn.selected');
             if (vlBtn) { const val = form.querySelector('.row-vlastni-lok .field-text').value.trim(); if(val) lokaceArr.push(val); }
             return lokaceArr;
         };
@@ -3899,9 +3987,7 @@
         }
 
         // Utility funkce
-        
-        // Utility funkce s automatickou detekcí vlastního textu
-        
+                
         function createDynamicButton(stavy, vychoziStav="0", extraClass="") {
             // Smart detekce: Pokud je poslední stav "vlastní", aktivujeme mechaniku inputu
             const hasCustom = stavy[stavy.length - 1] === 'vlastní';
