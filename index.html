@@ -2630,7 +2630,7 @@
             ], 'max-content 1fr');
 
             const rclVascularRows = [
-                { central: { nazev: 'Aorta', stavy: ['+'], extraClass: 'static-text' } },
+                { central: { nazev: 'Aorty', stavy: ['+'], extraClass: 'static-text' } },
                 { central: { nazev: 'TC', stavy: ['+'], extraClass: 'static-text' } },
                 { central: { nazev: 'AMS', stavy: ['+'], extraClass: 'static-text' } },
                 { bilat: { nazev: 'CIA', stavy: ['+'], extraClass: 'static-text' } },
@@ -2736,9 +2736,9 @@
                 if (locs.length > 0) {
                     const formatted = formatCzechList(locs);
                     if (type === 'skleroza') {
-                        results.push({ id: `v-sk`, rep: `Pokročilé aterosklerotické změny ${formatted}.`, concl: '', conclType: null });
+                        results.push({ id: `v-sk`, rep: `Aterosklerotické pláty ${formatted}.`, concl: '', conclType: null });
                     } else if (type === 'stent') {
-                        results.push({ id: `v-st`, rep: `Stent in situ ${formatted}.`, concl: '', conclType: null });
+                        results.push({ id: `v-st`, rep: `Zaveden stent do ${formatted}.`, concl: '', conclType: null });
                     } else if (type === 'bypass') {
                         results.push({ id: `v-by`, rep: `Vytvořen bypass ${formatted}.`, concl: '', conclType: null  });
                     }
