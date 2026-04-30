@@ -210,6 +210,10 @@
                         <button class="header-btn combined-btn" data-action="set-combined" data-pet="" data-tomo="MR" data-regs="BŘICHO">MR břicha</button>
                     </div>
                 </div>
+                <div class="exam-group" style="gap: 6px; padding: 0 0 0 15px; border-left: 1px solid var(--border-color);">
+                    <span class="exam-label">Indikace:</span>
+                    <input type="text" id="input-indikace" class="global-input field-text" style="width: 100%; max-width: 350px;" placeholder="Zadejte indikaci k vyšetření...">
+                </div>
             </div>
             <div class="settings-trigger" data-action="open-settings">⚙️</div>
         </div>
@@ -247,10 +251,6 @@
             <div class="exam-group" style="gap: 6px; padding: 0;">
                 <span class="exam-label">Minulé vyšetření:</span>
                 <input type="date" id="input-minule" class="global-input" style="color-scheme: dark; font-family: inherit;">
-            </div>
-            <div class="exam-group" style="gap: 6px; padding: 0 0 0 15px; border-left: 1px solid var(--border-color);">
-                <span class="exam-label">Indikace:</span>
-                <input type="text" id="input-indikace" class="global-input field-text" style="width: 100%; max-width: 350px;" placeholder="Zadejte indikaci k vyšetření...">
             </div>
         </div>
     </header>
@@ -4407,16 +4407,16 @@
             // SMĚROVÁNÍ DO SLOTŮ PRO MOZEK
             if (targetRegion === 'HLAVA' && regionEl.dataset.isBrainTemplate === 'true' && panelId === 'report-panel') {
                 const HLAVA_SLOTS = [
-                    { id: 1, match: (id) => id.startsWith('lozisko-hlava') || id.startsWith('vasc-hlava') || id.startsWith('form-cevy') },
+                    { id: 1, match: (id) => id.startsWith('lozisko-hlava') || id.startsWith('vasc-hlava') },
                     { id: 2, match: (id) => ['form-mozek_faz', 'form-mozek_lak', 'form-mozek_pvs', 'form-mozek_o-gl', 'form-mozek_o-is', 'form-mozek_ms'].some(prefix => id.startsWith(prefix)) },
-                    { id: 3, match: (id) => false }, // Vyhrazeno jen pro nativní větu restrikce difuze
-                    { id: 4, match: (id) => ['form-mozek_gca', 'form-mozek_mta', 'form-mozek_koe', 'form-mozek_ctx', 'form-mozek_inf', 'form-mozek_lik'].some(prefix => id.startsWith(prefix)) },
-                    { id: 5, match: (id) => id.startsWith('form-mozek_kom') },
-                    { id: 6, match: (id) => id.startsWith('form-mozek_mmk') },
-                    { id: 7, match: (id) => id.startsWith('form-mozek_sel') || id.startsWith('form-mozek_epi') },
-                    { id: 8, match: (id) => id.startsWith('form-orbity') },
-                    { id: 9, match: (id) => id.startsWith('form-vdn_ucho') },
-                    { id: 10, match: (id) => id.startsWith('form-vdn_vdn') || id.startsWith('form-vdn_pato') }
+                    { id: 3, match: (id) => ['form-mozek_gca', 'form-mozek_mta', 'form-mozek_koe', 'form-mozek_ctx', 'form-mozek_inf', 'form-mozek_lik'].some(prefix => id.startsWith(prefix)) },
+                    { id: 4, match: (id) => id.startsWith('form-mozek_kom') },
+                    { id: 5, match: (id) => id.startsWith('form-mozek_mmk') },
+                    { id: 6, match: (id) => id.startsWith('form-mozek_sel') || id.startsWith('form-mozek_epi') },
+                    { id: 7, match: (id) => id.startsWith('form-orbity') },
+                    { id: 8, match: (id) => id.startsWith('form-vdn_ucho') },
+                    { id: 9, match: (id) => id.startsWith('form-vdn_vdn') || id.startsWith('form-vdn_pato') },
+                    { id: 10, match: (id) => id.startsWith('form-cevy') }
                 ];
 
                 let slotIndex = HLAVA_SLOTS.findIndex(s => s.match(fullId));
@@ -4552,38 +4552,16 @@
 
                     // Logika plnění/mizení 10 slotů
                     const isSlotEmpty = (slotNum) => catItems.querySelector(`.hlava-slot[data-slot="${slotNum}"] .drag-box:not(.native-pato-box)`) === null;
-                    
-                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="1"]'), catItems.querySelector('.hlava-slot[data-slot="1"]'), 'native-pato-box', isSlotEmpty(1) ? "Bez patologických ložiskových změn." : "");
+                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="1"]'), catItems.querySelector('.hlava-slot[data-slot="1"]'), 'native-pato-box', isSlotEmpty(1) ? "Bez patologických ložiskových změn. Bez zvýšené restrikce difuze." : "");
                     updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="2"]'), catItems.querySelector('.hlava-slot[data-slot="2"]'), 'native-pato-box', isSlotEmpty(2) ? "Bez lézí v bílé hmotě." : "");
-
-                    let hasRestrikce = false;
-                    document.querySelectorAll('.detail-form[data-region="HLAVA"]').forEach(f => {
-                        if (f.id.startsWith('vasc-hlava')) {
-                            const dBtn = f.querySelector('.row-druh .attr-btn.selected');
-                            if (dBtn && dBtn.textContent.toLowerCase() === 'ischemie') hasRestrikce = true;
-                        }
-                        if (f.id.startsWith('lozisko-hlava')) {
-                            const mrRow = f.querySelector('.row-vzhled-mr');
-                            if (mrRow) {
-                                const dwiLbl = Array.from(mrRow.querySelectorAll('.row-label')).find(l => l.textContent === 'DWI:');
-                                if (dwiLbl) {
-                                    const b = dwiLbl.nextElementSibling?.querySelector('.attr-btn.selected');
-                                    if (b && (b.textContent === '+' || b.textContent === '++')) hasRestrikce = true;
-                                }
-                            }
-                        }
-                    });
-                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="3"]'), catItems.querySelector('.hlava-slot[data-slot="3"]'), 'native-pato-box', hasRestrikce ? "" : "Bez zvýšené restrikce difuze.");
-
-                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="4"]'), catItems.querySelector('.hlava-slot[data-slot="4"]'), 'native-pato-box', isSlotEmpty(4) ? "Subarachnoidální prostory oboustranně šířkou přiměřené k věku." : "");
-                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="5"]'), catItems.querySelector('.hlava-slot[data-slot="5"]'), 'native-pato-box', isSlotEmpty(5) ? "Komorový systém není dilatován." : "");
-                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="6"]'), catItems.querySelector('.hlava-slot[data-slot="6"]'), 'native-pato-box', isSlotEmpty(6) ? "Struktury v MMK a vnitřních zvukovodech bez patrné patologie." : "");
-                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="7"]'), catItems.querySelector('.hlava-slot[data-slot="7"]'), 'native-pato-box', isSlotEmpty(7) ? "Nezvětšená hypofýza uložena v nerozšířeném tureckém sedle." : "");
-                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="8"]'), catItems.querySelector('.hlava-slot[data-slot="8"]'), 'native-pato-box', isSlotEmpty(8) ? "Orbity bez patologie." : "");
-                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="9"]'), catItems.querySelector('.hlava-slot[data-slot="9"]'), 'native-pato-box', isSlotEmpty(9) ? "Mastoideální sklípky vzdušné." : "");
-                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="10"]'), catItems.querySelector('.hlava-slot[data-slot="10"]'), 'native-pato-box', isSlotEmpty(10) ? "Dutiny vzdušné." : "");
-
-                    return; // U hlavy přeskočíme standardní zpracování
+                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="3"]'), catItems.querySelector('.hlava-slot[data-slot="3"]'), 'native-pato-box', isSlotEmpty(3) ? "Subarachnoidální prostory oboustranně šířkou přiměřené k věku." : "");
+                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="4"]'), catItems.querySelector('.hlava-slot[data-slot="4"]'), 'native-pato-box', isSlotEmpty(4) ? "Komorový systém není dilatován." : "");
+                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="5"]'), catItems.querySelector('.hlava-slot[data-slot="5"]'), 'native-pato-box', isSlotEmpty(5) ? "Struktury v MMK a vnitřních zvukovodech bez patrné patologie." : "");
+                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="6"]'), catItems.querySelector('.hlava-slot[data-slot="6"]'), 'native-pato-box', isSlotEmpty(6) ? "Nezvětšená hypofýza uložena v nerozšířeném tureckém sedle." : "");
+                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="7"]'), catItems.querySelector('.hlava-slot[data-slot="7"]'), 'native-pato-box', isSlotEmpty(7) ? "Orbity bez patologie." : "");
+                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="8"]'), catItems.querySelector('.hlava-slot[data-slot="8"]'), 'native-pato-box', isSlotEmpty(8) ? "Mastoideální sklípky vzdušné." : "");
+                    updateOrCreateBox(catItems.querySelector('.hlava-slot[data-slot="9"]'), catItems.querySelector('.hlava-slot[data-slot="9"]'), 'native-pato-box', isSlotEmpty(9) ? "Dutiny vzdušné." : "");
+                    return;
                 }
 
                 // Standardní zpracování pro ostatní regiony (Zbytek kódu ponechat)...
