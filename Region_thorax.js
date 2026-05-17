@@ -302,10 +302,10 @@ const RegionThorax = {
                 });
             }
 
-            let pliceRep = [];
+            let difuzniRep = [];
             let fib = ctx.text('pl_fib'), fibLoc = ctx.text('pl_fib_loc');
             if (fib && fib !== '0') { 
-                pliceRep.push(`${fib} fibróza${fibLoc !== '0' ? ' ' + fibLoc : ''}`); 
+                difuzniRep.push(`${fib} fibróza${fibLoc !== '0' ? ' ' + fibLoc : ''}`); 
                 
                 let fibConcText = fib === 'mírná' ? 'Mírné subpleurální intersticiální změny.' : 
                                   fib === 'střední' ? 'Výraznější fibrózní změny.' : 
@@ -316,16 +316,17 @@ const RegionThorax = {
             
             let emf = ctx.text('pl_emf'), emfLoc = ctx.text('pl_emf_loc');
             if (emf && emf !== '0') { 
-                pliceRep.push(`${emf} emfyzém${emfLoc !== '0' ? ' ' + emfLoc : ''}`); 
+                difuzniRep.push(`${emf} emfyzém${emfLoc !== '0' ? ' ' + emfLoc : ''}`); 
                 concInc.push({ type: 'frame', text: `${cap(emf)} plicní emfyzém.`, tableId: 'thorax_plice_main' }); 
             }
             
+            let fokalniRep = [];
             let fokMap = { pl_mikro: { s: 'nespecifický mikronodul', p: 'nespecifické mikronoduly' }, pl_nodul: { s: 'nespecifický nodul', p: 'nespecifické noduly' }, pl_opac: { s: 'nespecifická opacita', p: 'nespecifické opacity' }, pl_kons: { s: 'drobná konsolidace', p: 'drobné konsolidace' }, pl_hypo: { s: 'hypoventilace', p: 'hypoventilace' }, pl_jizva: { s: 'jizva', p: 'jizvy' }, pl_rad: { s: 'poradiační změny', p: 'poradiační změny' } };
             for (let k in fokMap) {
                 let p = ctx.text(`${k}_r`), l = ctx.text(`${k}_l`);
                 if (p && p !== '0' || l && l !== '0') {
                     let side = (p !== '0' && l !== '0') ? 'bilat.' : (p !== '0' ? 'vpravo' : 'vlevo');
-                    pliceRep.push(`${(p === 'více' || l === 'více' || side === 'bilat.') ? fokMap[k].p : fokMap[k].s} ${side}`);
+                    fokalniRep.push(`${(p === 'více' || l === 'více' || side === 'bilat.') ? fokMap[k].p : fokMap[k].s} ${side}`);
                 }
             }
             
@@ -335,13 +336,29 @@ const RegionThorax = {
                 if (ctx.isActive(`${k}_r`)) allOps.push(`${k.includes('_s') ? opMap[k] + ' středního laloku' : opMap[k]} vpravo`);
                 if (ctx.isActive(`${k}_l`)) allOps.push(`${k.includes('_s') ? opMap[k] + ' v lingule' : opMap[k]} vlevo`);
             }
-            if (allOps.length > 0) pliceRep.push(`stav po ${formatList(allOps)}`);
 
             let pliceDesc = ctx.field('plice_custom_desc');
-            if (pliceDesc) pliceRep.push(pliceDesc);
 
-            if (pliceRep.length > 0) {
-                reportOut.push({ type: 'frame', text: `- Plíce: ${cap(formatCzechList(pliceRep))}.`, tableId: 'thorax_plice_main' });
+            let pliceSentences = [];
+            
+            if (difuzniRep.length > 0) {
+                pliceSentences.push(`${cap(formatList(difuzniRep))}.`);
+            }
+            if (fokalniRep.length > 0) {
+                pliceSentences.push(`${cap(formatList(fokalniRep))}.`);
+            }
+            if (allOps.length > 0) {
+                pliceSentences.push(`Stav po ${formatList(allOps)}.`);
+            }
+            if (pliceDesc) {
+                let descText = cap(pliceDesc.trim());
+                if (!descText.endsWith('.')) descText += '.';
+                pliceSentences.push(descText);
+            }
+
+            // --- Výstup do jednoho rámečku ---
+            if (pliceSentences.length > 0) {
+                reportOut.push({ type: 'frame', text: `- Plíce: ${pliceSentences.join(' ')}`, tableId: 'thorax_plice_main' });
             }
 
             let pleuraRep = [];

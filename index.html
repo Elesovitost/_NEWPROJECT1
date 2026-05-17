@@ -3072,7 +3072,27 @@ const UI = {
                     }
                 });
             }
-            if (!foundAny) overlay.appendChild(el('div', { textContent: 'Tabulky nenalezeny.', className: 'label' }));
+            if (!foundAny) {
+                overlay.appendChild(el('div', { textContent: 'Tabulky nenalezeny.', className: 'label' }));
+            } else {
+                requestAnimationFrame(() => {
+                    const columns = {};
+                    // Rozřazení tabulek do sloupců podle jejich reálné X souřadnice
+                    Array.from(overlay.children).forEach(child => {
+                        const x = child.offsetLeft;
+                        if (!columns[x]) columns[x] = [];
+                        columns[x].push(child);
+                    });
+                    
+                    // Nalezení maxima a sjednocení šířky pro každý sloupec
+                    Object.values(columns).forEach(col => {
+                        const maxWidth = Math.max(...col.map(el => el.offsetWidth));
+                        col.forEach(el => {
+                            el.style.width = `${maxWidth}px`;
+                        });
+                    });
+                });
+            }
             return;
         }
 
@@ -3138,6 +3158,8 @@ const UI = {
             const exam = getExamById(examId);
             if (!exam) continue;
 
+            const isPETExam = examId.toLowerCase().includes('pet'); // Zjištění, zda jde o PET
+
             let examRepBlocks = [];
             let examConcMainBlocks = [];
             let examConcIncBlocks = [];
@@ -3162,21 +3184,33 @@ const UI = {
                 const ctx = createContext(regionId, examId);
                 const compiled = region.compile(ctx);
                 
+                // --- SANITIZACE PRO NEPET VYŠETŘENÍ ---
+                const sanitizeText = (txt) => {
+                    if (isPETExam || typeof txt !== 'string') return txt;
+                    return txt.replace(/\s*s[e]?\s+(nízkou|intermediární|zvýšenou|vysokou)\s+(akumulací\s+RF|aktivitou)/gi, '')
+                              .replace(/\s*bez\s+(akumulace\s+RF|aktivity)/gi, '');
+                };
+
                 if (compiled.report) {
-                    let mappedReport = compiled.report.map(b => ({ ...b, examId }));
-                    if (!officialRegions.has(regionId)) {
-                        mappedReport.forEach(b => {
-                            if (b.type === 'heading') {
-                                b.text = b.text.replace(':', ' (v zachyceném rozsahu):');
-                            }
-                        });
-                    }
+                    let mappedReport = compiled.report.map(b => {
+                        let text = sanitizeText(b.text);
+                        if (!officialRegions.has(regionId) && b.type === 'heading') {
+                            text = text.replace(':', ' (v zachyceném rozsahu):');
+                        }
+                        return { ...b, text, examId };
+                    });
                     examRepBlocks.push(...mappedReport);
                 }
                 
                 if (compiled.conclusion) {
-                    if (compiled.conclusion.main) examConcMainBlocks.push(...compiled.conclusion.main.map(b => ({ ...b, examId })));
-                    if (compiled.conclusion.incidental) examConcIncBlocks.push(...compiled.conclusion.incidental.map(b => ({ ...b, examId })));
+                    const sanitizeBlocks = (blocks) => blocks.map(b => ({ ...b, text: sanitizeText(b.text), examId }));
+                    
+                    if (compiled.conclusion.main) {
+                        examConcMainBlocks.push(...sanitizeBlocks(compiled.conclusion.main));
+                    }
+                    if (compiled.conclusion.incidental) {
+                        examConcIncBlocks.push(...sanitizeBlocks(compiled.conclusion.incidental));
+                    }
                 }
             }
 
