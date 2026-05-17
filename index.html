@@ -3628,11 +3628,26 @@ const ActionHandlers = {
         Store.activeTable = null;
     },
     'remove-exam': (target, dataset) => {
+        const examId = dataset.payload;
         const next = new Set(Store.exams);
-        next.delete(dataset.payload);
-        if (Store.activeTab === dataset.payload) Store.activeTab = next.size > 0 ? Array.from(next).pop() : null;
+        next.delete(examId);
+        
+        if (Store.activeTab === examId) {
+            Store.activeTab = next.size > 0 ? Array.from(next).pop() : null;
+        }
+        
         Store.exams = next;
         Store.activeTable = null;
+
+        // --- KOMPLETNÍ VÝMAZ DAT ZAVŘENÉHO VYŠETŘENÍ ---
+        const filterExamData = (obj) => Object.fromEntries(Object.entries(obj).filter(([k]) => !k.startsWith(`${examId}_`)));
+        
+        Store.buttonStates = filterExamData(Store.buttonStates);
+        Store.customTexts = filterExamData(Store.customTexts);
+        Store.fields = filterExamData(Store.fields);
+        Store.expandedNotes = filterExamData(Store.expandedNotes);
+        
+        UI.renderReport(); 
     },
     'toggle-recist': (target) => {
         target.classList.toggle('selected');
