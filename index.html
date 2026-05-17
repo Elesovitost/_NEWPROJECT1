@@ -1582,8 +1582,9 @@ const REGIONS = {
                 let gLoc = ctx.text('br_gli_loc');
                 let locStr = (gLoc && gLoc !== '0') ? ` ${gLoc}` : '';
                 let gWord = gli === '+' ? 'ojedinělé' : (gli === '++' ? 'sporadické' : 'vícečetné');
+                let gWordCap = gWord.charAt(0).toUpperCase() + gWord.slice(1);
                 bilaHmotaRep.push(`${gWord} drobné T2W+ FLAIR+ léze v hlubší bílé hmotě${locStr}`);
-                concInc.push({ type: 'frame', text: `Vícečetné nespecifické drobné gliové léze${locStr}.`, tableId: 'brain_organ_main' });
+                concInc.push({ type: 'frame', text: `${gWordCap} nespecifické drobné gliové léze${locStr}.`, tableId: 'brain_organ_main' });
             }
 
             // --- BÍLÁ HMOTA: DEMYELINIZACE ---
@@ -1679,13 +1680,13 @@ const REGIONS = {
             let komSire = ctx.text('br_kom_sire');
             if (komSire && komSire !== '0' && komSire !== 'štíhlé') {
                 if (komSire === 'asym.') komoryRep.push('asymetrie postranních komor');
-                else if (komSire === 'mírná dilatace') {
+                else if (komSire === '+') {
                     komoryRep.push('mírná dilatace komorového systému');
                     concInc.push({ type: 'frame', text: 'Mírná dilatace komorového systému.', tableId: 'brain_organ_main' });
                 }
-                else if (komSire === 'výrazná dilatace') {
-                    komoryRep.push('výrazná dilatace komorového systému');
-                    concMain.push({ type: 'frame', text: 'Výrazná dilatace komorového systému.', tableId: 'brain_organ_main' });
+                else if (komSire === '++') {
+                    komoryRep.push('výraznější dilatace komorového systému');
+                    concMain.push({ type: 'frame', text: 'Dilatace komorového systému ex vacuo.', tableId: 'brain_organ_main' });
                 }
             }
 
