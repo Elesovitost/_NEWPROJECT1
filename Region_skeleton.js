@@ -63,19 +63,31 @@ const RegionSkeleton = {
                         [ 'RF+ difuzně', { btn: 'sk_md_akt', states: ['0', '+'] } ],
                         [ 'RF- lokální', { btn: 'sk_md_neakt', states: ['0', '+'] } ],
                         [ 'Enostózy', { btn: 'sk_md_enost', states: ['0', '1', 'více'] } ]
+                    ]),
+                    helpers.Table1col('sk_marrow_ost_add', [
+                        { field: 'text', id: 'sk_marrow_custom_desc', placeholder: 'vlastní popis...' },
+                        { field: 'text', id: 'sk_marrow_custom_conc', placeholder: 'vlastní závěr...' }
                     ])
                 ])
             );
 
             layoutNodes.push(
                 helpers.TableMain('skeleton_degen', 'Degenerativní změny', [
-                    helpers.Table3colRCL('sk_degen_table', degInfRowsFn('sk_dg'))
+                    helpers.Table3colRCL('sk_degen_table', degInfRowsFn('sk_dg')),
+                    helpers.Table1col('sk_degen_ost_add', [
+                        { field: 'text', id: 'sk_degen_custom_desc', placeholder: 'vlastní popis...' },
+                        { field: 'text', id: 'sk_degen_custom_conc', placeholder: 'vlastní závěr...' }
+                    ])
                 ])
             );
 
             layoutNodes.push(
                 helpers.TableMain('skeleton_inflam', 'Zánětlivé změny', [
-                    helpers.Table3colRCL('sk_inflam_table', degInfRowsFn('sk_za'))
+                    helpers.Table3colRCL('sk_inflam_table', degInfRowsFn('sk_za')),
+                    helpers.Table1col('sk_inflam_ost_add', [
+                        { field: 'text', id: 'sk_inflam_custom_desc', placeholder: 'vlastní popis...' },
+                        { field: 'text', id: 'sk_inflam_custom_conc', placeholder: 'vlastní závěr...' }
+                    ])
                 ])
             );
 
@@ -85,19 +97,31 @@ const RegionSkeleton = {
                         [ 'DISH', { btn: 'sk_sy_dish', states: ['0', '+'] } ],
                         [ 'Bechterew', { btn: 'sk_sy_bech', states: ['0', '+'] } ],
                         [ 'Polymyalgia RF+', { btn: 'sk_sy_poly', states: ['0', '+'] } ]
+                    ]),
+                    helpers.Table1col('sk_systemic_ost_add', [
+                        { field: 'text', id: 'sk_systemic_custom_desc', placeholder: 'vlastní popis...' },
+                        { field: 'text', id: 'sk_systemic_custom_conc', placeholder: 'vlastní závěr...' }
                     ])
                 ])
             );
 
             layoutNodes.push(
                 helpers.TableMain('skeleton_acute', 'Akutní trauma', [
-                    helpers.Table3colRCL('sk_acute_table', traumaRowsFn('sk_ta'))
+                    helpers.Table3colRCL('sk_acute_table', traumaRowsFn('sk_ta')),
+                    helpers.Table1col('sk_acute_ost_add', [
+                        { field: 'text', id: 'sk_acute_custom_desc', placeholder: 'vlastní popis...' },
+                        { field: 'text', id: 'sk_acute_custom_conc', placeholder: 'vlastní závěr...' }
+                    ])
                 ])
             );
 
             layoutNodes.push(
                 helpers.TableMain('skeleton_chronic', 'Chronické trauma', [
-                    helpers.Table3colRCL('sk_chronic_table', traumaRowsFn('sk_tc'))
+                    helpers.Table3colRCL('sk_chronic_table', traumaRowsFn('sk_tc')),
+                    helpers.Table1col('sk_chronic_ost_add', [
+                        { field: 'text', id: 'sk_chronic_custom_desc', placeholder: 'vlastní popis...' },
+                        { field: 'text', id: 'sk_chronic_custom_conc', placeholder: 'vlastní závěr...' }
+                    ])
                 ])
             );
 
@@ -221,12 +245,19 @@ const RegionSkeleton = {
             let enost = ctx.text('sk_md_enost');
             if (enost === '1') marrow.push("drobný sklerotický okrsek (enostóza)");
             else if (enost === 'více') marrow.push("drobné sklerotické okrsky (enostózy)");
+            
+            let mdDesc = ctx.field('sk_marrow_custom_desc');
+            if (mdDesc) marrow.push(mdDesc);
+            
             if (marrow.length > 0) {
-                reportOut.push({ type: 'frame', text: `- Kostní dřeň: ${cap(formatList(marrow))}.`, tableId: 'skeleton_marrow' });
+                reportOut.push({ type: 'frame', text: `- Kostní dřeň: ${(formatList(marrow))}.`, tableId: 'skeleton_marrow' });
             }
+            
+            let mdConc = ctx.field('sk_marrow_custom_conc');
+            if (mdConc) concInc.push({ type: 'frame', text: mdConc, tableId: 'skeleton_marrow' });
 
             // --- DEGENERACE & ZÁNĚT ---
-            const processDegInflam = (pfx, isDeg) => {
+            const processDegInflam = (pfx, isDeg, idSuffix, tableId) => {
                 let locs = [];
                 if (ctx.isActive(`${pfx}_c_pat`)) locs.push(isDeg ? 'krční páteře' : 'krční páteř');
                 if (ctx.isActive(`${pfx}_t_pat`)) locs.push(isDeg ? 'hrudní páteře' : 'hrudní páteř');
@@ -250,43 +281,61 @@ const RegionSkeleton = {
                     addBilatDI('kyc', 'kyčelní kloub vpravo', 'kyčelní kloub vlevo', 'kyčelní klouby bilat.');
                 }
 
+                let repText = "";
                 if (locs.length > 0) {
                     const locsStr = formatList(locs);
                     if (isDeg) {
-                        const degText = `Pokročilé degenerativní změny ${locsStr}.`;
-                        reportOut.push({ type: 'frame', text: `- Degenerace: ${degText}`, tableId: 'skeleton_degen' });
-                        concInc.push({ type: 'frame', text: degText, tableId: 'skeleton_degen' });
+                        repText = `pokročilé degenerativní změny ${locsStr}`;
+                        concInc.push({ type: 'frame', text: `${repText}.`, tableId: tableId });
                     } else {
-                        reportOut.push({ type: 'frame', text: `- Zánět: ${cap(locsStr)} se zvýšenou aktivitou okolních měkkých tkání v rámci nespec. zánětlivých změn.`, tableId: 'skeleton_inflam' });
+                        repText = `${locsStr} se zvýšenou aktivitou okolních měkkých tkání v rámci nespec. zánětlivých změn`;
                     }
                 }
+                
+                let descParts = [];
+                if (repText) descParts.push(repText);
+                
+                let customDesc = ctx.field(`${idSuffix}_custom_desc`);
+                if (customDesc) descParts.push(customDesc);
+                
+                if (descParts.length > 0) {
+                    reportOut.push({ type: 'frame', text: `- ${isDeg ? 'Degenerace' : 'Zánět'}: ${formatList(descParts)}.`, tableId: tableId });
+                }
+                
+                let customConc = ctx.field(`${idSuffix}_custom_conc`);
+                if (customConc) concInc.push({ type: 'frame', text: customConc, tableId: tableId });
             };
-            processDegInflam('sk_dg', true);
-            processDegInflam('sk_za', false);
+            processDegInflam('sk_dg', true, 'sk_degen', 'skeleton_degen');
+            processDegInflam('sk_za', false, 'sk_inflam', 'skeleton_inflam');
 
             // --- SYSTÉMOVÉ PROCESY ---
             if (ctx.isActive('sk_sy_dish')) {
-                reportOut.push({ type: 'frame', text: `- Systémové procesy: Osifikace v oblasti předního longitudinálního lig. páteře, nejvýrazněji v thorakálním úseku, s tvorbou osteofytů. Zachovaná výška meziobratlových plotének a bez známek erozí SI či sakroiliitidy. Osifikační změny v oblasti entézí pánevního skeletu.`, tableId: 'skeleton_systemic' });
+                reportOut.push({ type: 'frame', text: `Osifikace v oblasti předního longitudinálního lig. páteře, nejvýrazněji v thorakálním úseku, s tvorbou osteofytů. Zachovaná výška meziobratlových plotének a bez známek erozí SI či sakroiliitidy. Osifikační změny v oblasti entézí pánevního skeletu.`, tableId: 'skeleton_systemic' });
                 concInc.push({ type: 'frame', text: "Strukturální změny skeletu obrazu DISH.", tableId: 'skeleton_systemic' });
             }
             if (ctx.isActive('sk_sy_bech')) {
-                reportOut.push({ type: 'frame', text: `- Systémové procesy: Změny v oblasti sakroiliakálních kloubů, bilaterálně, s ankylózou. Osifikace zejména předních longitudinálních ligament a interspinozní úponů.`, tableId: 'skeleton_systemic' });
+                reportOut.push({ type: 'frame', text: `Změny v oblasti sakroiliakálních kloubů, bilaterálně, s ankylózou. Osifikace zejména předních longitudinálních ligament a interspinozní úponů.`, tableId: 'skeleton_systemic' });
                 concMain.push({ type: 'frame', text: "Obraz suspektní ze spondyloartritidy charakteru m. Bechtěrev. Bilaterální sakroiliitida, entezopatie axiálního skeletu.", tableId: 'skeleton_systemic' });
             }
             if (ctx.isActive('sk_sy_poly')) {
-                reportOut.push({ type: 'frame', text: `- Systémové procesy: Zvýšená akumulace RF v oblastech ramenních, SC, AC, kyčelních kloubech, při symfýze, velkých trochanterech, interspinózně.`, tableId: 'skeleton_systemic' });
+                reportOut.push({ type: 'frame', text: `Zvýšená akumulace RF v oblastech ramenních, SC, AC, kyčelních kloubech, při symfýze, velkých trochanterech, interspinózně.`, tableId: 'skeleton_systemic' });
                 concMain.push({ type: 'frame', text: "Obraz suspektní z polymyalgia rheumatica. Zvýšená metabolická aktivita v mnohočetných kloubních lokalizacích a při šlachových úponech v rámci burzitis, entezitis a synovitis.", tableId: 'skeleton_systemic' });
             }
+            
+            let sysDesc = ctx.field('sk_systemic_custom_desc');
+            if (sysDesc) reportOut.push({ type: 'frame', text: `- Systémové procesy: ${sysDesc}`, tableId: 'skeleton_systemic' });
+            let sysConc = ctx.field('sk_systemic_custom_conc');
+            if (sysConc) concInc.push({ type: 'frame', text: sysConc, tableId: 'skeleton_systemic' });
 
             // --- TRAUMA ---
-            const processTrauma = (pfx, isAcute) => {
+            const processTrauma = (pfx, isAcute, idSuffix, tableId) => {
                 let locsVert = [];
                 let locsOther = [];
 
-                const parseVert = (idSuffix) => {
-                    const txt = ctx.text(`${pfx}_${idSuffix}`);
+                const parseVert = (vSuffix) => {
+                    const txt = ctx.text(`${pfx}_${vSuffix}`);
                     if (txt && txt !== '0' && !txt.includes('obratel')) {
-                        locsVert.push(txt === 'custom' ? ctx.field(`${pfx}_${idSuffix}`) || 'vlastní' : txt);
+                        locsVert.push(txt === 'custom' ? ctx.field(`${pfx}_${vSuffix}`) || 'vlastní' : txt);
                     }
                 };
                 parseVert('c_obr');
@@ -322,42 +371,49 @@ const RegionSkeleton = {
                     if (lAct) locsOther.push(`${zL} žebra vlevo`);
                 }
 
-                if (locsVert.length > 0 || locsOther.length > 0) {
-                    let repParts = [];
-                    let conclParts = [];
+                let repParts = [];
+                let conclParts = [];
 
-                    if (locsVert.length > 0) {
-                        const vertStr = formatList(locsVert);
-                        const telWord = (locsVert.length > 1 || vertStr.includes(' a ') || vertStr.includes(',')) ? 'těl' : 'těla';
-                        if (isAcute) {
-                            repParts.push(`klínovité snížení obratl. ${telWord} ${vertStr}`);
-                            conclParts.push(`Kompresivní fraktura obratl. ${telWord} ${vertStr}.`);
-                        } else {
-                            const txt = `stav po starší kompresi obratl. ${telWord} ${vertStr}`;
-                            repParts.push(txt);
-                            conclParts.push(cap(txt) + '.');
-                        }
+                if (locsVert.length > 0) {
+                    const vertStr = formatList(locsVert);
+                    const telWord = (locsVert.length > 1 || vertStr.includes(' a ') || vertStr.includes(',')) ? 'těl' : 'těla';
+                    if (isAcute) {
+                        repParts.push(`klínovité snížení obratl. ${telWord} ${vertStr}`);
+                        conclParts.push(`Kompresivní fraktura obratl. ${telWord} ${vertStr}.`);
+                    } else {
+                        const txt = `stav po starší kompresi obratl. ${telWord} ${vertStr}`;
+                        repParts.push(txt);
+                        conclParts.push(cap(txt) + '.');
                     }
-
-                    if (locsOther.length > 0) {
-                        const otherStr = formatList(locsOther);
-                        if (isAcute) {
-                            repParts.push(`fraktura ${otherStr}`);
-                            conclParts.push(`Fraktura ${otherStr}.`);
-                        } else {
-                            const txt = `stav po starší fraktuře ${otherStr}`;
-                            repParts.push(txt);
-                            conclParts.push(cap(txt) + '.');
-                        }
-                    }
-
-                    reportOut.push({ type: 'frame', text: `- ${isAcute ? 'Akutní' : 'Chronické'} trauma: ${cap(repParts.join(', '))}.`, tableId: `skeleton_${isAcute ? 'acute' : 'chronic'}` });
-                    conclParts.forEach(c => concInc.push({ type: 'frame', text: c, tableId: `skeleton_${isAcute ? 'acute' : 'chronic'}` }));
                 }
+
+                if (locsOther.length > 0) {
+                    const otherStr = formatList(locsOther);
+                    if (isAcute) {
+                        repParts.push(`fraktura ${otherStr}`);
+                        conclParts.push(`Fraktura ${otherStr}.`);
+                    } else {
+                        const txt = `stav po starší fraktuře ${otherStr}`;
+                        repParts.push(txt);
+                        conclParts.push(cap(txt) + '.');
+                    }
+                }
+                
+                let customDesc = ctx.field(`${idSuffix}_custom_desc`);
+                if (customDesc) repParts.push(customDesc);
+
+                if (repParts.length > 0) {
+                    reportOut.push({ type: 'frame', text: `- ${isAcute ? 'Akutní' : 'Chronické'} trauma: ${(repParts.join(', '))}.`, tableId: tableId });
+                }
+                
+                let customConc = ctx.field(`${idSuffix}_custom_conc`);
+                if (customConc) conclParts.push(customConc);
+                
+                conclParts.forEach(c => concInc.push({ type: 'frame', text: c, tableId: tableId }));
             };
             
-            processTrauma('sk_ta', true);
-            processTrauma('sk_tc', false);
+            processTrauma('sk_ta', true, 'sk_acute', 'skeleton_acute');
+            processTrauma('sk_tc', false, 'sk_chronic', 'skeleton_chronic');
 
             let skDesc = ctx.field('sk_custom_desc'); 
             if (skDesc) reportOut.push({ type: 'frame', text: `- Ostatní: ${skDesc}`, tableId: 'skeleton_ostatni' });

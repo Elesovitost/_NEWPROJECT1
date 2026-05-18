@@ -321,7 +321,7 @@ const RegionNeck = {
             if (farDesc) farRep.push(farDesc);
 
             if (farRep.length > 0) {
-                reportOut.push({ type: 'frame', text: `- Farynx: ${capitalize(formatCzechList(farRep))}.`, tableId: 'neck_pharynx_main' });
+                reportOut.push({ type: 'frame', text: `- Farynx: ${(formatCzechList(farRep))}.`, tableId: 'neck_pharynx_main' });
             }
 
             let pharynxCustomConc = ctx.field('pharynx_custom_conc');

@@ -338,27 +338,20 @@ const RegionThorax = {
             }
 
             let pliceDesc = ctx.field('plice_custom_desc');
-
-            let pliceSentences = [];
             
-            if (difuzniRep.length > 0) {
-                pliceSentences.push(`${cap(formatList(difuzniRep))}.`);
-            }
-            if (fokalniRep.length > 0) {
-                pliceSentences.push(`${cap(formatList(fokalniRep))}.`);
-            }
-            if (allOps.length > 0) {
-                pliceSentences.push(`Stav po ${formatList(allOps)}.`);
-            }
+            let plicePhrases = [];
+            if (difuzniRep.length > 0) plicePhrases.push(formatList(difuzniRep));
+            if (fokalniRep.length > 0) plicePhrases.push(formatList(fokalniRep));
+            if (allOps.length > 0) plicePhrases.push(`stav po ${formatList(allOps)}`);
             if (pliceDesc) {
-                let descText = cap(pliceDesc.trim());
-                if (!descText.endsWith('.')) descText += '.';
-                pliceSentences.push(descText);
+                let descText = pliceDesc.trim();
+                if (descText.endsWith('.')) descText = descText.slice(0, -1);
+                plicePhrases.push(descText);
             }
 
-            // --- Výstup do jednoho rámečku ---
-            if (pliceSentences.length > 0) {
-                reportOut.push({ type: 'frame', text: `- Plíce: ${pliceSentences.join(' ')}`, tableId: 'thorax_plice_main' });
+            if (plicePhrases.length > 0) {
+                let joinedText = plicePhrases.join(', ') + '.';
+                reportOut.push({ type: 'frame', text: `- Plíce: ${joinedText}`, tableId: 'thorax_plice_main' });
             }
 
             let pleuraRep = [];
@@ -409,7 +402,8 @@ const RegionThorax = {
             });
 
             if (pleuraRep.length > 0) {
-                reportOut.push({ type: 'frame', text: `- Pleura: ${cap(formatCzechList(pleuraRep))}.`, tableId: 'thorax_plice_main' });
+                let text = formatCzechList(pleuraRep);
+                reportOut.push({ type: 'frame', text: `- Pleura: ${text}.`, tableId: 'thorax_plice_main' });
             }
 
             /* --- AUTO-HODNOCENÍ VZDUŠNOSTI PLIC A PLEURY --- */
@@ -457,10 +451,19 @@ const RegionThorax = {
                 let side = p && l ? 'bilat.' : (p ? 'vpravo' : 'vlevo');
                 allMamma.push(`${mammaMap[k]} ${side}`);
             }
-            let mammaText = allMamma.length > 0 ? `${cap(formatList(allMamma))}.` : "";
+            let mammaText = allMamma.length > 0 ? formatList(allMamma) : "";
             let maDesc = ctx.field('mamma_custom_desc');
-            let finalMammaDesc = [mammaText, maDesc].filter(Boolean).join(" ");
-            if (finalMammaDesc) reportOut.push({ type: 'frame', text: `- Mamma: ${finalMammaDesc}`, tableId: 'thorax_mamma_main' });
+            let maParts = [];
+            if (mammaText) maParts.push(mammaText);
+            if (maDesc) {
+                let txt = maDesc.trim();
+                if (txt.endsWith('.')) txt = txt.slice(0, -1);
+                maParts.push(txt);
+            }
+            if (maParts.length > 0) {
+                let text = maParts.join(', ') + '.';
+                reportOut.push({ type: 'frame', text: `- Mamma: ${text}`, tableId: 'thorax_mamma_main' });
+            }
             
             let maConc = ctx.field('mamma_custom_conc');
             if (maConc) concInc.push({ type: 'frame', text: maConc, tableId: 'thorax_mamma_main' });
@@ -481,10 +484,19 @@ const RegionThorax = {
                 else if (jRes === 'žaludek') jicenRep.push("st.p. resekci dist. jícnu s náhradou tubul. žaludkem");
                 else if (jRes === 'tračník') jicenRep.push("st.p. resekci dist. jícnu s náhradou tračníkem");
             }
-            let jicenText = jicenRep.length > 0 ? `${cap(formatCzechList(jicenRep))}.` : "";
+            let jicenText = jicenRep.length > 0 ? formatCzechList(jicenRep) : "";
             let jiDesc = ctx.field('jicen_custom_desc');
-            let finalJicenDesc = [jicenText, jiDesc].filter(Boolean).join(" ");
-            if (finalJicenDesc) reportOut.push({ type: 'frame', text: `- Jícen: ${finalJicenDesc}`, tableId: 'thorax_jicen_main' });
+            let jiParts = [];
+            if (jicenText) jiParts.push(jicenText);
+            if (jiDesc) {
+                let txt = jiDesc.trim();
+                if (txt.endsWith('.')) txt = txt.slice(0, -1);
+                jiParts.push(txt);
+            }
+            if (jiParts.length > 0) {
+                let text = jiParts.join(', ') + '.';
+                reportOut.push({ type: 'frame', text: `- Jícen: ${text}`, tableId: 'thorax_jicen_main' });
+            }
             
             let jiConc = ctx.field('jicen_custom_conc');
             if (jiConc) jicenConc.push(jiConc);
@@ -492,13 +504,22 @@ const RegionThorax = {
 
             let thZvet = ctx.isActive('th_zvet'), thAkt = ctx.isActive('th_akt');
             let thymusText = "";
-            if (thZvet && thAkt) thymusText = "Difuzně zvětšen s difuzně zvýšenou akumulací RF při reaktivaci.";
-            else if (thZvet) thymusText = "Difuzně zvětšen po reaktivaci.";
-            else if (thAkt) thymusText = "S difuzně zvýšenou akumulací RF po reaktivaci.";
+            if (thZvet && thAkt) thymusText = "difuzně zvětšen s difuzně zvýšenou akumulací RF při reaktivaci";
+            else if (thZvet) thymusText = "difuzně zvětšen po reaktivaci";
+            else if (thAkt) thymusText = "s difuzně zvýšenou akumulací RF po reaktivaci";
             
             let thDesc = ctx.field('thymus_custom_desc');
-            let finalThymusDesc = [thymusText, thDesc].filter(Boolean).join(" ");
-            if (finalThymusDesc) reportOut.push({ type: 'frame', text: `- Thymus: ${finalThymusDesc}`, tableId: 'thorax_thymus_main' });
+            let thParts = [];
+            if (thymusText) thParts.push(thymusText);
+            if (thDesc) {
+                let txt = thDesc.trim();
+                if (txt.endsWith('.')) txt = txt.slice(0, -1);
+                thParts.push(txt);
+            }
+            if (thParts.length > 0) {
+                let text = thParts.join(', ') + '.';
+                reportOut.push({ type: 'frame', text: `- Thymus: ${text}`, tableId: 'thorax_thymus_main' });
+            }
             
             let thConc = ctx.field('thymus_custom_conc');
             if (thConc) concInc.push({ type: 'frame', text: thConc, tableId: 'thorax_thymus_main' });
@@ -532,10 +553,19 @@ const RegionThorax = {
                 }
             }
             
-            let srdceText = srdceRep.length > 0 ? `${cap(formatCzechList(srdceRep))}.` : "";
+            let srdceText = srdceRep.length > 0 ? formatCzechList(srdceRep) : "";
             let srDesc = ctx.field('srdce_custom_desc');
-            let finalSrdceDesc = [srdceText, srDesc].filter(Boolean).join(" ");
-            if (finalSrdceDesc) reportOut.push({ type: 'frame', text: `- Srdce a cévy: ${finalSrdceDesc}`, tableId: 'thorax_srdce_main' });
+            let srParts = [];
+            if (srdceText) srParts.push(srdceText);
+            if (srDesc) {
+                let txt = srDesc.trim();
+                if (txt.endsWith('.')) txt = txt.slice(0, -1);
+                srParts.push(txt);
+            }
+            if (srParts.length > 0) {
+                let text = srParts.join(', ') + '.';
+                reportOut.push({ type: 'frame', text: `- Srdce a cévy: ${text}`, tableId: 'thorax_srdce_main' });
+            }
             
             let srConc = ctx.field('srdce_custom_conc');
             if (srConc) srdceConc.push(srConc);
@@ -548,10 +578,19 @@ const RegionThorax = {
                 if (!p && !l) continue;
                 allDev.push(`${devMap[k]} ${(p && l) ? 'bilat.' : (p ? 'zprava' : 'zleva')}`);
             }
-            let devText = allDev.length > 0 ? `Zaveden ${formatList(allDev)}.` : "";
+            let devText = allDev.length > 0 ? `zaveden ${formatList(allDev)}` : "";
             let devDesc = ctx.field('devices_custom_desc');
-            let finalDevDesc = [devText, devDesc].filter(Boolean).join(" ");
-            if (finalDevDesc) reportOut.push({ type: 'frame', text: finalDevDesc, tableId: 'thorax_devices_main' });
+            let devParts = [];
+            if (devText) devParts.push(devText);
+            if (devDesc) {
+                let txt = devDesc.trim();
+                if (txt.endsWith('.')) txt = txt.slice(0, -1);
+                devParts.push(txt);
+            }
+            if (devParts.length > 0) {
+                let text = devParts.join(', ') + '.';
+                reportOut.push({ type: 'frame', text: text, tableId: 'thorax_devices_main' });
+            }
             
             let devConc = ctx.field('devices_custom_conc');
             if (devConc) concInc.push({ type: 'frame', text: devConc, tableId: 'thorax_devices_main' });

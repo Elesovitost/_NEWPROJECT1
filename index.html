@@ -181,7 +181,7 @@
         </div>
     </div>
     <!-- Settings Modal -->
-    <div id="settings-modal" class="panel" style="display: none; position: absolute; top: 38px; right: 5px; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.8); width: 220px; border: 1px solid var(--accent-hi);">
+    <div id="settings-modal" class="panel" style="display: none; position: absolute; top: 38px; right: 5px; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.8); width: 250px; border: 1px solid var(--accent-hi);">
         <h2 style="margin-bottom: 8px;">Nastavení</h2>
         <div class="row" style="margin-bottom: 8px;">
             <span class="label">Slovně místo SUVmax:</span>
@@ -190,10 +190,17 @@
                 <span class="slider"></span>
             </label>
         </div>
-        <div class="row">
+        <div class="row" style="margin-bottom: 8px;">
             <span class="label" title="Skryje normální nálezy. Při kopírování se ale zkopírují.">Skrýt negativní texty:</span>
             <label class="switch">
                 <input type="checkbox" id="setting-hide-predefined" data-action="update-setting" data-setting="hidePredefined">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="row">
+            <span class="label" title="Před zkopírováním otevře okno pro úpravu textu.">Náhled zprávy:</span>
+            <label class="switch">
+                <input type="checkbox" id="setting-preview" data-action="update-setting" data-setting="previewReport">
                 <span class="slider"></span>
             </label>
         </div>
@@ -216,6 +223,18 @@
     <div class="content-area" id="conclusion-container"></div>
 </aside>
 
+<div id="preview-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1999;" data-action="preview-close"></div>
+<div id="preview-modal" class="panel" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; width: 85vw; max-width: 1000px; height: 85vh; box-shadow: 0 0 40px rgba(0,0,0,1); border: 1px solid var(--accent-hi);">
+    <div class="row" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px;">
+        <h2 style="margin: 0; border: none; padding: 0; color: #fff;">Náhled zprávy před zkopírováním</h2>
+        <div class="push row">
+            <button class="btn selected" data-action="preview-copy" style="font-weight: bold; min-width: 150px; padding: 6px;">Zkopírovat do schránky</button>
+            <button class="btn" data-action="preview-close" style="padding: 6px;">Zavřít</button>
+        </div>
+    </div>
+    <textarea id="preview-textarea" style="width: 100%; flex: 1; background: #000; color: #d1d5db; border: 1px solid var(--border); border-radius: 4px; padding: 15px; font-family: Consolas, monospace; font-size: 14px; line-height: 1.5; resize: none; outline: none; box-sizing: border-box; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);"></textarea>
+</div>
+
 <script src="Region_neck.js"></script>
 <script src="Region_thorax.js"></script>
 <script src="Region_abdomen.js"></script>
@@ -231,12 +250,16 @@ const savedConfig = JSON.parse(localStorage.getItem('medAppConfig') || '{}');
 const APP_SETTINGS = { 
     grammarMerging: true,
     suvWord: savedConfig.suvWord || false,
-    hidePredefined: savedConfig.hidePredefined || false // [PŘIDÁNO] Zavedení stavu do centrálního configu
+    hidePredefined: savedConfig.hidePredefined || false,
+    previewReport: savedConfig.previewReport || false
 };
 
 function saveSettings() {
-    // [ÚPRAVA]: Uložení do Storage a přepnutí třídy na <body> pro okamžitou změnu zobrazení
-    localStorage.setItem('medAppConfig', JSON.stringify({ suvWord: APP_SETTINGS.suvWord, hidePredefined: APP_SETTINGS.hidePredefined }));
+    localStorage.setItem('medAppConfig', JSON.stringify({ 
+        suvWord: APP_SETTINGS.suvWord, 
+        hidePredefined: APP_SETTINGS.hidePredefined,
+        previewReport: APP_SETTINGS.previewReport
+    }));
     document.body.classList.toggle('hide-predefined', APP_SETTINGS.hidePredefined);
     UI.renderReport();
 }
@@ -2761,6 +2784,25 @@ function Table1col(id, cells, regionId) {
    UI CONTROLLER
 ═══════════════════════════════════════════════ */
 const UI = {
+    openPreview(text, targetEl = null, isAll = false) {
+        Store.previewTarget = targetEl;
+        Store.previewTargetOrigText = targetEl ? targetEl.textContent : '';
+        Store.previewIsAll = isAll;
+        
+        const modal = document.getElementById('preview-modal');
+        const backdrop = document.getElementById('preview-backdrop');
+        const textarea = document.getElementById('preview-textarea');
+        
+        textarea.value = text;
+        modal.style.display = 'flex';
+        backdrop.style.display = 'block';
+        
+        setTimeout(() => {
+            textarea.focus();
+            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+        }, 50);
+    },
+
     updatePastDateVisibility(hasDate) {
         document.body.classList.toggle('has-past-date', !!hasDate);
     },
@@ -3497,7 +3539,7 @@ const ClipboardService = {
                 else currentLine = text.toUpperCase().replace(/:$/, '') + ":";
             } else if (el.classList.contains('report-frame') || el.classList.contains('report-frame-hidden')) {
                 const cleanText = text.replace(/^- /, '');
-                if (currentLayout === 'block') {
+                if (currentLayout === 'block' || text.startsWith('Neložisková')) {
                     if (currentLine) { lines.push(currentLine.trim()); currentLine = ""; }
                     lines.push(cleanText);
                 } else {
@@ -3552,7 +3594,12 @@ const ActionHandlers = {
     'copy-text': (target) => {
         const isReport = target.dataset.target === 'report-container';
         const textToCopy = isReport ? ClipboardService.formatReport() : ClipboardService.formatConclusion();
-        ClipboardService.copyToClipboard(textToCopy, target, target.textContent);
+        
+        if (APP_SETTINGS.previewReport) {
+            UI.openPreview(textToCopy, target, false);
+        } else {
+            ClipboardService.copyToClipboard(textToCopy, target, target.textContent);
+        }
     },
     'copy-all': () => {
         const activeExam = getExamById(Store.activeTab);
@@ -3570,11 +3617,47 @@ const ActionHandlers = {
 
         const combined = `${title}\n\n${report}\n\nZávěr:\n${mainConc}${incidental ? '\n\n' + incidental : ''}`.trim().replace(/\n{3,}/g, '\n\n');
         
-        navigator.clipboard.writeText(combined).then(() => {
-            const h2s = document.querySelectorAll('h2[data-action="copy-text"]');
-            const originals = Array.from(h2s).map(h2 => h2.textContent);
-            h2s.forEach(h2 => { h2.textContent = 'Zkopírováno!'; h2.style.color = '#58a6ff'; });
-            setTimeout(() => { h2s.forEach((h2, i) => { h2.textContent = originals[i]; h2.style.color = ''; }); }, 1200);
+        if (APP_SETTINGS.previewReport) {
+            UI.openPreview(combined, null, true);
+        } else {
+            navigator.clipboard.writeText(combined).then(() => {
+                const h2s = document.querySelectorAll('h2[data-action="copy-text"]');
+                const originals = Array.from(h2s).map(h2 => h2.textContent);
+                h2s.forEach(h2 => { h2.textContent = 'Zkopírováno!'; h2.style.color = '#58a6ff'; });
+                setTimeout(() => { h2s.forEach((h2, i) => { h2.textContent = originals[i]; h2.style.color = ''; }); }, 1200);
+            }).catch(err => console.error('Nelze kopírovat:', err));
+        }
+    },
+    'preview-close': () => {
+        document.getElementById('preview-modal').style.display = 'none';
+        document.getElementById('preview-backdrop').style.display = 'none';
+    },
+    'preview-copy': () => {
+        const text = document.getElementById('preview-textarea').value;
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.querySelector('button[data-action="preview-copy"]');
+            const orig = btn.textContent;
+            btn.textContent = 'Zkopírováno!';
+            btn.style.background = 'var(--accent-hi)';
+            btn.style.color = '#000';
+            
+            if (Store.previewIsAll) {
+                const h2s = document.querySelectorAll('h2[data-action="copy-text"]');
+                const originals = Array.from(h2s).map(h2 => h2.textContent);
+                h2s.forEach(h2 => { h2.textContent = 'Zkopírováno!'; h2.style.color = '#58a6ff'; });
+                setTimeout(() => { h2s.forEach((h2, i) => { h2.textContent = originals[i]; h2.style.color = ''; }); }, 1200);
+            } else if (Store.previewTarget) {
+                 Store.previewTarget.textContent = 'Zkopírováno!';
+                 Store.previewTarget.style.color = '#58a6ff';
+                 setTimeout(() => { Store.previewTarget.textContent = Store.previewTargetOrigText; Store.previewTarget.style.color = ''; }, 1200);
+            }
+
+            setTimeout(() => { 
+                btn.textContent = orig; 
+                btn.style.background = '';
+                btn.style.color = '';
+                ActionHandlers['preview-close'](); 
+            }, 800);
         }).catch(err => console.error('Nelze kopírovat:', err));
     },
     'open-region': (target, dataset) => {
@@ -3938,6 +4021,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const hidePredefinedCheckbox = document.getElementById('setting-hide-predefined');
     if (hidePredefinedCheckbox) hidePredefinedCheckbox.checked = APP_SETTINGS.hidePredefined;
+
+    const previewCheckbox = document.getElementById('setting-preview');
+    if (previewCheckbox) previewCheckbox.checked = APP_SETTINGS.previewReport;
     
     document.body.classList.toggle('hide-predefined', APP_SETTINGS.hidePredefined);
     
