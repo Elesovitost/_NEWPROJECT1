@@ -99,8 +99,8 @@
         .organ-svg.multi-svg svg { width: auto; height: auto; display: block; max-height: 50vh; flex-shrink: 1; }
         .organ-svg svg [id] { cursor: pointer; transition: all 0.2s ease; outline: none; }
         .organ-svg svg [id]:hover { opacity: 1.0; filter: drop-shadow(0 0 4px var(--accent-hi)); }
-        .organ-svg svg [id].organ-dimmed { opacity: 1.0; filter: brightness(0.15) grayscale(0.2); }
-        .organ-svg svg [id].organ-dimmed:hover { filter: brightness(0.35) grayscale(0.5) drop-shadow(0 0 4px var(--dim)); }
+        .organ-svg svg [id].organ-dimmed { opacity: 1.0; filter: brightness(0.3) grayscale(0.2); }
+        .organ-svg svg [id].organ-dimmed:hover { filter: brightness(0.65) grayscale(0.2) drop-shadow(0 0 4px var(--dim)); }
         .organ-svg.dimmed { opacity: 0.1; pointer-events: none; }
         .inactive-organ { opacity: 0.05 !important; pointer-events: none !important; }
         #organ-tooltip { position: fixed; background: var(--panel); border: 1px solid var(--border); color: var(--accent-hi); padding: 4px 8px; border-radius: 4px; font-size: 11px; pointer-events: none; z-index: 1000; display: none; white-space: nowrap; font-weight: 700; text-transform: uppercase; transition: color 0.2s, border-color 0.2s; }
@@ -494,9 +494,9 @@ const ORGAN_MAP = {
     "Děloha": { name: "Děloha", table: "abdomen_deloha_main", regions: ['abdomen'] },
     "Testes": { name: "Testes", table: "abdomen_testes_main", regions: ['abdomen'] },
     "Prostata": { name: "Prostata", table: "abdomen_prostata_main", regions: ['abdomen'] },
-    "Skelet": { name: "Kosti / Klouby", table: "region:skeleton", regions: ['skeleton', 'neck', 'thorax', 'abdomen'] },
-    "Sval": { name: "Svaly / Měkké tkáně", table: null, regions: ['skeleton', 'neck', 'thorax', 'abdomen'] },
-    "Svaly": { name: "Svaly / Měkké tkáně", table: null, regions: ['skeleton', 'neck', 'thorax', 'abdomen'] },
+    "Skelet": { name: "Kosti / Klouby", table: "region:skeleton", regions: ['skeleton'] },
+    "Sval": { name: "Svaly / Měkké tkáně", table: null, regions: ['skeleton'] },
+    "Svaly": { name: "Svaly / Měkké tkáně", table: null, regions: ['skeleton'] },
     "Aorta": { name: "Velké cévy", table: "abdomen_velke_cevy_main", regions: ['thorax', 'abdomen'] },
     "Cévy": { name: "Velké cévy", table: "abdomen_velke_cevy_main", regions: ['abdomen'] },
     "Jícen": { name: "Jícen", table: "thorax_jicen_main", regions: ['thorax'] },
@@ -506,7 +506,7 @@ const ORGAN_MAP = {
     "Neck Lesion": { name: "Léze (Krk)", table: "neck_lesion_main", regions: ['neck'] },
     "Thorax Lesion": { name: "Léze (Hrudník)", table: "thorax_lesion_main", regions: ['thorax'] },
     "Abdomen Lesion": { name: "Léze (Břicho)", table: "abdomen_lesion_main", regions: ['abdomen'] },
-    "Soft Tissues Lesion": { name: "Léze (Skelet / Měkké tkáně)", table: "skeleton_lesion_main", regions: ['skeleton', 'neck', 'thorax', 'abdomen'] },
+    "Soft Tissues Lesion": { name: "Léze (Skelet / Měkké tkáně)", table: "skeleton_lesion_main", regions: ['skeleton'] },
     "Neck Lymph Node": { name: "Lymfadenopatie (Krk)", table: "neck_lymphnode_main", regions: ['neck'] },
     "Thorax Lymph Node": { name: "Lymfadenopatie (Hrudník)", table: "thorax_lymphnode_main", regions: ['thorax'] },
     "Abdomen Lymph Node": { name: "Lymfadenopatie (Břicho)", table: "abdomen_lymphnode_main", regions: ['abdomen'] },
@@ -552,11 +552,11 @@ const EXAMS = {
     ],
     CT: [
         { id: 'ct_mozek', title: 'CT mozku', regs: ['brain'] },
-        { id: 'ct_krk', title: 'CT krku', regs: ['neck','skeleton'] },
-        { id: 'ct_plic', title: 'CT plic', regs: ['thorax','skeleton'] },
-        { id: 'ct_bricho', title: 'CT břicha', regs: ['abdomen','skeleton'] },
-        { id: 'ct_trup', title: 'CT trupu', regs: ['neck','thorax','abdomen','skeleton'] },
-        { id: 'ct_hrudnik_bricho', title: 'CT hrudníku a břicha', regs: ['thorax', 'abdomen', 'skeleton'] }
+        { id: 'ct_krk', title: 'CT krku', regs: ['neck'] },
+        { id: 'ct_plic', title: 'CT plic', regs: ['thorax'] },
+        { id: 'ct_bricho', title: 'CT břicha', regs: ['abdomen'] },
+        { id: 'ct_trup', title: 'CT trupu', regs: ['neck','thorax','abdomen'] },
+        { id: 'ct_hrudnik_bricho', title: 'CT hrudníku a břicha', regs: ['thorax', 'abdomen'] }
     ],
     MR: [
         { id: 'mr_mozek', title: 'MR mozku', regs: ['brain'] },
@@ -3227,16 +3227,23 @@ const UI = {
                 const ctx = createContext(regionId, examId);
                 const compiled = region.compile(ctx);
                 
-                // --- SANITIZACE PRO NEPET VYŠETŘENÍ ---
-                const sanitizeText = (txt) => {
-                    if (isPETExam || typeof txt !== 'string') return txt;
+                // --- SANITIZACE TEXTU PODLE MODALITY ---
+                const sanitizeText = (txt, isConclusion = false) => {
+                    if (typeof txt !== 'string') return txt;
+                    if (isPETExam) {
+                        if (isConclusion && examId.toLowerCase().includes('fdg')) {
+                            return txt.replace(/akumulací\s+RF/gi, 'metabolickou aktivitou')
+                                      .replace(/akumulace\s+RF/gi, 'metabolické aktivity');
+                        }
+                        return txt;
+                    }
                     return txt.replace(/\s*s[e]?\s+(nízkou|intermediární|zvýšenou|vysokou)\s+(akumulací\s+RF|aktivitou)/gi, '')
-                              .replace(/\s*bez\s+(akumulace\s+RF|aktivity)/gi, '');
+                              .replace(/\s*bez\s+(?:(?:nízké|intermediární|zvýšené|vysoké)\s+)?(akumulace\s+RF|aktivity)/gi, '');
                 };
 
                 if (compiled.report) {
                     let mappedReport = compiled.report.map(b => {
-                        let text = sanitizeText(b.text);
+                        let text = sanitizeText(b.text, false);
                         if (!officialRegions.has(regionId) && b.type === 'heading') {
                             text = text.replace(':', ' (v zachyceném rozsahu):');
                         }
@@ -3246,7 +3253,7 @@ const UI = {
                 }
                 
                 if (compiled.conclusion) {
-                    const sanitizeBlocks = (blocks) => blocks.map(b => ({ ...b, text: sanitizeText(b.text), examId }));
+                    const sanitizeBlocks = (blocks) => blocks.map(b => ({ ...b, text: sanitizeText(b.text, true), examId }));
                     
                     if (compiled.conclusion.main) {
                         examConcMainBlocks.push(...sanitizeBlocks(compiled.conclusion.main));
@@ -3528,15 +3535,27 @@ const ClipboardService = {
 
         let currentLine = "";
         let currentLayout = "inline";
+        const hasMultipleHeadings = Array.from(container.children).filter(el => el.classList.contains('report-heading')).length > 1;
 
         Array.from(container.children).forEach(el => {
             const text = el.textContent.trim();
-            if (el.classList.contains('report-heading')) {
+            if (el.classList.contains('report-exam-heading')) {
+                if (currentLine) {
+                    lines.push(currentLine.trim());
+                    currentLine = "";
+                }
+                if (lines.length > 0 && lines[lines.length - 1] !== "") {
+                    lines.push("");
+                }
+            } else if (el.classList.contains('report-heading')) {
                 if (currentLine) lines.push(currentLine.trim());
                 const regionId = el.dataset.region;
                 currentLayout = (regionId && REGIONS[regionId] && REGIONS[regionId].reportLayout) ? REGIONS[regionId].reportLayout : 'inline';
-                if (text === 'Koleno:' || text === 'Mozek:') currentLine = "";
-                else currentLine = text.toUpperCase().replace(/:$/, '') + ":";
+                if (hasMultipleHeadings) {
+                    currentLine = text.toUpperCase().replace(/:$/, '') + ":";
+                } else {
+                    currentLine = "";
+                }
             } else if (el.classList.contains('report-frame') || el.classList.contains('report-frame-hidden')) {
                 const cleanText = text.replace(/^- /, '');
                 if (currentLayout === 'block' || text.startsWith('Neložisková')) {
@@ -3602,11 +3621,24 @@ const ActionHandlers = {
         }
     },
     'copy-all': () => {
-        const activeExam = getExamById(Store.activeTab);
-        let title = activeExam ? activeExam.title : "Lékařský nález";
-        if (Store.activeTab === 'mr_kolene') {
-            const side = Store.fields['knee_side'];
-            title = side === 'R' ? "MR pravého kolene" : (side === 'L' ? "MR levého kolene" : title);
+        let title = "";
+        if (Store.exams.size >= 2) {
+            const titles = Array.from(Store.exams).map(id => {
+                const exam = getExamById(id);
+                if (id === 'mr_kolene') {
+                    const side = Store.fields['knee_side'];
+                    return side === 'R' ? "MR pravého kolene" : (side === 'L' ? "MR levého kolene" : exam.title);
+                }
+                return exam ? exam.title : "";
+            }).filter(Boolean);
+            title = titles.join(', ');
+        } else {
+            const activeExam = getExamById(Store.activeTab);
+            title = activeExam ? activeExam.title : "Lékařský nález";
+            if (Store.activeTab === 'mr_kolene') {
+                const side = Store.fields['knee_side'];
+                title = side === 'R' ? "MR pravého kolene" : (side === 'L' ? "MR levého kolene" : title);
+            }
         }
         
         const report = ClipboardService.formatReport(true);
@@ -3719,10 +3751,16 @@ const ActionHandlers = {
             Store.activeTab = next.size > 0 ? Array.from(next).pop() : null;
         }
         
+        Store.indication = '';
+        Store.pastDate = '';
+        const dateInput = document.querySelector('input[data-action="update-date"]');
+        if (dateInput) {
+            dateInput.value = '';
+        }
+        
         Store.exams = next;
         Store.activeTable = null;
-
-        // --- KOMPLETNÍ VÝMAZ DAT ZAVŘENÉHO VYŠETŘENÍ ---
+        
         const filterExamData = (obj) => Object.fromEntries(Object.entries(obj).filter(([k]) => !k.startsWith(`${examId}_`)));
         
         Store.buttonStates = filterExamData(Store.buttonStates);
@@ -3732,6 +3770,7 @@ const ActionHandlers = {
         
         UI.renderReport(); 
     },
+
     'toggle-recist': (target) => {
         target.classList.toggle('selected');
         Store.recist = target.classList.contains('selected');

@@ -126,6 +126,24 @@ const RegionSkeleton = {
             );
 
             layoutNodes.push(
+                helpers.TableMain('skeleton_instrumentace', 'Instrumentace', [
+                    helpers.Table3colRCL('sk_inst_table', [
+                        [ '', { btn: 'sk_in_c_pat', states: ['C páteř', 'custom'] }, '' ],
+                        [ { btn: 'sk_in_klav_r', states: ['klavikula', 'OS', 'cerkláž'] }, { btn: 'sk_in_sternum', states: ['sternum', 'cerkláž'] }, { btn: 'sk_in_klav_l', states: ['klavikula', 'OS', 'cerkláž'] } ],
+                        [ { btn: 'sk_in_hum_r', states: ['humerus', 'OS', 'TEP', 'CCEP'] }, '', { btn: 'sk_in_hum_l', states: ['humerus', 'OS', 'TEP', 'CCEP'] } ],
+                        [ '', { btn: 'sk_in_t_pat', states: ['T páteř', 'custom'] }, '' ],
+                        [ '', { btn: 'sk_in_l_pat', states: ['L páteř', 'custom'] }, '' ],
+                        [ '', { btn: 'sk_in_panev', states: ['pánev', 'OS'] }, '' ],
+                        [ { btn: 'sk_in_kyc_r', states: ['kyčelní k.', 'TEP'] }, '', { btn: 'sk_in_kyc_l', states: ['kyčelní k.', 'TEP'] } ],
+                        [ { btn: 'sk_in_fem_r', states: ['femur', 'PFN', 'OS'] }, '', { btn: 'sk_in_fem_l', states: ['femur', 'PFN', 'OS'] } ]
+                    ]),
+                    helpers.Table1col('sk_inst_ost_add', [
+                        { field: 'text', id: 'sk_inst_custom_desc', placeholder: 'vlastní popis...' }
+                    ])
+                ])
+            );
+
+            layoutNodes.push(
                 helpers.TableMain('skeleton_ostatni', 'Ostatní / Vlastní', [
                     helpers.Table1col('sk_ost_add', [
                         { field: 'text', id: 'sk_custom_desc', placeholder: 'vlastní popis...' },
@@ -250,7 +268,7 @@ const RegionSkeleton = {
             if (mdDesc) marrow.push(mdDesc);
             
             if (marrow.length > 0) {
-                reportOut.push({ type: 'frame', text: `- Kostní dřeň: ${(formatList(marrow))}.`, tableId: 'skeleton_marrow' });
+                reportOut.push({ type: 'frame', text: `${cap(formatList(marrow))}.`, tableId: 'skeleton_marrow' });
             }
             
             let mdConc = ctx.field('sk_marrow_custom_conc');
@@ -286,7 +304,7 @@ const RegionSkeleton = {
                     const locsStr = formatList(locs);
                     if (isDeg) {
                         repText = `pokročilé degenerativní změny ${locsStr}`;
-                        concInc.push({ type: 'frame', text: `${repText}.`, tableId: tableId });
+                        concInc.push({ type: 'frame', text: `${cap(repText)}.`, tableId: tableId });
                     } else {
                         repText = `${locsStr} se zvýšenou aktivitou okolních měkkých tkání v rámci nespec. zánětlivých změn`;
                     }
@@ -299,7 +317,7 @@ const RegionSkeleton = {
                 if (customDesc) descParts.push(customDesc);
                 
                 if (descParts.length > 0) {
-                    reportOut.push({ type: 'frame', text: `- ${isDeg ? 'Degenerace' : 'Zánět'}: ${formatList(descParts)}.`, tableId: tableId });
+                    reportOut.push({ type: 'frame', text: `${cap(formatList(descParts))}.`, tableId: tableId });
                 }
                 
                 let customConc = ctx.field(`${idSuffix}_custom_conc`);
@@ -323,7 +341,7 @@ const RegionSkeleton = {
             }
             
             let sysDesc = ctx.field('sk_systemic_custom_desc');
-            if (sysDesc) reportOut.push({ type: 'frame', text: `- Systémové procesy: ${sysDesc}`, tableId: 'skeleton_systemic' });
+            if (sysDesc) reportOut.push({ type: 'frame', text: cap(sysDesc), tableId: 'skeleton_systemic' });
             let sysConc = ctx.field('sk_systemic_custom_conc');
             if (sysConc) concInc.push({ type: 'frame', text: sysConc, tableId: 'skeleton_systemic' });
 
@@ -378,10 +396,10 @@ const RegionSkeleton = {
                     const vertStr = formatList(locsVert);
                     const telWord = (locsVert.length > 1 || vertStr.includes(' a ') || vertStr.includes(',')) ? 'těl' : 'těla';
                     if (isAcute) {
-                        repParts.push(`klínovité snížení obratl. ${telWord} ${vertStr}`);
-                        conclParts.push(`Kompresivní fraktura obratl. ${telWord} ${vertStr}.`);
+                        repParts.push(`klínovité snížení obratl. ${telWord} ${vertStr} se zvýšenou akumulací RF`);
+                        conclParts.push(`Kompresivní fraktura obratl. ${telWord} ${vertStr} se zvýšenou akumulací RF (recentní).`);
                     } else {
-                        const txt = `stav po starší kompresi obratl. ${telWord} ${vertStr}`;
+                        const txt = `stav po starší kompresi obratl. ${telWord} ${vertStr} bez zvýšené akumulace RF`;
                         repParts.push(txt);
                         conclParts.push(cap(txt) + '.');
                     }
@@ -390,10 +408,10 @@ const RegionSkeleton = {
                 if (locsOther.length > 0) {
                     const otherStr = formatList(locsOther);
                     if (isAcute) {
-                        repParts.push(`fraktura ${otherStr}`);
-                        conclParts.push(`Fraktura ${otherStr}.`);
+                        repParts.push(`fraktura ${otherStr} se zvýšenou akumulací RF`);
+                        conclParts.push(`Fraktura ${otherStr} se zvýšenou akumulací RF (recentní).`);
                     } else {
-                        const txt = `stav po starší fraktuře ${otherStr}`;
+                        const txt = `stav po starší fraktuře ${otherStr} bez zvýšené akumulace RF`;
                         repParts.push(txt);
                         conclParts.push(cap(txt) + '.');
                     }
@@ -403,7 +421,7 @@ const RegionSkeleton = {
                 if (customDesc) repParts.push(customDesc);
 
                 if (repParts.length > 0) {
-                    reportOut.push({ type: 'frame', text: `- ${isAcute ? 'Akutní' : 'Chronické'} trauma: ${(repParts.join(', '))}.`, tableId: tableId });
+                    reportOut.push({ type: 'frame', text: `${cap(repParts.join(', '))}.`, tableId: tableId });
                 }
                 
                 let customConc = ctx.field(`${idSuffix}_custom_conc`);
@@ -415,8 +433,56 @@ const RegionSkeleton = {
             processTrauma('sk_ta', true, 'sk_acute', 'skeleton_acute');
             processTrauma('sk_tc', false, 'sk_chronic', 'skeleton_chronic');
 
+            // --- INSTRUMENTACE ---
+            const processInstrumentace = () => {
+                let instRep = [];
+
+                const getInstText = (id) => {
+                    let val = ctx.text(id);
+                    if (!val || val === '0' || val === '[Nevyplněno]') return null;
+                    const defaults = ['klavikula', 'sternum', 'humerus', 'T páteř', 'L páteř', 'C páteř', 'pánev', 'kyčelní k.', 'femur'];
+                    if (defaults.includes(val)) return null;
+                    return val;
+                };
+
+                const parseBilatInst = (idBase, partR, partL, partB) => {
+                    let r = getInstText(`${idBase}_r`);
+                    let l = getInstText(`${idBase}_l`);
+                    if (r && l && r === l) {
+                        instRep.push(`${r} ${partB}`);
+                    } else {
+                        if (r) instRep.push(`${r} ${partR}`);
+                        if (l) instRep.push(`${l} ${partL}`);
+                    }
+                };
+
+                ['c_pat', 't_pat', 'l_pat'].forEach(id => {
+                    let val = getInstText(`sk_in_${id}`);
+                    if (val) instRep.push(val);
+                });
+
+                let sternum = getInstText('sk_in_sternum');
+                if (sternum) instRep.push(`${sternum} sterna`);
+
+                let panev = getInstText('sk_in_panev');
+                if (panev) instRep.push(`${panev} pánve`);
+
+                parseBilatInst('sk_in_klav', 'pravé klavikuly', 'levé klavikuly', 'klavikul bilat.');
+                parseBilatInst('sk_in_hum', 'pravého humeru', 'levého humeru', 'humerů bilat.');
+                parseBilatInst('sk_in_kyc', 'pravého kyčelního kloubu', 'levého kyčelního kloubu', 'kyčelních kloubů bilat.');
+                parseBilatInst('sk_in_fem', 'pravého femuru', 'levého femuru', 'femurů bilat.');
+
+                let customDesc = ctx.field(`sk_inst_custom_desc`);
+                if (customDesc) instRep.push(customDesc);
+
+                if (instRep.length > 0) {
+                    reportOut.push({ type: 'frame', text: `${cap(instRep.join(', '))}.`, tableId: 'skeleton_instrumentace' });
+                }
+            };
+            processInstrumentace();
+
             let skDesc = ctx.field('sk_custom_desc'); 
-            if (skDesc) reportOut.push({ type: 'frame', text: `- Ostatní: ${skDesc}`, tableId: 'skeleton_ostatni' });
+            if (skDesc) reportOut.push({ type: 'frame', text: cap(skDesc), tableId: 'skeleton_ostatni' });
             
             let skConc = ctx.field('sk_custom_conc'); 
             if (skConc) concInc.push({ type: 'frame', text: skConc, tableId: 'skeleton_ostatni' });
