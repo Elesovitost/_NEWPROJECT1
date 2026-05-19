@@ -1035,7 +1035,8 @@ const LESIONS_DEFINITION = {
         let actStr = '';
         if (act && act !== '0' && act !== 'není') {
             let actLevel = term.adj[act] || act;
-            actStr = ` s ${actLevel} ${term.with}`;
+            let prep = actLevel.match(/^[szšž]/i) ? 'se' : 's';
+            actStr = ` ${prep} ${actLevel} ${term.with}`;
         } else if (act === 'není') {
             actStr = ` bez ${term.without}`;
         }
@@ -3231,15 +3232,24 @@ const UI = {
                 // --- SANITIZACE TEXTU PODLE MODALITY ---
                 const sanitizeText = (txt, isConclusion = false) => {
                     if (typeof txt !== 'string') return txt;
+                    
+                    let out = txt;
+                    
                     if (isPETExam) {
                         if (isConclusion && examId.toLowerCase().includes('fdg')) {
-                            return txt.replace(/akumulací\s+RF/gi, 'metabolickou aktivitou')
-                                      .replace(/akumulace\s+RF/gi, 'metabolické aktivity');
+                            out = out.replace(/akumulací\s+RF/gi, 'metabolickou aktivitou')
+                                     .replace(/akumulace\s+RF/gi, 'metabolické aktivity');
                         }
-                        return txt;
+                    } else {
+                        out = out.replace(/\s*s[e]?\s+(nízkou|intermediární|zvýšenou|vysokou)\s+(akumulací\s+RF|aktivitou)/gi, '')
+                                 .replace(/\s*bez\s+(?:(?:nízké|intermediární|zvýšené|vysoké)\s+)?(akumulace\s+RF|aktivity)/gi, '');
                     }
-                    return txt.replace(/\s*s[e]?\s+(nízkou|intermediární|zvýšenou|vysokou)\s+(akumulací\s+RF|aktivitou)/gi, '')
-                              .replace(/\s*bez\s+(?:(?:nízké|intermediární|zvýšené|vysoké)\s+)?(akumulace\s+RF|aktivity)/gi, '');
+                    
+                    out = out.replace(/^([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ])([^:.]+?):\s*charakteru tumoru([^.]*)/, (match, firstChar, middle, rest) => {
+                        return "Tumorózní " + firstChar.toLowerCase() + middle + rest;
+                    });
+                    
+                    return out;
                 };
 
                 if (compiled.report) {
