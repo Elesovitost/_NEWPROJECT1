@@ -321,7 +321,7 @@ const RegionThorax = {
             }
             
             let fokalniRep = [];
-            let fokMap = { pl_mikro: { s: 'nespecifický mikronodul', p: 'nespecifické mikronoduly' }, pl_nodul: { s: 'nespecifický nodul', p: 'nespecifické noduly' }, pl_opac: { s: 'nespecifická opacita', p: 'nespecifické opacity' }, pl_kons: { s: 'drobná konsolidace', p: 'drobné konsolidace' }, pl_hypo: { s: 'hypoventilace', p: 'hypoventilace' }, pl_jizva: { s: 'jizva', p: 'jizvy' }, pl_rad: { s: 'poradiační změny', p: 'poradiační změny' } };
+            let fokMap = { pl_mikro: { s: 'nespecifický mikronodul', p: 'nespecifické mikronoduly' }, pl_nodul: { s: 'nespecifický nodul', p: 'nespecifické noduly' }, pl_opac: { s: 'nespecifická opacita', p: 'nespecifické opacity' }, pl_kons: { s: 'drobná konsolidace', p: 'drobné konsolidace' }, pl_hypo: { s: 'drobné hypoventilace', p: 'drobné hypoventilace' }, pl_jizva: { s: 'jizva', p: 'jizvy' }, pl_rad: { s: 'poradiační změny', p: 'poradiační změny' } };
             for (let k in fokMap) {
                 let p = ctx.text(`${k}_r`), l = ctx.text(`${k}_l`);
                 if (p && p !== '0' || l && l !== '0') {

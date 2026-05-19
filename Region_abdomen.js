@@ -310,7 +310,7 @@ const RegionAbdomen = {
             const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
             const formatList = formatCzechList;
             const examId = ctx.examId || 'default';
-            
+
             const isPET = (examId || '').toLowerCase().includes('pet');
 
             // Generic helper for R/L elements
@@ -830,6 +830,13 @@ const RegionAbdomen = {
             let awDesc = ctx.field('aw_custom_desc'); if (awDesc) awRep.push(awDesc);
             if (awRep.length > 0) reportOut.push({ type: 'frame', text: `- Břišní stěna a podkoží: ${formatList(awRep)}.`, tableId: 'abdomen_wall_main' });
             let awConc = ctx.field('aw_custom_conc'); if (awConc) concInc.push({ type: 'frame', text: awConc, tableId: 'abdomen_wall_main' });
+
+            let finalAscCurr = ctx.text('pe_asc');
+            let finalAscMin = ctx.text('pe_asc_old');
+            let finalHasPastDate = !!document.body.classList.contains('has-past-date');
+            if (!(finalAscCurr && finalAscCurr !== '0') && !(finalHasPastDate && finalAscMin && finalAscMin !== '0')) {
+                reportOut.push({ type: 'frame', text: 'Bez volné tekutiny.', tableId: 'abdomen_peritoneum_main', dimmed: true });
+            }
 
             return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
         }
