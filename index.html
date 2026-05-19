@@ -2693,9 +2693,9 @@ function Table2colNormal(id, rows, regionId) {
     const longest = _tableLongest(rows, regionId);
     const table = el('table', { id: id, className: 'tbl' });
     const tbody = el('tbody');
-    for (const [a, b] of rows) {
+    for (const row of rows) {
         const tr = el('tr');
-        for (const cell of [a, b]) {
+        for (const cell of row) {
             const td = el('td');
             _renderCell(td, cell, longest, regionId);
             tr.appendChild(td);

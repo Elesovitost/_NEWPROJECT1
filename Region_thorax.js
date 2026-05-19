@@ -56,8 +56,8 @@ const RegionThorax = {
             layoutNodes.push(
                 helpers.TableMain('thorax_plice_main', 'Plíce a Pleura', [
                     helpers.Table2colNormal('plice_difuz_table', 'Difuzní změny',[
-                        [ 'Fibróza:', { btn: 'pl_fib', states: ['0', 'mírná', 'střední', 'výrazná'] }, { btn: 'pl_fib_loc', states: ['0', 'apikálně', 'všude', 'bazálně'] } ],
-                        [ 'Emfyzém:', { btn: 'pl_emf', states: ['0', 'parseptální', 'centrilobulární', 'panacinární'] }, { btn: 'pl_emf_loc', states: ['0', 'apikálně', 'všude', 'bazálně'] } ]
+                        [ 'Fibróza:', { btn: 'pl_fib', states: ['0', 'mírná', 'střední', 'výrazná'] }, { btn: 'pl_fib_loc', states: ['distr.', 'apikálně', 'všude', 'bazálně'] } ],
+                        [ 'Emfyzém:', { btn: 'pl_emf', states: ['0', 'parasept.', 'centrilob.', 'panacin.'] }, { btn: 'pl_emf_loc', states: ['distr.', 'apikálně', 'všude', 'bazálně'] } ]
                     ]),
                     helpers.Table3colRL('plice_fokal_table', 'Fokální změny', [
                         [ { btn: 'pl_mikro_r', states: ['0', '1', 'více'] }, 'mikronodul', { btn: 'pl_mikro_l', states: ['0', '1', 'více'] } ],
@@ -126,8 +126,9 @@ const RegionThorax = {
                 ]),
                 helpers.TableMain('thorax_srdce_main', 'Srdce a koronární tepny', [
                     helpers.Table2colNormal('srdce_table', [
-                        [ 'Dilatace', { btn: 'sr_dil', states: ['0', 'síní', 'celého'] } ],
-                        [ 'Náhrada chlopně', { btn: 'sr_chl', states: ['0', 'Ao', 'Mi', 'obou'] } ],
+                        [ 'Dilatace srdce', { btn: 'sr_dil', states: ['0', 'síní', 'celého'] } ],
+                        [ 'Dilatace aorty', { btn: 'sr_dil_ao', states: ['0', 'kořene', 'ascendentní', 'oboje'] }, { field: 'mm', id: 'sr_dil_ao_mm', placeholder: 'mm', step: 1 } ],
+                        [ 'Náhrada chlopně', { btn: 'sr_chl', states: ['0', 'Ao', 'Mi', 'obou', 'Ao+Asc R'] } ],
                         [ 'AS koronárek', { btn: 'sr_as', states: ['0', '+'] } ],
                         [ 'Perikard. výpotek:', { field: 'mm', id: 'sr_tek_mm', placeholder: 'mm', step: 5 } ],
                         [ 'Minule:', { field: 'mm', id: 'sr_tek_old_mm', placeholder: 'mm', step: 5 } ]
@@ -303,21 +304,45 @@ const RegionThorax = {
             }
 
             let difuzniRep = [];
+
+            const getDistText = (loc, isConc) => {
+                if (!loc || loc === 'distr.' || loc === '0') return { rep: '', conc: '', isDifuzni: false };
+                if (loc === 'apikálně') return { rep: ' s apikální predominancí', conc: ' s maximem apikálně', isDifuzni: false };
+                if (loc === 'bazálně') return { rep: ' s bazální predominancí', conc: ' s maximem bazálně', isDifuzni: false };
+                if (loc === 'všude') return { rep: ' difuzně ve všech plicních polích', conc: ' difuzně', isDifuzni: true };
+                return { rep: ` ${loc}`, conc: ` ${loc}`, isDifuzni: false };
+            };
+
             let fib = ctx.text('pl_fib'), fibLoc = ctx.text('pl_fib_loc');
             if (fib && fib !== '0') { 
-                difuzniRep.push(`${fib} fibróza${fibLoc !== '0' ? ' ' + fibLoc : ''}`); 
+                let dist = getDistText(fibLoc, false);
                 
-                let fibConcText = fib === 'mírná' ? 'Mírné subpleurální intersticiální změny.' : 
-                                  fib === 'střední' ? 'Výraznější fibrózní změny.' : 
-                                  'Pokročilá fibróza s bronchiektáziemi a honeycombingem.';
+                if (dist.isDifuzni) {
+                    difuzniRep.push(`${fib} difuzní fibróza`);
+                } else {
+                    difuzniRep.push(`${fib} fibróza${dist.rep}`); 
+                }
+                
+                let fibConcText = fib === 'mírná' ? `Mírné subpleurální intersticiální změny${dist.conc}.` : 
+                                  fib === 'střední' ? `Výraznější fibrózní změny${dist.conc}.` : 
+                                  `Pokročilá fibróza s bronchiektáziemi a honeycombingem${dist.conc}.`;
                 
                 concInc.push({ type: 'frame', text: fibConcText, tableId: 'thorax_plice_main' }); 
             }
             
             let emf = ctx.text('pl_emf'), emfLoc = ctx.text('pl_emf_loc');
             if (emf && emf !== '0') { 
-                difuzniRep.push(`${emf} emfyzém${emfLoc !== '0' ? ' ' + emfLoc : ''}`); 
-                concInc.push({ type: 'frame', text: `${cap(emf)} plicní emfyzém.`, tableId: 'thorax_plice_main' }); 
+                let emfMap = { 'parasept.': 'paraseptální', 'centrilob.': 'centrilobulární', 'panacin.': 'panacinární' };
+                let emfFull = emfMap[emf] || emf;
+                let dist = getDistText(emfLoc, false);
+                
+                if (dist.isDifuzni) {
+                    difuzniRep.push(`difuzní ${emfFull} emfyzém`); 
+                    concInc.push({ type: 'frame', text: `Difuzní ${emfFull} plicní emfyzém.`, tableId: 'thorax_plice_main' }); 
+                } else {
+                    difuzniRep.push(`${emfFull} emfyzém${dist.rep}`); 
+                    concInc.push({ type: 'frame', text: `${cap(emfFull)} plicní emfyzém${dist.conc}.`, tableId: 'thorax_plice_main' }); 
+                }
             }
             
             let fokalniRep = [];
@@ -528,8 +553,33 @@ const RegionThorax = {
             let srdceConc = [];
             let srDil = ctx.text('sr_dil');
             if (srDil !== '0' && srDil !== '') srdceRep.push(srDil === 'celého' ? "dilatace všech srdečních oddílů" : "dilatace srdečních síní");
+            
+            let srDilAo = ctx.text('sr_dil_ao');
+            let srDilAoMm = parseInt(ctx.field('sr_dil_ao_mm')) || 0;
+            if ((srDilAo && srDilAo !== '0') || srDilAoMm > 0) {
+                let aoText = "";
+                if (srDilAo === 'kořene') aoText = "dilatace kořene aorty";
+                else if (srDilAo === 'ascendentní') aoText = "dilatace ascendentní aorty";
+                else if (srDilAo === 'oboje') aoText = "dilatace kořene i ascendentní aorty";
+                else aoText = "dilatace aorty";
+                
+                if (srDilAoMm) aoText += ` šíře ${srDilAoMm} mm`;
+                srdceRep.push(aoText);
+                
+                let aoConcText = `${cap(aoText)}.`;
+                if (srDilAoMm >= 50) {
+                    concMain.push({ type: 'frame', text: `Výrazná ${aoText} (aneurysma).`, tableId: 'thorax_srdce_main' });
+                } else if (srDilAoMm >= 40 || srDilAo !== '0') {
+                    concInc.push({ type: 'frame', text: aoConcText, tableId: 'thorax_srdce_main' });
+                }
+            }
+
             let srChl = ctx.text('sr_chl');
-            if (srChl !== '0' && srChl !== '') srdceRep.push(srChl === 'obou' ? "stav po náhradě Ao i Mi chlopně" : `stav po náhradě ${srChl} chlopně`);
+            if (srChl !== '0' && srChl !== '') {
+                if (srChl === 'obou') srdceRep.push("stav po náhradě Ao i Mi chlopně");
+                else if (srChl === 'Ao+Asc R') srdceRep.push("stav po náhradě Ao chlopně a asc. aorty");
+                else srdceRep.push(`stav po náhradě ${srChl} chlopně`);
+            }
             if (ctx.isActive('sr_as')) srdceRep.push("aterosklerotické změny koronárních tepen");
             
             let srTekMm = parseInt(ctx.field('sr_tek_mm')) || 0;
