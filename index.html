@@ -1303,7 +1303,7 @@ const REGIONS = {
             let concMain = [];
             let concInc = [];
             
-            const examId = Store.activeTab || 'default';
+            const examId = ctx.examId || 'default';
             const isPET = (examId || '').toLowerCase().includes('pet');
             const isMR = (examId || '').toLowerCase().includes('mr');
             const cap = (s) => s && s.charAt(0).toUpperCase() + s.slice(1);
@@ -2108,6 +2108,7 @@ function createContext(regionId, examId) {
     const isPET = examId.includes('pet');
     const isPetOnly = (id) => !isPET && (id.includes('_suv') || id.includes('_act') || id.includes('_akt') || id.includes('_neakt') || id.includes('_fok') || id.includes('_poly') || id.includes('ji_aktdist') || id.includes('ji_aktdif'));
     return {
+        examId,
         _val(localId) {
             if (isPetOnly(localId)) return 0;
             return Store.buttonStates[`${examId}_${regionId}_${localId}`];

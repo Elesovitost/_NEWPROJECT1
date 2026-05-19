@@ -132,6 +132,7 @@ const RegionKnee = {
         let concMain = [];
         let concInc = [];
         const cap = (s) => s && s.charAt(0).toUpperCase() + s.slice(1);
+        const examId = ctx.examId || 'default';
         
         // ═══ KLOUBNÍ DUTINA (Náplň, cysty, synovitida, tělíska) ═══
         let jointRep = [];
@@ -161,7 +162,6 @@ const RegionKnee = {
         }
 
         // --- Volná tělíska ---
-        const examId = Store.activeTab || 'default';
         let telIdx = Store.buttonStates[`${examId}_knee_kn_teliska`] || 0;
         let telLoc = ctx.field('kn_teliska_loc');
         let telLocStr = telLoc ? ` ${telLoc}` : '';

@@ -159,7 +159,7 @@ const RegionThorax = {
             let concMain = [];
             let concInc = [];
             
-            const examId = Store.activeTab || 'default';
+            const examId = ctx.examId || 'default';
             const formatList = formatCzechList;
             const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 

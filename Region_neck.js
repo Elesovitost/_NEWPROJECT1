@@ -113,10 +113,9 @@ const RegionNeck = {
             let reportOut = [{ type: 'heading', text: 'Krk:', action: 'open-region', regionId: 'neck' }];
             let concMain = [];
             let concInc = [];
-            const examId = Store.activeTab || 'default';
-
+            const examId = ctx.examId || 'default';
+            const formatList = formatCzechList;
             const capitalize = (s) => s && s[0].toUpperCase() + s.slice(1);
-
             const isPET = (examId || '').toLowerCase().includes('pet');
 
             const lesInsts = Store.instances?.['neck_lesion_main'] || [];

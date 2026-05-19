@@ -309,7 +309,9 @@ const RegionAbdomen = {
             
             const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
             const formatList = formatCzechList;
-            const examId = Store.activeTab || 'default';
+            const examId = ctx.examId || 'default';
+            
+            const isPET = (examId || '').toLowerCase().includes('pet');
 
             // Generic helper for R/L elements
             const checkSide = (baseId) => {
@@ -318,8 +320,6 @@ const RegionAbdomen = {
                 let isP = p && p !== '0', isL = l && l !== '0';
                 return { p, l, isP, isL, sideText: (isP && isL) ? 'bilat.' : (isP ? 'vpravo' : 'vlevo'), isPlural: (p === 'více' || l === 'více' || (isP && isL)) };
             };
-
-            const isPET = (examId || '').toLowerCase().includes('pet');
 
             const lesInsts = Store.instances?.['abdomen_lesion_main'] || [];
             let highAct = false, badEtio = false;
