@@ -1391,7 +1391,7 @@ const REGIONS = {
                         if (fullLok && axSuffix) fullLok += axSuffix; 
                         else if (axSuffix) fullLok = axSuffix.trim();
 
-                        let repText = `${d.baseText} ${fullLok}${d.vzhledText}${d.metrikyStr}${d.doplneniStr}.`.replace(/\s+/g, ' ').replace(' .', '.');
+                        let repText = `${d.baseText} ${fullLok}${d.doplneniStr}${d.vzhledText}${d.metrikyStr}.`.replace(/\s+/g, ' ').replace(' .', '.');
 
                         let repSentences = [];
                         if (hasEdem) repSentences.push(`Je vyjádřen ${edem.includes('++') ? 'výraznější ' : ''}perifokální edém.`);
@@ -1399,7 +1399,7 @@ const REGIONS = {
                         if (hasHern) repSentences.push(`Jsou patrny známky ${hern} herniace.`);
                         if (repSentences.length > 0) repText += ` ${repSentences.join(' ')}`;
 
-                        let cPart1 = `${d.baseText} ${fullLok}${d.actStr}${d.dynStr}`;
+                        let cPart1 = `${d.baseText} ${fullLok}${d.doplneniStr}${d.actStr}${d.dynStr}`;
                         if (hasEdem) cPart1 += ` s ${edem.includes('++') ? 'výraznějším ' : ''}perifokálním edémem`;
                         let c = cPart1;
                         if (d.etioStr) c += `: ${d.etioStr}.`; else c += `.`;
@@ -1529,7 +1529,7 @@ const REGIONS = {
                     else if (lok.length > 0) fullLok = formatCzechList(lok);
 
                     if (baseText || fullLok || vzhledText || metrikyStr || doplneniStr) {
-                        let repText = `${baseText} ${fullLok}${vzhledText}${metrikyStr}${doplneniStr}.`.replace(/\s+/g, ' ').replace(' .', '.');
+                        let repText = `${baseText} ${fullLok}${doplneniStr}${vzhledText}${metrikyStr}.`.replace(/\s+/g, ' ').replace(' .', '.');
                         let repSentences = [];
                         if (hasEdem) repSentences.push(`Je vyjádřen ${edem.includes('++') ? 'výraznější ' : ''}perifokální edém.`);
                         if (hasMshift) repSentences.push(`Je přítomen midline shift${mshift_mm ? ' '+mshift_mm+' mm' : ''} ${mshift.includes('doleva') ? 'doleva' : 'doprava'}.`);

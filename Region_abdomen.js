@@ -444,10 +444,10 @@ const RegionAbdomen = {
                     let d = LESIONS_DEFINITION.parseDetails(ctx, examId, 'abdomen', p, `${p}_met`, `${p}_e`, false);
 
                     if (d.hasAny || lokace.length > 0) {
-                        let repSentence = `${d.baseText} ${lokText}${d.vzhledText}${d.metrikyStr}${d.doplneniStr}.`.replace(/\s+/g, ' ').replace(' .', '.');
+                        let repSentence = `${d.baseText} ${lokText}${d.doplneniStr}${d.vzhledText}${d.metrikyStr}.`.replace(/\s+/g, ' ').replace(' .', '.').trim();
                         reportOut.push({ type: 'frame', text: repSentence, tableId: `abdomen_lesion_main__${instId}` });
                         
-                        let concSentence = `${d.baseText} ${lokText}${d.actStr}${d.dynStr}`;
+                        let concSentence = `${d.baseText} ${lokText}${d.doplneniStr}${d.actStr}${d.dynStr}`;
                         if (d.etioStr) concSentence += `: ${d.etioStr}.`;
                         else concSentence += `.`;
                         
