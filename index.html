@@ -239,6 +239,7 @@
 <script src="Region_thorax.js"></script>
 <script src="Region_abdomen.js"></script>
 <script src="Region_skeleton.js"></script>
+<script src="Region_shoulder.js"></script>
 <script src="Region_knee.js"></script>
 
 <script>
@@ -530,12 +531,12 @@ const ORGAN_MAP = {
     "Knee_muscles": { name: "Měkké tkáně", table: "knee_soft_main", regions: ['knee'] },
     "Knee_joint": { name: "Kloubní dutina", table: "knee_joint_main", regions: ['knee'] },
 
-    "Shoulder_joint": { name: "Ramenní kloub", table: "shoulder_bursa_table", regions: ['shoulder'] },
-    "GH_joint": { name: "Glenohumerální kloub", table: "shoulder_bursa_table", regions: ['shoulder'] },
-    "AC_joint": { name: "AC kloub", table: "shoulder_ac_table", regions: ['shoulder'] },
-    "Rotator_cuff": { name: "Rotátorová manžeta", table: "shoulder_rotator_table", regions: ['shoulder'] },
-    "Glenoid_labrum": { name: "Glenoidální labrum", table: null, regions: ['shoulder'] },
-    "Biceps": { name: "Šlacha LHB", table: "shoulder_lhb_table", regions: ['shoulder'] },
+    "Shoulder_joint": { name: "Ramenní kloub", table: "shoulder_bursa_main", regions: ['shoulder'] },
+    "GH_joint": { name: "Glenohumerální kloub", table: "shoulder_bursa_main", regions: ['shoulder'] },
+    "AC_joint": { name: "AC kloub", table: "shoulder_ac_main", regions: ['shoulder'] },
+    "Rotator_cuff": { name: "Rotátorová manžeta", table: "shoulder_ssp_main", regions: ['shoulder'] },
+    "Glenoid_labrum": { name: "Glenoidální labrum", table: "shoulder_labrum_main", regions: ['shoulder'] },
+    "Biceps": { name: "Šlacha LHB", table: "shoulder_lhb_main", regions: ['shoulder'] },
 
     "vL5": { name: "L5", table: "LS_main", regions: ['ls_spine'] },
     "dL5/S1": { name: "L5/S1", table: "LS_main", regions: ['ls_spine'] }
@@ -2043,6 +2044,8 @@ const REGIONS = {
 
     skeleton: RegionSkeleton,
 
+    shoulder: RegionShoulder,
+
     knee: RegionKnee,
 
     ls_spine: {
@@ -2056,16 +2059,6 @@ const REGIONS = {
         }
     },
 
-    shoulder: {
-        title: 'rameno',
-        reportLayout: 'block',
-        layout: (helpers) => {
-            return [];
-        },
-        compile: (ctx) => {
-            return { report: [], conclusion: { main: [], incidental: [] } };
-        }
-    }
 
 }; // <-- Tohle už je uzavření celého REGIONS objektu
         
