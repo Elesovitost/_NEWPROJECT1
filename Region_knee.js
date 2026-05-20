@@ -223,28 +223,40 @@ const RegionKnee = {
             if ((!chp || chp === 'GR 0') && (!lez || lez === 'Léze 0') && (!edem || edem === 'bez edému')) return null;
             hasPatellaPathology = true;
             
-            const chpMapRep = { 'GR I': 'se signálovými změnami', 'GR II': 'fokálně snížena do 50%', 'GR III': 'fokálně snížena nad 50%', 'GR IV': 's lézí v celé šíři' };
-            const chpMapConc = { 'GR I': 'gr.I', 'GR II': 'gr.II', 'GR III': 'gr.III', 'GR IV': 'gr.IV' };
-            
             let repText = `chrupavka ${locRep}`;
             let concText = '';
 
+            const gradeMapConc = { 'GR I': 'gr.I', 'GR II': 'gr.II', 'GR III': 'gr.III', 'GR IV': 'gr.IV' };
             let hasChp = chp && chp !== 'GR 0';
+            let hasLez = lez && lez !== 'Léze 0';
+
+            const lMap = {'Fisura': 'fisurou', 'Fisury': 'fisurami', 'Defekt': 'defektem', 'Defekty': 'defekty'};
+            let lezWord = hasLez ? lMap[lez] : '';
+
             if (hasChp) {
-                repText += ` ${chpMapRep[chp]}`;
-                concText = `${chpMapConc[chp]} ${locConc}`;
+                if (chp === 'GR I') {
+                    repText += hasLez ? ` se signálovými změnami a ${lezWord}` : ` se signálovými změnami`;
+                } else if (chp === 'GR II') {
+                    repText += hasLez ? ` s ${lezWord} do zevní poloviny` : ` snížena do poloviny tloušťky`;
+                } else if (chp === 'GR III') {
+                    repText += hasLez ? ` s ${lezWord} do vnitřní poloviny` : ` snížena o více jak polovinu tloušťky`;
+                } else if (chp === 'GR IV') {
+                    repText += hasLez ? ` s ${lezWord} až ke kosti` : ` prakticky chybí`;
+                }
+                concText = `${gradeMapConc[chp]} ${locConc}`;
             } else {
-                repText += ` normální šíře`; 
+                if (hasLez) {
+                    repText += ` s ${lezWord}`;
+                } else {
+                    repText += ` normální šíře`; 
+                }
             }
             
-            let lezEdem = [];
-            if (lez && lez !== 'Léze 0') {
-                const lMap = {'Fisura': 'fisurou', 'Fisury': 'fisurami', 'Defekt': 'defektem', 'Defekty': 'defekty'};
-                lezEdem.push(lMap[lez] || lez.toLowerCase());
+            if (edem && edem !== 'bez edému') {
+                repText += (repText.includes(' s ') || repText.includes(' se ')) ? ' a ' : ' s ';
+                repText += (edem === 'edém +' ? 'mírným subchondrálním edémem' : 'výrazným subchondrálním edémem');
             }
-            if (edem && edem !== 'bez edému') lezEdem.push(edem === 'edém +' ? 'mírným subchondrálním edémem' : 'výrazným subchondrálním edémem');
             
-            if (lezEdem.length > 0) repText += ' s ' + lezEdem.join(' a ');
             return { rep: repText, conc: concText };
         };
 
@@ -432,14 +444,20 @@ const RegionKnee = {
                 let cRep = 'chrupavka';
                 
                 const lezMapGrammar = { 'Fisura': 'fisurou', 'Fisury': 'fisurami', 'Defekt': 'defektem', 'Defekty': 'defekty', 'Delaminace': 'delaminací' };
-                let lesionText = (chrLez && chrLez !== 'Léze 0') ? lezMapGrammar[chrLez] : 'lézemi';
+                let hasLez = chrLez && chrLez !== 'Léze 0';
+                let lesionText = hasLez ? lezMapGrammar[chrLez] : '';
 
                 if (chrGr && chrGr !== 'GR 0') {
-                    if (chrGr === 'GR 1') cRep += (chrLez && chrLez !== 'Léze 0') ? ` s ložiskovými změnami signálu a ${lesionText}` : ` s ložiskovými změnami signálu`;
-                    else if (chrGr === 'GR 2') cRep += ` s ${lesionText} do 50 % tloušťky`;
-                    else if (chrGr === 'GR 3') cRep += ` s ${lesionText} nad 50 % tloušťky`;
-                    else if (chrGr === 'GR 4') cRep += ` s ${lesionText} v plné tloušťce`;
-                } else if (chrLez && chrLez !== 'Léze 0') {
+                    if (chrGr === 'GR 1') {
+                        cRep += hasLez ? ` s ložiskovými změnami signálu a ${lesionText}` : ` s ložiskovými změnami signálu`;
+                    } else if (chrGr === 'GR 2') {
+                        cRep += hasLez ? ` s ${lesionText} do zevní poloviny` : ` snížena do poloviny tloušťky`;
+                    } else if (chrGr === 'GR 3') {
+                        cRep += hasLez ? ` s ${lesionText} do vnitřní poloviny` : ` snížena o více jak polovinu tloušťky`;
+                    } else if (chrGr === 'GR 4') {
+                        cRep += hasLez ? ` s ${lesionText} až ke kosti` : ` prakticky chybí`;
+                    }
+                } else if (hasLez) {
                     cRep += ` s ${lesionText}`;
                 } else {
                     cRep += ` normální šíře`; 
@@ -447,16 +465,16 @@ const RegionKnee = {
 
                 if (chrEdem && chrEdem !== 'edém 0') {
                     const edemText = chrEdem === 'edém +' ? 'mírným subchondrálním edémem' : 'výrazným subchondrálním edémem';
-                    cRep += (cRep.includes(' s ') ? ' a ' : ' s ') + edemText;
+                    cRep += (cRep.includes(' s ') || cRep.includes(' se ')) ? ' a ' + edemText : ' s ' + edemText;
                 }
                 repParts.push(cRep);
 
-                let concPat = 'chondropatií';
+                let concPat = hasLez ? 'fokální chondropatií' : 'chondropatií';
                 const gradeMapConc = { 'GR 1': 'gr. I', 'GR 2': 'gr. II', 'GR 3': 'gr. III', 'GR 4': 'gr. IV' };
                 
                 if (chrGr && chrGr !== 'GR 0') concPat += ` ${gradeMapConc[chrGr]}`;
                 
-                if (chrLez && chrLez !== 'Léze 0') {
+                if (hasLez) {
                     const lezMapNom = { 'Fisura': 'fisura', 'Fisury': 'fisury', 'Defekt': 'defekt', 'Defekty': 'vícečetné defekty', 'Delaminace': 'delaminace' };
                     concPat += ` (${lezMapNom[chrLez]})`;
                 }
@@ -1065,6 +1083,32 @@ const RegionKnee = {
         if (combinedStBnText !== '') {
             reportOut.push({ type: 'frame', text: combinedStBnText, tableId: 'knee_soft_main', dimmed: isSoftDimmed && isBoneDimmed });
         }
+
+        const conclusionOrder = {
+            'knee_acl_main': 1,
+            'knee_pcl_main': 2,
+            'knee_mm_main': 3,
+            'knee_mcl_main': 4,
+            'knee_mfc_main': 5,
+            'knee_mtc_main': 6,
+            'knee_lm_main': 7,
+            'knee_lcl_main': 8,
+            'knee_lfc_main': 9,
+            'knee_ltc_main': 10,
+            'knee_patella_main': 11,
+            'knee_joint_main': 12,
+            'knee_soft_main': 13,
+            'knee_bones_main': 14
+        };
+
+        const sortConclusions = (a, b) => {
+            const orderA = conclusionOrder[a.tableId] || 99;
+            const orderB = conclusionOrder[b.tableId] || 99;
+            return orderA - orderB;
+        };
+
+        concMain.sort(sortConclusions);
+        concInc.sort(sortConclusions);
 
         return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
     }
