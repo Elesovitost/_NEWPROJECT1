@@ -13,6 +13,7 @@ const RegionLSp = {
         modic: { states: ['Modic', 'Modic I', 'Modic II', 'Modic III', 'destrukce'] },
         protrusion: { states: ['protruze', 'bulging', 'herniace', 'spondylofyty', 'kombinace'] },
         asym: { type: 'basic', text: 'asym' },
+        migration: { states: ['M0', 'M↑', 'M↓'] },
         arthrosis: { states: ['artróza', 'I', 'II', 'III', 'IR', 'IIR', 'IL', 'IIL'] },
         sten_f: { states: ['F', '0', '1', '2', '3'] },
         sten_p: { states: ['P', '0', '1', '2', '3', 'S', 'F'] },
@@ -31,19 +32,19 @@ const RegionLSp = {
 
         const table = helpers.TableGrid('spine_lumbar_main', [
             [ 'T11', { btn: 'shape', id: 't11_shape' }, [ { btn: 'shift', id: 't11_shift' }, { field: 'mm', id: 't11_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 't11_lesion' }, { btn: 'surgery', id: 't11_surgery' } ],
-            [ 'T11/12', { btn: 'degen', id: 't11_12_degen' }, { btn: 'modic', id: 't11_12_modic' }, [ { btn: 'protrusion', id: 't11_12_protrusion' }, { btn: 'asym', id: 't11_12_asym' }, { field: 'mm', id: 't11_12_protrusion_mm', placeholder: 'mm' } ], { btn: 'arthrosis', id: 't11_12_arthro' }, [ { btn: 'sten_f', id: 't11_12_f_r' }, { btn: 'sten_p', id: 't11_12_p_r' }, { btn: 'sten_c', id: 't11_12_c' }, { btn: 'sten_p', id: 't11_12_p_l' }, { btn: 'sten_f', id: 't11_12_f_l' } ], { field: 'size', id: 't11_12_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 't11_12_expansion' }, { btn: 'exp_side', id: 't11_12_exp_side' }, { field: 'size', id: 't11_12_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 't11_12_lamin' } ],
+            [ 'T11/12', { btn: 'degen', id: 't11_12_degen' }, { btn: 'modic', id: 't11_12_modic' }, [ { btn: 'protrusion', id: 't11_12_protrusion' }, { btn: 'asym', id: 't11_12_asym' }, { field: 'mm', id: 't11_12_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 't11_12_migration' } ], { btn: 'arthrosis', id: 't11_12_arthro' }, [ { btn: 'sten_f', id: 't11_12_f_r' }, { btn: 'sten_p', id: 't11_12_p_r' }, { btn: 'sten_c', id: 't11_12_c' }, { btn: 'sten_p', id: 't11_12_p_l' }, { btn: 'sten_f', id: 't11_12_f_l' } ], { field: 'size', id: 't11_12_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 't11_12_expansion' }, { btn: 'exp_side', id: 't11_12_exp_side' }, { field: 'size', id: 't11_12_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 't11_12_lamin' } ],
             [ 'T12', { btn: 'shape', id: 't12_shape' }, [ { btn: 'shift', id: 't12_shift' }, { field: 'mm', id: 't12_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 't12_lesion' }, { btn: 'surgery', id: 't12_surgery' } ],
-            [ 'T12/L1', { btn: 'degen', id: 't12_l1_degen' }, { btn: 'modic', id: 't12_l1_modic' }, [ { btn: 'protrusion', id: 't12_l1_protrusion' }, { btn: 'asym', id: 't12_l1_asym' }, { field: 'mm', id: 't12_l1_protrusion_mm', placeholder: 'mm' } ], { btn: 'arthrosis', id: 't12_l1_arthro' }, [ { btn: 'sten_f', id: 't12_l1_f_r' }, { btn: 'sten_p', id: 't12_l1_p_r' }, { btn: 'sten_c', id: 't12_l1_c' }, { btn: 'sten_p', id: 't12_l1_p_l' }, { btn: 'sten_f', id: 't12_l1_f_l' } ], { field: 'size', id: 't12_l1_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 't12_l1_expansion' }, { btn: 'exp_side', id: 't12_l1_exp_side' }, { field: 'size', id: 't12_l1_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 't12_l1_lamin' } ],
+            [ 'T12/L1', { btn: 'degen', id: 't12_l1_degen' }, { btn: 'modic', id: 't12_l1_modic' }, [ { btn: 'protrusion', id: 't12_l1_protrusion' }, { btn: 'asym', id: 't12_l1_asym' }, { field: 'mm', id: 't12_l1_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 't12_l1_migration' } ], { btn: 'arthrosis', id: 't12_l1_arthro' }, [ { btn: 'sten_f', id: 't12_l1_f_r' }, { btn: 'sten_p', id: 't12_l1_p_r' }, { btn: 'sten_c', id: 't12_l1_c' }, { btn: 'sten_p', id: 't12_l1_p_l' }, { btn: 'sten_f', id: 't12_l1_f_l' } ], { field: 'size', id: 't12_l1_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 't12_l1_expansion' }, { btn: 'exp_side', id: 't12_l1_exp_side' }, { field: 'size', id: 't12_l1_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 't12_l1_lamin' } ],
             [ 'L1', { btn: 'shape', id: 'l1_shape' }, [ { btn: 'shift', id: 'l1_shift' }, { field: 'mm', id: 'l1_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 'l1_lesion' }, { btn: 'surgery', id: 'l1_surgery' } ],
-            [ 'L1/2', { btn: 'degen', id: 'l1_2_degen' }, { btn: 'modic', id: 'l1_2_modic' }, [ { btn: 'protrusion', id: 'l1_2_protrusion' }, { btn: 'asym', id: 'l1_2_asym' }, { field: 'mm', id: 'l1_2_protrusion_mm', placeholder: 'mm' } ], { btn: 'arthrosis', id: 'l1_2_arthro' }, [ { btn: 'sten_f', id: 'l1_2_f_r' }, { btn: 'sten_p', id: 'l1_2_p_r' }, { btn: 'sten_c', id: 'l1_2_c' }, { btn: 'sten_p', id: 'l1_2_p_l' }, { btn: 'sten_f', id: 'l1_2_f_l' } ], { field: 'size', id: 'l1_2_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l1_2_expansion' }, { btn: 'exp_side', id: 'l1_2_exp_side' }, { field: 'size', id: 'l1_2_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l1_2_lamin' } ],
+            [ 'L1/2', { btn: 'degen', id: 'l1_2_degen' }, { btn: 'modic', id: 'l1_2_modic' }, [ { btn: 'protrusion', id: 'l1_2_protrusion' }, { btn: 'asym', id: 'l1_2_asym' }, { field: 'mm', id: 'l1_2_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l1_2_migration' } ], { btn: 'arthrosis', id: 'l1_2_arthro' }, [ { btn: 'sten_f', id: 'l1_2_f_r' }, { btn: 'sten_p', id: 'l1_2_p_r' }, { btn: 'sten_c', id: 'l1_2_c' }, { btn: 'sten_p', id: 'l1_2_p_l' }, { btn: 'sten_f', id: 'l1_2_f_l' } ], { field: 'size', id: 'l1_2_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l1_2_expansion' }, { btn: 'exp_side', id: 'l1_2_exp_side' }, { field: 'size', id: 'l1_2_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l1_2_lamin' } ],
             [ 'L2', { btn: 'shape', id: 'l2_shape' }, [ { btn: 'shift', id: 'l2_shift' }, { field: 'mm', id: 'l2_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 'l2_lesion' }, { btn: 'surgery', id: 'l2_surgery' } ],
-            [ 'L2/3', { btn: 'degen', id: 'l2_3_degen' }, { btn: 'modic', id: 'l2_3_modic' }, [ { btn: 'protrusion', id: 'l2_3_protrusion' }, { btn: 'asym', id: 'l2_3_asym' }, { field: 'mm', id: 'l2_3_protrusion_mm', placeholder: 'mm' } ], { btn: 'arthrosis', id: 'l2_3_arthro' }, [ { btn: 'sten_f', id: 'l2_3_f_r' }, { btn: 'sten_p', id: 'l2_3_p_r' }, { btn: 'sten_c', id: 'l2_3_c' }, { btn: 'sten_p', id: 'l2_3_p_l' }, { btn: 'sten_f', id: 'l2_3_f_l' } ], { field: 'size', id: 'l2_3_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l2_3_expansion' }, { btn: 'exp_side', id: 'l2_3_exp_side' }, { field: 'size', id: 'l2_3_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l2_3_lamin' } ],
+            [ 'L2/3', { btn: 'degen', id: 'l2_3_degen' }, { btn: 'modic', id: 'l2_3_modic' }, [ { btn: 'protrusion', id: 'l2_3_protrusion' }, { btn: 'asym', id: 'l2_3_asym' }, { field: 'mm', id: 'l2_3_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l2_3_migration' } ], { btn: 'arthrosis', id: 'l2_3_arthro' }, [ { btn: 'sten_f', id: 'l2_3_f_r' }, { btn: 'sten_p', id: 'l2_3_p_r' }, { btn: 'sten_c', id: 'l2_3_c' }, { btn: 'sten_p', id: 'l2_3_p_l' }, { btn: 'sten_f', id: 'l2_3_f_l' } ], { field: 'size', id: 'l2_3_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l2_3_expansion' }, { btn: 'exp_side', id: 'l2_3_exp_side' }, { field: 'size', id: 'l2_3_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l2_3_lamin' } ],
             [ 'L3', { btn: 'shape', id: 'l3_shape' }, [ { btn: 'shift', id: 'l3_shift' }, { field: 'mm', id: 'l3_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 'l3_lesion' }, { btn: 'surgery', id: 'l3_surgery' } ],
-            [ 'L3/4', { btn: 'degen', id: 'l3_4_degen' }, { btn: 'modic', id: 'l3_4_modic' }, [ { btn: 'protrusion', id: 'l3_4_protrusion' }, { btn: 'asym', id: 'l3_4_asym' }, { field: 'mm', id: 'l3_4_protrusion_mm', placeholder: 'mm' } ], { btn: 'arthrosis', id: 'l3_4_arthro' }, [ { btn: 'sten_f', id: 'l3_4_f_r' }, { btn: 'sten_p', id: 'l3_4_p_r' }, { btn: 'sten_c', id: 'l3_4_c' }, { btn: 'sten_p', id: 'l3_4_p_l' }, { btn: 'sten_f', id: 'l3_4_f_l' } ], { field: 'size', id: 'l3_4_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l3_4_expansion' }, { btn: 'exp_side', id: 'l3_4_exp_side' }, { field: 'size', id: 'l3_4_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l3_4_lamin' } ],
+            [ 'L3/4', { btn: 'degen', id: 'l3_4_degen' }, { btn: 'modic', id: 'l3_4_modic' }, [ { btn: 'protrusion', id: 'l3_4_protrusion' }, { btn: 'asym', id: 'l3_4_asym' }, { field: 'mm', id: 'l3_4_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l3_4_migration' } ], { btn: 'arthrosis', id: 'l3_4_arthro' }, [ { btn: 'sten_f', id: 'l3_4_f_r' }, { btn: 'sten_p', id: 'l3_4_p_r' }, { btn: 'sten_c', id: 'l3_4_c' }, { btn: 'sten_p', id: 'l3_4_p_l' }, { btn: 'sten_f', id: 'l3_4_f_l' } ], { field: 'size', id: 'l3_4_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l3_4_expansion' }, { btn: 'exp_side', id: 'l3_4_exp_side' }, { field: 'size', id: 'l3_4_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l3_4_lamin' } ],
             [ 'L4', { btn: 'shape', id: 'l4_shape' }, [ { btn: 'shift', id: 'l4_shift' }, { field: 'mm', id: 'l4_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 'l4_lesion' }, { btn: 'surgery', id: 'l4_surgery' } ],
-            [ 'L4/5', { btn: 'degen', id: 'l4_5_degen' }, { btn: 'modic', id: 'l4_5_modic' }, [ { btn: 'protrusion', id: 'l4_5_protrusion' }, { btn: 'asym', id: 'l4_5_asym' }, { field: 'mm', id: 'l4_5_protrusion_mm', placeholder: 'mm' } ], { btn: 'arthrosis', id: 'l4_5_arthro' }, [ { btn: 'sten_f', id: 'l4_5_f_r' }, { btn: 'sten_p', id: 'l4_5_p_r' }, { btn: 'sten_c', id: 'l4_5_c' }, { btn: 'sten_p', id: 'l4_5_p_l' }, { btn: 'sten_f', id: 'l4_5_f_l' } ], { field: 'size', id: 'l4_5_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l4_5_expansion' }, { btn: 'exp_side', id: 'l4_5_exp_side' }, { field: 'size', id: 'l4_5_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l4_5_lamin' } ],
+            [ 'L4/5', { btn: 'degen', id: 'l4_5_degen' }, { btn: 'modic', id: 'l4_5_modic' }, [ { btn: 'protrusion', id: 'l4_5_protrusion' }, { btn: 'asym', id: 'l4_5_asym' }, { field: 'mm', id: 'l4_5_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l4_5_migration' } ], { btn: 'arthrosis', id: 'l4_5_arthro' }, [ { btn: 'sten_f', id: 'l4_5_f_r' }, { btn: 'sten_p', id: 'l4_5_p_r' }, { btn: 'sten_c', id: 'l4_5_c' }, { btn: 'sten_p', id: 'l4_5_p_l' }, { btn: 'sten_f', id: 'l4_5_f_l' } ], { field: 'size', id: 'l4_5_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l4_5_expansion' }, { btn: 'exp_side', id: 'l4_5_exp_side' }, { field: 'size', id: 'l4_5_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l4_5_lamin' } ],
             [ 'L5', { btn: 'shape', id: 'l5_shape' }, [ { btn: 'shift', id: 'l5_shift' }, { field: 'mm', id: 'l5_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 'l5_lesion' }, { btn: 'surgery', id: 'l5_surgery' } ],
-            [ 'L5/S1', { btn: 'degen', id: 'l5_s1_degen' }, { btn: 'modic', id: 'l5_s1_modic' }, [ { btn: 'protrusion', id: 'l5_s1_protrusion' }, { btn: 'asym', id: 'l5_s1_asym' }, { field: 'mm', id: 'l5_s1_protrusion_mm', placeholder: 'mm' } ], { btn: 'arthrosis', id: 'l5_s1_arthro' }, [ { btn: 'sten_f', id: 'l5_s1_f_r' }, { btn: 'sten_p', id: 'l5_s1_p_r' }, { btn: 'sten_c', id: 'l5_s1_c' }, { btn: 'sten_p', id: 'l5_s1_p_l' }, { btn: 'sten_f', id: 'l5_s1_f_l' } ], { field: 'size', id: 'l5_s1_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l5_s1_expansion' }, { btn: 'exp_side', id: 'l5_s1_exp_side' }, { field: 'size', id: 'l5_s1_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l5_s1_lamin' } ],
+            [ 'L5/S1', { btn: 'degen', id: 'l5_s1_degen' }, { btn: 'modic', id: 'l5_s1_modic' }, [ { btn: 'protrusion', id: 'l5_s1_protrusion' }, { btn: 'asym', id: 'l5_s1_asym' }, { field: 'mm', id: 'l5_s1_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l5_s1_migration' } ], { btn: 'arthrosis', id: 'l5_s1_arthro' }, [ { btn: 'sten_f', id: 'l5_s1_f_r' }, { btn: 'sten_p', id: 'l5_s1_p_r' }, { btn: 'sten_c', id: 'l5_s1_c' }, { btn: 'sten_p', id: 'l5_s1_p_l' }, { btn: 'sten_f', id: 'l5_s1_f_l' } ], { field: 'size', id: 'l5_s1_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l5_s1_expansion' }, { btn: 'exp_side', id: 'l5_s1_exp_side' }, { field: 'size', id: 'l5_s1_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l5_s1_lamin' } ],
             [ 'S1', { btn: 'shape', id: 's1_shape' }, [ { }, {  } ], '', '', '', '', '', '', { btn: 'lesion', id: 's1_lesion' }, { btn: 'surgery', id: 's1_surgery' } ],
         ]);
 
@@ -105,6 +106,7 @@ const RegionLSp = {
         };
 
         let staticSentences = [];
+        let concStaticSentences = [];
 
         const axisState = ctx.text('lsp_axis');
         if (axisState && axisState !== '0') {
@@ -121,7 +123,9 @@ const RegionLSp = {
             if (axisText) {
                 const sentence = formatSentence(axisText);
                 staticSentences.push(sentence);
-                mainConc.push({ type: 'frame', text: sentence });
+                if (axisState !== 'přímá') {
+                    concStaticSentences.push(sentence);
+                }
             }
         }
 
@@ -138,7 +142,7 @@ const RegionLSp = {
                 const sentence = formatSentence(lordosisText);
                 staticSentences.push(sentence);
                 if (lordosisState !== 'přiměřená') {
-                    mainConc.push({ type: 'frame', text: sentence });
+                    concStaticSentences.push(sentence);
                 }
             }
         }
@@ -147,15 +151,19 @@ const RegionLSp = {
         if (lstvState && lstvState !== 'není' && lstvState !== '0') {
             const lstvText = formatSentence(`přechodný LS obratel, počítán jako ${lstvState}`);
             staticSentences.push(lstvText);
-            mainConc.push({ type: 'frame', text: lstvText });
+            concStaticSentences.push(lstvText);
         }
 
-        if (staticSentences.length > 0) {
-            reportBlocks.push({ type: 'frame', text: staticSentences.join(' ') });
+        if (concStaticSentences.length > 0) {
+            mainConc.push({ type: 'frame', text: concStaticSentences.join(' ') });
         }
 
         let collShapes = {};
         let collSurgeries = {};
+        let segmentBlocks = [];
+        let hasSegmentPathology = false;
+        let hasSpinalStenosis = false;
+        let hasForaminalStenosis = false;
         let collLesions = {};
         let collLamin = {};
         let collModic = {};
@@ -164,18 +172,17 @@ const RegionLSp = {
         segments.forEach(seg => {
             let sentences = [];
             let causesNom = [];
-            let causesLoc = [];
+            let causesGen = [];
             let effectsNom = [];
             let effectsDat = [];
 
             const shape = ctx.text(`${seg.vPfx}_shape`);
             if (shape && shape !== 'tělo') {
                 if (shape === 'propagace') {
-                    sentences.push(formatSentence(`výrazná komprese těla ${seg.vLabel} s propagací dorzálně`));
-                    causesNom.push(`výrazná komprese těla ${seg.vLabel} s propagací dorzálně`);
-                    causesLoc.push(`výrazné kompresi těla ${seg.vLabel} s propagací dorzálně`);
+                    sentences.push(formatSentence('propagace zadní hrany obratl. těla dorzálně'));
                 }
-                else { if (!collShapes[shape]) collShapes[shape] = []; collShapes[shape].push(seg.vLabel); }
+                if (!collShapes[shape]) collShapes[shape] = []; 
+                collShapes[shape].push(seg.vLabel);
             }
 
             const surgery = ctx.text(`${seg.vPfx}_surgery`);
@@ -223,10 +230,23 @@ const RegionLSp = {
                 const typeStr = shift.includes('ventr') ? `ventrolistéza ${seg.vLabel}` : `retrolistéza ${seg.vLabel}`;
                 const lStr = shift.includes('lýza') ? 's lýzou oblouku' : 'bez lýzy oblouku';
                 const mmStr = shiftMm ? ` o ${shiftMm} mm` : '';
+                
+                let gradeStr = mmStr;
+                if (shiftMm) {
+                    const mm = parseFloat(shiftMm.replace(',', '.'));
+                    if (!isNaN(mm)) {
+                        if (mm <= 7) gradeStr = ' I.st.';
+                        else if (mm <= 9) gradeStr = ' I/II.st.';
+                        else if (mm <= 15) gradeStr = ' II.st.';
+                        else if (mm <= 17) gradeStr = ' II/III.st.';
+                        else gradeStr = ' III.st.';
+                    }
+                }
+
                 sentences.push(formatSentence(`${typeStr}${mmStr} ${shift.includes('lýza') ? 's lýzou oblouku' : ''}`));
                 
-                causesNom.push(`${typeStr}${mmStr} ${lStr}`);
-                causesLoc.push(`${typeStr.replace('listéza', 'listéze')}${mmStr} ${lStr}`);
+                causesNom.push(`${typeStr}${gradeStr} ${lStr}`);
+                causesGen.push(`${typeStr.replace('listéza', 'listézy')}${gradeStr} ${lStr}`);
             }
 
             const valFR = ctx.text(`${seg.sPfx}_f_r`);
@@ -237,26 +257,37 @@ const RegionLSp = {
 
             const hasZero = (valFR === '0' || valPR === '0' || valC === '0' || valPL === '0' || valFL === '0');
 
-            const locStates = [
-                { val: valFR, isAct: valFR && valFR !== 'F', zeroTxt: 'bez zúžení foramina vpravo', name: 'foraminálně vpravo', t1: 'mírné zúžení foramina vpravo', t2: 'střední zúžení foramina vpravo', t3: `výrazné zúžení foramina vpravo s útlakem kořene ${seg.vLabel} vpravo` },
-                { val: valPR, isAct: valPR && valPR !== 'P', zeroTxt: 'bez tlaku na kořen vpravo', name: 'paracentrálně vpravo', t1: 'kontakt s kořenem vpravo', t2: 'dislokace kořene vpravo', t3: 'komprese kořene vpravo', tS: 'stenóza laterálního recesu vpravo' },
-                { val: valC,  isAct: valC && valC !== 'C', zeroTxt: 'bez tlaku na durální vak', name: 'centrálně', t1: 'mírná imprese durálního vaku', t2: 'útlak durálního vaku', t3: 'výrazný útlak durálního vaku s agregací kaudy' },
-                { val: valPL, isAct: valPL && valPL !== 'P', zeroTxt: 'bez tlaku na kořen vlevo', name: 'paracentrálně vlevo', t1: 'kontakt s kořenem vlevo', t2: 'dislokace kořene vlevo', t3: 'komprese kořene vlevo', tS: 'stenóza laterálního recesu vlevo' },
-                { val: valFL, isAct: valFL && valFL !== 'F', zeroTxt: 'bez zúžení foramina vlevo', name: 'foraminálně vlevo', t1: 'mírné zúžení foramina vlevo', t2: 'střední zúžení foramina vlevo', t3: `výrazné zúžení foramina vlevo s útlakem kořene ${seg.vLabel} vlevo` }
-            ];
+            let locStates = [];
+            
+            if (valFR === valFL && valFR && valFR !== 'F' && valFR !== '0') {
+                locStates.push({ type: 'F', val: valFR, isAct: true, name: 'foraminálně bilat.', t1: 'mírné zúžení obou foramin', t2: 'zúžení obou foramin', t3: `výrazné zúžení obou foramin s útlakem kořenů ${seg.vLabel} bilat.` });
+            } else {
+                locStates.push({ type: 'F', val: valFR, isAct: valFR && valFR !== 'F', zeroTxt: 'bez zúžení foramina vpravo', name: 'foraminálně vpravo', t1: 'mírné zúžení foramina vpravo', t2: 'zúžení foramina vpravo', t3: `výrazné zúžení foramina vpravo s útlakem kořene ${seg.vLabel} vpravo` });
+                locStates.push({ type: 'F', val: valFL, isAct: valFL && valFL !== 'F', zeroTxt: 'bez zúžení foramina vlevo', name: 'foraminálně vlevo', t1: 'mírné zúžení foramina vlevo', t2: 'zúžení foramina vlevo', t3: `výrazné zúžení foramina vlevo s útlakem kořene ${seg.vLabel} vlevo` });
+            }
 
+            if (valPR === valPL && valPR && valPR !== 'P' && valPR !== '0') {
+                locStates.push({ type: 'P', val: valPR, isAct: true, name: 'paracentrálně bilat.', t1: `kontakt s kořeny ${seg.root} bilat.`, t2: `dislokace kořenů ${seg.root} bilat.`, t3: `komprese kořenů ${seg.root} bilat.`, tS: 'stenóza laterálních recesů bilat.' });
+            } else {
+                locStates.push({ type: 'P', val: valPR, isAct: valPR && valPR !== 'P', zeroTxt: `bez tlaku na kořen ${seg.root} vpravo`, name: 'paracentrálně vpravo', t1: `kontakt s kořenem ${seg.root} vpravo`, t2: `dislokace kořene ${seg.root} vpravo`, t3: `komprese kořene ${seg.root} vpravo`, tS: 'stenóza laterálního recesu vpravo' });
+                locStates.push({ type: 'P', val: valPL, isAct: valPL && valPL !== 'P', zeroTxt: `bez tlaku na kořen ${seg.root} vlevo`, name: 'paracentrálně vlevo', t1: `kontakt s kořenem ${seg.root} vlevo`, t2: `dislokace kořene ${seg.root} vlevo`, t3: `komprese kořene ${seg.root} vlevo`, tS: 'stenóza laterálního recesu vlevo' });
+            }
+
+            locStates.push({ type: 'C', val: valC,  isAct: valC && valC !== 'C', zeroTxt: 'bez tlaku na durální vak', name: 'centrálně', t1: 'mírná imprese durálního vaku', t2: 'útlak durálního vaku', t3: 'výrazný útlak durálního vaku s agregací kaudy' });
+            
             const activeLocs = locStates.filter(l => l.isAct);
 
             const protr = ctx.text(`${seg.sPfx}_protrusion`);
             const protrMm = ctx.field(`${seg.sPfx}_protrusion_mm`);
             const asym = ctx.isActive(`${seg.sPfx}_asym`);
+            const migration = ctx.text(`${seg.sPfx}_migration`);
             
             if (protr && protr !== 'protruze') {
                 const protrMap = { 'bulging': `bulging ${degenModifier}disku`.trim(), 'herniace': `herniace ${degenModifier}disku`.trim(), 'spondylofyty': 'spondylofyty okrajů krycích ploch', 'kombinace': `kombinace spondylofytů a protruze ${degenModifier}disku`.trim() };
                 let baseProtr = protrMap[protr] || protr;
                 if (protrMm) baseProtr += ` o ${protrMm} mm`;
 
-                const protrMapConc = { 'bulging': `bulging ${degenModifier}disku`.trim(), 'herniace': `herniace ${degenModifier}disku`.trim(), 'spondylofyty': 'spondylofyty', 'kombinace': `kombinace spondylofytů a protruze ${degenModifier}disku`.trim() };
+                const protrMapConc = { 'bulging': 'bulging disku', 'herniace': 'herniace disku', 'spondylofyty': 'spondylofyty', 'kombinace': 'kombinace spondylofytů a protruze disku' };
                 let pTxt = protrMapConc[protr] || protr;
 
                 let locNames = activeLocs.map(l => l.name);
@@ -276,18 +307,27 @@ const RegionLSp = {
                     }
                 }
 
+                if (protr === 'herniace' && migration && migration !== 'M0') {
+                    const migText = migration === 'M↑' ? ' s kraniální migrací' : ' s kaudální migrací';
+                    baseProtr += migText;
+                    pTxt += migText;
+                }
+
                 sentences.push(formatSentence(baseProtr));
 
                 causesNom.push(pTxt);
-                causesLoc.push(pTxt.replace('bulging', 'bulgingu').replace('herniace', 'herniaci').replace('spondylofyty', 'spondylofytech').replace('kombinace', 'kombinaci'));
+                causesGen.push(pTxt.replace('bulging', 'bulgingu').replace('spondylofyty', 'spondylofytů'));
             } else if (degenDesc) {
                 sentences.push(formatSentence(degenDesc));
                 causesNom.push(degenDesc);
-                causesLoc.push(degenDesc.replace('degenerace', 'degeneraci'));
+                causesGen.push(degenDesc.replace('mírná', 'mírné').replace('výrazná', 'výrazné'));
             }
 
             const activeCount = activeLocs.length;
-            activeLocs.forEach(loc => {
+            const popisOrderMap = { 'C': 1, 'P': 2, 'F': 3 };
+            let stenosisLocs = [...activeLocs].sort((a, b) => popisOrderMap[a.type] - popisOrderMap[b.type]);
+            
+            stenosisLocs.forEach(loc => {
                 if (loc.val === '0') { if (activeCount === 1) sentences.push(formatSentence(loc.zeroTxt)); }
                 else if (loc.val === '1') sentences.push(formatSentence(loc.t1));
                 else if (loc.val === '2') sentences.push(formatSentence(loc.t2));
@@ -303,7 +343,7 @@ const RegionLSp = {
                 const arthroMapConc = { 'I': 'mírná facetová artróza', 'II': 'střední facetová artróza', 'III': 'výrazná facetová artróza', 'IR': 'mírná facetová artróza vpravo', 'IIR': 'střední facetová artróza vpravo', 'IL': 'mírná facetová artróza vlevo', 'IIL': 'střední facetová artróza vlevo' };
                 let aTxt = arthroMapConc[arthro] || arthro;
                 causesNom.push(aTxt);
-                causesLoc.push(aTxt.replace('artróza', 'artróze'));
+                causesGen.push(aTxt.replace('artróza', 'artrózy').replace('mírná', 'mírné').replace('výrazná', 'výrazné').replace('facetová', 'facetové'));
             }
 
             const size = ctx.field(`${seg.sPfx}_size`);
@@ -335,25 +375,34 @@ const RegionLSp = {
                     eTxt += ` ${sideMap[expSide] || expSide}`;
                 }
                 causesNom.push(eTxt);
-                causesLoc.push(eTxt.replace('cysta', 'cystě').replace('ložisko', 'ložisku').replace('expanze', 'expanzi'));
+                causesGen.push(eTxt.replace('cysta', 'cysty').replace('intradurální ložisko', 'intradurálního ložiska').replace('ložisko', 'ložiska'));
             }
 
-            if (sentences.length > 0) reportBlocks.push({ type: 'frame', text: `${seg.label}: ${sentences.join(' ')}` });
+            if (sentences.length > 0) {
+                hasSegmentPathology = true;
+                segmentBlocks.push({ type: 'frame', text: `${seg.label}: ${sentences.join(' ')}` });
+            }
+
+            if (valC && valC !== '0' && valC !== 'C') hasSpinalStenosis = true;
+            if (valPR && valPR !== '0' && valPR !== 'P' && valPR !== 'F') hasSpinalStenosis = true;
+            if (valPL && valPL !== '0' && valPL !== 'P' && valPL !== 'F') hasSpinalStenosis = true;
+            if (valFR && valFR !== '0' && valFR !== 'F') hasForaminalStenosis = true;
+            if (valFL && valFL !== '0' && valFL !== 'F') hasForaminalStenosis = true;
 
             let fibrosisArr = [];
-            const mapEffect = (val, type, side) => {
-                if (!val || val === '0' || val === type) return null;
-                
+            
+            const getEffect = (val, type, side) => {
                 let nom = '', dat = '';
+                let sev = val === '3' ? 3 : (val === '2' || val === 'S' ? 2 : 1);
+                let typeOrder = type === 'C' ? 1 : (type === 'P' ? 2 : 3);
+
                 if (type === 'F') {
-                    if (val === '3') {
-                        nom = `výrazná stenóza foramina ${side} s útlakem kořene ${seg.vLabel} ${side}`;
-                        dat = `výrazné stenóze foramina ${side} s útlakem kořene ${seg.vLabel} ${side}`;
-                    } else {
-                        const deg = val === '1' ? 'mírná' : 'střední';
-                        const degDat = val === '1' ? 'mírné' : 'střední';
-                        nom = `${deg} stenóza foramina ${side}`;
-                        dat = `${degDat} stenóze foramina ${side}`;
+                    if (val === '3') { 
+                        nom = `výrazná stenóza foramina ${side} s útlakem kořene ${seg.vLabel} ${side}`; 
+                        dat = `výrazné stenóze foramina ${side} s útlakem kořene ${seg.vLabel} ${side}`; 
+                    } else { 
+                        nom = val === '1' ? `mírná stenóza foramina ${side}` : `stenóza foramina ${side}`; 
+                        dat = val === '1' ? `mírné stenóze foramina ${side}` : `stenóze foramina ${side}`; 
                     }
                 } else if (type === 'P') {
                     if (val === '1') { nom = `kontakt s kořenem ${seg.root} ${side}`; dat = `kontaktu s kořenem ${seg.root} ${side}`; }
@@ -370,11 +419,65 @@ const RegionLSp = {
                     else if (val === '2') { nom = `spinální stenóza`; dat = `spinální stenóze`; }
                     else if (val === '3') { nom = `výrazná spinální stenóza s agregací kaudy`; dat = `výrazné spinální stenóze s agregací kaudy`; }
                 }
-                return { nom, dat };
+                return { nom, dat, sev, typeOrder };
             };
 
-            [ mapEffect(valC, 'C', ''), mapEffect(valFR, 'F', 'vpravo'), mapEffect(valFL, 'F', 'vlevo'), mapEffect(valPR, 'P', 'vpravo'), mapEffect(valPL, 'P', 'vlevo') ]
-            .filter(Boolean).forEach(eff => {
+            const getBilatEffect = (val, type) => {
+                let nom = '', dat = '';
+                let sev = val === '3' ? 3 : (val === '2' || val === 'S' ? 2 : 1);
+                let typeOrder = type === 'C' ? 1 : (type === 'P' ? 2 : 3);
+
+                if (type === 'F') {
+                    if (val === '3') { 
+                        nom = `výrazná stenóza obou foramin s útlakem kořenů ${seg.vLabel} bilat.`; 
+                        dat = `výrazné stenóze obou foramin s útlakem kořenů ${seg.vLabel} bilat.`; 
+                    } else { 
+                        nom = val === '1' ? `mírná stenóza obou foramin` : `stenóza obou foramin`; 
+                        dat = val === '1' ? `mírné stenóze obou foramin` : `stenóze obou foramin`; 
+                    }
+                } else if (type === 'P') {
+                    if (val === '1') { nom = `kontakt s kořeny ${seg.root} bilat.`; dat = `kontaktu s kořeny ${seg.root} bilat.`; }
+                    else if (val === '2') { nom = `dislokace kořenů ${seg.root} bilat.`; dat = `dislokaci kořenů ${seg.root} bilat.`; }
+                    else if (val === '3') { nom = `útlak kořenů ${seg.root} bilat.`; dat = `útlaku kořenů ${seg.root} bilat.`; }
+                    else if (val === 'S') { nom = `stenóza laterálních recesů bilat.`; dat = `stenóze laterálních recesů bilat.`; }
+                    else if (val === 'F') { 
+                        fibrosisArr.push(`epidurální fibróza bilat.`);
+                        sentences.push(formatSentence(`epidurální fibróza bilat.`));
+                        return null; 
+                    }
+                }
+                return { nom, dat, sev, typeOrder };
+            };
+
+            let mappedEffects = [];
+            
+            if (valC && valC !== '0' && valC !== 'C') {
+                let eff = getEffect(valC, 'C', '');
+                if (eff) mappedEffects.push(eff);
+            }
+
+            if (valPR === valPL && valPR && valPR !== '0' && valPR !== 'P') {
+                let eff = getBilatEffect(valPR, 'P');
+                if (eff) mappedEffects.push(eff);
+            } else {
+                if (valPR && valPR !== '0' && valPR !== 'P') { let e = getEffect(valPR, 'P', 'vpravo'); if (e) mappedEffects.push(e); }
+                if (valPL && valPL !== '0' && valPL !== 'P') { let e = getEffect(valPL, 'P', 'vlevo'); if (e) mappedEffects.push(e); }
+            }
+
+            if (valFR === valFL && valFR && valFR !== '0' && valFR !== 'F') {
+                let eff = getBilatEffect(valFR, 'F');
+                if (eff) mappedEffects.push(eff);
+            } else {
+                if (valFR && valFR !== '0' && valFR !== 'F') { let e = getEffect(valFR, 'F', 'vpravo'); if (e) mappedEffects.push(e); }
+                if (valFL && valFL !== '0' && valFL !== 'F') { let e = getEffect(valFL, 'F', 'vlevo'); if (e) mappedEffects.push(e); }
+            }
+
+            mappedEffects.sort((a, b) => {
+                if (b.sev !== a.sev) return b.sev - a.sev;
+                return a.typeOrder - b.typeOrder;
+            });
+
+            mappedEffects.forEach(eff => {
                 effectsNom.push(eff.nom);
                 effectsDat.push(eff.dat);
             });
@@ -384,7 +487,7 @@ const RegionLSp = {
 
             if (causesNom.length > 0 || effectsNom.length > 0) {
                 let causeStrNom = joinCzech(causesNom);
-                let causeStrLoc = joinCzech(causesLoc);
+                let causeStrGen = joinCzech(causesGen);
                 let effectStrNom = joinCzech(effectsNom);
                 let effectStrDat = joinCzech(effectsDat);
 
@@ -398,7 +501,7 @@ const RegionLSp = {
                     }
                     else if (effectStrNom) concLine = `${effectStrNom}.`;
                 } else {
-                    if (effectStrNom && causeStrLoc) concLine = `${effectStrNom} při nálezu: ${causeStrLoc}.`;
+                    if (effectStrNom && causeStrGen) concLine = `${effectStrNom} na podkladě ${causeStrGen}.`;
                     else if (effectStrNom) concLine = `${effectStrNom}.`;
                     else if (causeStrNom) {
                         if (hasZero) concLine = `${causeStrNom} bez útlaku nervových struktur.`;
@@ -450,10 +553,7 @@ const RegionLSp = {
         if (collShapes['D plotna']) shapeSentences.push(`Imprese dolní krycí plotny ${collShapes['D plotna'].join(', ')}.`);
         if (collShapes['klínovitá']) shapeSentences.push(`Klínovitá komprese ${collShapes['klínovitá'].join(' - ')}.`);
         if (collShapes['výrazná']) shapeSentences.push(`Výrazná komprese těla ${collShapes['výrazná'].join(', ')}.`);
-        if (shapeSentences.length > 0) {
-            reportBlocks.push({ type: 'frame', text: shapeSentences.join(' ') });
-            mainConc.push({ type: 'frame', text: shapeSentences.join(' ') });
-        }
+        if (collShapes['propagace']) shapeSentences.push(`Výrazná komprese těla ${collShapes['propagace'].join(', ')} s propagací dorzálně.`);
 
         let surgSentences = [];
         if (collSurgeries['stabil']) surgSentences.push(`Zadní stabilizace ${collSurgeries['stabil'].join('-')}.`);
@@ -462,10 +562,6 @@ const RegionLSp = {
         if (collLamin['lamin.']) surgSentences.push(`Bilaterální laminektomie ${collLamin['lamin.'].join(', ')}.`);
         if (collLamin['lamin R']) surgSentences.push(`Laminektomie ${collLamin['lamin R'].join(', ')} vpravo.`);
         if (collLamin['lamin L']) surgSentences.push(`Laminektomie ${collLamin['lamin L'].join(', ')} vlevo.`);
-        if (surgSentences.length > 0) {
-            reportBlocks.push({ type: 'frame', text: surgSentences.join(' ') });
-            mainConc.push({ type: 'frame', text: surgSentences.join(' ') });
-        }
 
         let lesionSentences = [];
         if (collLesions['hemangiom']) {
@@ -477,7 +573,52 @@ const RegionLSp = {
             lesionSentences.push(`${pl ? 'Suspektní ložiska' : 'Suspektní ložisko'} v těle ${collLesions['maligní'].join(', ')}.`);
             mainConc.push({ type: 'frame', text: lesionSentences[lesionSentences.length - 1] });
         }
-        if (lesionSentences.length > 0) reportBlocks.push({ type: 'frame', text: lesionSentences.join(' ') });
+
+        // --- SKLÁDÁNÍ BLOKŮ REPORTU ---
+        
+        if (staticSentences.length > 0) {
+            reportBlocks.push({ type: 'frame', text: staticSentences.join(' ') });
+        }
+        
+        if (shapeSentences.length > 0) {
+            reportBlocks.push({ type: 'frame', text: shapeSentences.join(' ') + ' Ostatní těla přiměřených výšek.' });
+            mainConc.push({ type: 'frame', text: shapeSentences.join(' ') });
+        } else {
+            reportBlocks.push({ type: 'frame', text: 'Obratlová těla přiměřených výšek.' });
+        }
+
+        if (!hasSegmentPathology) {
+            reportBlocks.push({ type: 'frame', text: 'Meziobratlové segmenty s disky přiměřených výšek, bez výraznějších protruzí a facetových artróz.' });
+            reportBlocks.push({ type: 'frame', text: 'Páteřní kanál a foramina jsou volná.' });
+        }
+
+        if (surgSentences.length > 0) {
+            reportBlocks.push({ type: 'frame', text: surgSentences.join(' ') });
+            mainConc.push({ type: 'frame', text: surgSentences.join(' ') });
+        }
+        if (lesionSentences.length > 0) {
+            reportBlocks.push({ type: 'frame', text: lesionSentences.join(' ') });
+        }
+
+        if (segmentBlocks.length > 0) {
+            reportBlocks.push(...segmentBlocks);
+        }
+
+        if (hasSegmentPathology) {
+            reportBlocks.push({ type: 'frame', text: 'Ostatní meziobratlové segmenty bez výraznější morfologické patologie.' });
+            
+            if (hasSpinalStenosis && hasForaminalStenosis) {
+                reportBlocks.push({ type: 'frame', text: 'V ostatních segmentech bez jiných výraznějších spinálních a foraminálních stenóz.' });
+            } else if (hasSpinalStenosis) {
+                reportBlocks.push({ type: 'frame', text: 'V ostatních segmentech bez zřetelných spinálních stenóz. Foramina jsou volná.' });
+            } else if (hasForaminalStenosis) {
+                reportBlocks.push({ type: 'frame', text: 'Páteřní kanál zůstává volný. Bez jiných zřetelných foraminálních stenóz.' });
+            } else {
+                reportBlocks.push({ type: 'frame', text: 'Páteřní kanál a foramina jsou volná.' });
+            }
+        }
+        
+        reportBlocks.push({ type: 'frame', text: 'Přehledný úsek míchy bez signálových změn.' });
 
         return {
             report: reportBlocks,
