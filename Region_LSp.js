@@ -8,7 +8,7 @@ const RegionLSp = {
         shape: { states: ['tělo', 'schmorl', 'H plotna', 'D plotna', 'klínovitá', 'výrazná', 'propagace'] },
         shift: { states: ['posun', 'ventr', 'ventr+lýza', 'dorz', 'dorz+lýza'] },
         lesion: { states: ['léze', 'hemangiom', 'atyp', 'maligní'] },
-        surgery: { states: ['operace', 'stabil', 'náhrada'] },
+        surgery: { states: ['operace tělo', 'stabilizace', 'náhrada'] },
         degen: { states: ['DDD', 'mírná', 'střední', 'výrazná', 'náhrada'] },
         modic: { states: ['Modic', 'Modic I', 'Modic II', 'Modic III', 'destrukce'] },
         protrusion: { states: ['protruze', 'bulging', 'herniace', 'spondylofyty', 'kombinace'] },
@@ -20,7 +20,7 @@ const RegionLSp = {
         sten_c: { states: ['C', '0', '1', '2', '3'] },
         expansion: { states: ['expanze', 'ED-cysta', 'ID-meningeom', 'ID-schwannom', 'IM-ependymom', 'IM-astrocytom', 'IM-hemangiobl.'] },
         exp_side: { states: ['0', 'R', 'L', 'C'] },
-        lamin: { states: ['operace', 'lamin.', 'lamin R', 'lamin L'] }
+        lamin: { states: ['operace lamin', 'obou', 'vpravo', 'vlevo'] }
     },
     layout: (helpers) => {
         const axisTable = helpers.TableGrid('spine_lumbar_axis', [
@@ -48,9 +48,9 @@ const RegionLSp = {
             [ 'S1', { btn: 'shape', id: 's1_shape' }, [ { }, {  } ], '', '', '', '', '', '', { btn: 'lesion', id: 's1_lesion' }, { btn: 'surgery', id: 's1_surgery' } ],
         ]);
 
-        const slider = el('div', { className: 'row', style: 'margin: 15px 0; justify-content: center; width: 100%; border-top: 1px solid var(--border); padding-top: 15px;' }, [
-            el('span', { className: 'label', style: 'font-size: 11px;', textContent: 'Závěr: První patologie' }),
-            el('label', { className: 'switch', style: 'margin: 0 10px;' }, [
+        const slider = el('div', { className: 'row', style: 'margin: 10px 0 15px 0; justify-content: flex-start; width: 100%; padding-left: 5px;' }, [
+            el('span', { className: 'label', style: 'font-size: 10px;', textContent: 'V závěru:  První patologie' }),
+            el('label', { className: 'switch', style: 'margin: 0 0px;' }, [
                 el('input', { 
                     type: 'checkbox', 
                     id: 'ls_spine_conc_mode_toggle',
@@ -61,7 +61,7 @@ const RegionLSp = {
                 }),
                 el('span', { className: 'slider' })
             ]),
-            el('span', { className: 'label', style: 'font-size: 11px;', textContent: 'První stenózy' })
+            el('span', { className: 'label', style: 'font-size: 10px;', textContent: 'První stenózy' })
         ]);
 
         setTimeout(() => {
@@ -556,12 +556,12 @@ const RegionLSp = {
         if (collShapes['propagace']) shapeSentences.push(`Výrazná komprese těla ${collShapes['propagace'].join(', ')} s propagací dorzálně.`);
 
         let surgSentences = [];
-        if (collSurgeries['stabil']) surgSentences.push(`Zadní stabilizace ${collSurgeries['stabil'].join('-')}.`);
+        if (collSurgeries['stabilizace']) surgSentences.push(`Zadní stabilizace ${collSurgeries['stabilizace'].join('-')}.`);
         if (collSurgeries['náhrada']) surgSentences.push(`Náhrada těla ${collSurgeries['náhrada'].join(', ')}.`);
         if (collDegenNahrada.length > 0) surgSentences.push(`Náhrada disku ${collDegenNahrada.join(', ')}.`);
-        if (collLamin['lamin.']) surgSentences.push(`Bilaterální laminektomie ${collLamin['lamin.'].join(', ')}.`);
-        if (collLamin['lamin R']) surgSentences.push(`Laminektomie ${collLamin['lamin R'].join(', ')} vpravo.`);
-        if (collLamin['lamin L']) surgSentences.push(`Laminektomie ${collLamin['lamin L'].join(', ')} vlevo.`);
+        if (collLamin['obou']) surgSentences.push(`Bilaterální laminektomie ${collLamin['obou'].join(', ')}.`);
+        if (collLamin['vpravo']) surgSentences.push(`Laminektomie ${collLamin['vpravo'].join(', ')} vpravo.`);
+        if (collLamin['vlevo']) surgSentences.push(`Laminektomie ${collLamin['vlevo'].join(', ')} vlevo.`);
 
         let lesionSentences = [];
         if (collLesions['hemangiom']) {
@@ -588,7 +588,7 @@ const RegionLSp = {
         }
 
         if (!hasSegmentPathology) {
-            reportBlocks.push({ type: 'frame', text: 'Meziobratlové segmenty s disky přiměřených výšek, bez výraznějších protruzí a facetových artróz.' });
+            reportBlocks.push({ type: 'frame', text: 'Meziobratlové segmenty s disky přiměřených výšek bez výraznějších protruzí, bez facetových artróz.' });
             reportBlocks.push({ type: 'frame', text: 'Páteřní kanál a foramina jsou volná.' });
         }
 
@@ -619,6 +619,10 @@ const RegionLSp = {
         }
         
         reportBlocks.push({ type: 'frame', text: 'Přehledný úsek míchy bez signálových změn.' });
+
+        if (mainConc.length === 0) {
+            mainConc.push({ type: 'frame', text: 'Přiměřený nález na bederní páteři.' });
+        }
 
         return {
             report: reportBlocks,
