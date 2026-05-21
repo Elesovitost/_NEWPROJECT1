@@ -67,13 +67,13 @@ const RegionKnee = {
                     makeCondyle('knee_lfc_main', 'Laterální kondyl femuru (LFC)', 'kn_lfc'),
                     makeCondyle('knee_ltc_main', 'Laterální plato tibie (LTC)', 'kn_ltc'),
                     makeMeniscus('knee_lm_main', 'Laterální meniskus (LM)', 'kn_lm'),
-                    makeCollateralLigament('knee_lcl_main', 'Laterální kolaterální vaz (LCL)', 'kn_lcl'),
+                    makeCollateralLigament('knee_lcl_main', 'Laterální kolaterální vaz', 'kn_lcl'),
                     
                     // --- MEDIÁLNÍ KOMPARTMENT ---
                     makeCondyle('knee_mfc_main', 'Mediální kondyl femuru (MFC)', 'kn_mfc'),
                     makeCondyle('knee_mtc_main', 'Mediální plato tibie (MTC)', 'kn_mtc'),
                     makeMeniscus('knee_mm_main', 'Mediální meniskus (MM)', 'kn_mm'),
-                    makeCollateralLigament('knee_mcl_main', 'Mediální kolaterální vaz (MCL)', 'kn_mcl')
+                    makeCollateralLigament('knee_mcl_main', 'Mediální kolaterální vaz', 'kn_mcl')
                 ];
             })(),
 
@@ -695,21 +695,39 @@ const RegionKnee = {
         // ═══ EXEKUCE LATERÁLNÍHO A MEDIÁLNÍHO KOMPARTMENTU ═══
         const lfc = parseKneeCondyle('kn_lfc', 'Laterální kondyl femuru', 'LFC', 'knee_lfc_main');
         const ltc = parseKneeCondyle('kn_ltc', 'Laterální plato tibie', 'LTC', 'knee_ltc_main');
-        reportOut.push({ type: 'frame', text: `${lfc.text} ${ltc.text}`, tableId: 'knee_lfc_main', dimmed: lfc.dimmed && ltc.dimmed });
-        lfc.concs.forEach(c => concMain.push(c));
-        ltc.concs.forEach(c => concMain.push(c));
+        
+        const latReports = [lfc.text, ltc.text].filter(Boolean);
+        if (latReports.length > 0) {
+            const mergedReport = typeof formatCzechList === 'function' ? formatCzechList(latReports) : latReports.join(' ');
+            reportOut.push({ type: 'frame', text: mergedReport.replace(/\.?$/, '.'), tableId: 'knee_lfc_main', dimmed: lfc.dimmed && ltc.dimmed });
+        }
+        
+        const latConcs = [...lfc.concs, ...ltc.concs].map(c => c.text);
+        if (latConcs.length > 0) {
+            const mergedText = typeof formatCzechList === 'function' ? formatCzechList(latConcs) : latConcs.join(' ');
+            concMain.push({ type: 'frame', text: mergedText.replace(/\.?$/, '.'), tableId: 'knee_lfc_main' });
+        }
 
         parseMeniscus('kn_lm', 'Laterální meniskus', 'laterálního menisku', 'LM', 'knee_lm_main');
-        parseCollateralLigament('kn_lcl', 'Laterální kolaterální vaz (LCL)', 'knee_lcl_main');
+        parseCollateralLigament('kn_lcl', 'Laterální kolaterální vaz', 'knee_lcl_main');
 
         const mfc = parseKneeCondyle('kn_mfc', 'Mediální kondyl femuru', 'MFC', 'knee_mfc_main');
         const mtc = parseKneeCondyle('kn_mtc', 'Mediální plato tibie', 'MTC', 'knee_mtc_main');
-        reportOut.push({ type: 'frame', text: `${mfc.text} ${mtc.text}`, tableId: 'knee_mfc_main', dimmed: mfc.dimmed && mtc.dimmed });
-        mfc.concs.forEach(c => concMain.push(c));
-        mtc.concs.forEach(c => concMain.push(c));
+        
+        const medReports = [mfc.text, mtc.text].filter(Boolean);
+        if (medReports.length > 0) {
+            const mergedReport = typeof formatCzechList === 'function' ? formatCzechList(medReports) : medReports.join(' ');
+            reportOut.push({ type: 'frame', text: mergedReport.replace(/\.?$/, '.'), tableId: 'knee_mfc_main', dimmed: mfc.dimmed && mtc.dimmed });
+        }
+        
+        const medConcs = [...mfc.concs, ...mtc.concs].map(c => c.text);
+        if (medConcs.length > 0) {
+            const mergedText = typeof formatCzechList === 'function' ? formatCzechList(medConcs) : medConcs.join(' ');
+            concMain.push({ type: 'frame', text: mergedText.replace(/\.?$/, '.'), tableId: 'knee_mfc_main' });
+        }
 
         parseMeniscus('kn_mm', 'Mediální meniskus', 'mediálního menisku', 'MM', 'knee_mm_main');
-        parseCollateralLigament('kn_mcl', 'Mediální kolaterální vaz (MCL)', 'knee_mcl_main');
+        parseCollateralLigament('kn_mcl', 'Mediální kolaterální vaz', 'knee_mcl_main');
 
         // ═══ KOMPILÁTOR PRO PŘEDNÍ ZKŘÍŽENÝ VAZ (ACL) ═══
         const aclRupt = ctx.text('kn_acl_rupt');

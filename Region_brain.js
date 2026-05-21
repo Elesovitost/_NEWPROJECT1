@@ -177,6 +177,9 @@ const RegionBrain = {
         /* --- WILLISŮV OKRUH A ARTERIE --- */
         layoutNodes.push(
             helpers.TableMain('brain_vessels_main', 'Willis, arterie', [
+                helpers.Table2colNormal('br_ves_pat_table', '', [
+                    [ 'Typ patologie:', [ { btn: 'br_ves_pat', states: ['0', 'aneurysma', 'stenóza', 'uzávěr'] }, { field: 'size', id: 'br_ves_size', placeholder: 'mm' } ] ]
+                ]),
                 helpers.Table3colRCL('br_ves_w_table', 'Tepny', [
                     [ { btn: 'br_ves_aca_r', states: ['ACA', 'ACA', 'A1 ACA', 'A2 ACA'] }, { btn: 'br_ves_acoa', type: 'basic', text: 'ACoA' }, { btn: 'br_ves_aca_l', states: ['ACA', 'ACA', 'A1 ACA', 'A2 ACA'] } ],
                     [ { btn: 'br_ves_ica_r', states: ['ICA', 'ICA', 'C7 ICA', 'C6 ICA', 'C5 ICA', 'C4 ICA', 'C3 ICA', 'C2 ICA', 'C1 ICA'] }, '', { btn: 'br_ves_ica_l', states: ['ICA', 'ICA', 'C7 ICA', 'C6 ICA', 'C5 ICA', 'C4 ICA', 'C3 ICA', 'C2 ICA', 'C1 ICA'] } ],
@@ -187,8 +190,12 @@ const RegionBrain = {
                     [ { btn: 'br_ves_pica_r', type: 'basic', text: 'PICA' }, '', { btn: 'br_ves_pica_l', type: 'basic', text: 'PICA' } ],
                     [ { btn: 'br_ves_va_r', states: ['VA', 'VA', 'V4 VA', 'V3 VA', 'V2 VA', 'V1 VA'] }, '', { btn: 'br_ves_va_l', states: ['VA', 'VA', 'V4 VA', 'V3 VA', 'V2 VA', 'V1 VA'] } ]
                 ]),
-                helpers.Table2colNormal('br_ves_pat_table', '', [
-                    [ 'Typ patologie:', { btn: 'br_ves_pat', states: ['0', 'aneurysma', 'stenóza', 'uzávěr', 'hypoplazie'] } ]
+                helpers.Table3colRCL('br_var_table', 'Variace', [
+                    [ { btn: 'br_var_a1_r', states: ['0', '+'] }, 'Hypoplázie A1 ACA', { btn: 'br_var_a1_l', states: ['0', '+'] } ],
+                    [ { btn: 'br_var_fetal_r', states: ['0', 'P', 'C'] }, 'Fetální typ PCA', { btn: 'br_var_fetal_l', states: ['0', 'P', 'C'] } ],
+                    [ { btn: 'br_var_va_r', states: ['0', '+'] }, 'Hypoplázie VA', { btn: 'br_var_va_l', states: ['0', '+'] } ],
+                    [ { btn: 'br_var_vapica_r', states: ['0', '+'] }, 'VA končící jako PICA', { btn: 'br_var_vapica_l', states: ['0', '+'] } ],
+                    [ { btn: 'br_var_pica_r', states: ['0', '+'] }, 'Gracilní PICA', { btn: 'br_var_pica_l', states: ['0', '+'] } ]
                 ]),
                 helpers.Table1col('br_ves_ost_add', [ 
                     { field: 'text', id: 'br_ves_custom_desc', placeholder: 'vlastní cévní popis...' }, 
@@ -768,6 +775,9 @@ const RegionBrain = {
         if (brConc) concInc.push({ type: 'frame', text: brConc, tableId: 'brain_organ_main' });
 
         // --- WILLISŮV OKRUH A ARTERIE ---
+        let varRepList = [];
+        let varConcList = [];
+
         let vesPat = ctx.text('br_ves_pat');
         if (vesPat && vesPat !== '0') {
             let actVes = [];
@@ -797,7 +807,12 @@ const RegionBrain = {
                 let vStr = actVes.join(' a ');
                 if (actVes.length > 1) vStr = `na rozhraní ${vStr}`;
                 
-                let repText = `${vesPat} ${vStr}`;
+                let sizeVal = ctx.field('br_ves_size');
+                let sizeStr = '';
+                if (sizeVal && vesPat === 'aneurysma') sizeStr = ` vel. ${sizeVal} mm`;
+                else if (sizeVal && vesPat === 'stenóza') sizeStr = ` šíře ${sizeVal} mm`;
+
+                let repText = `${vesPat} ${vStr}${sizeStr}`;
                 let vesCust = ctx.field('br_ves_custom_desc');
                 let fullRep = vesCust ? `${repText}, ${vesCust}` : repText;
 
@@ -818,7 +833,68 @@ const RegionBrain = {
 
         // VÝSTUP: CÉVY (Bez prefixu)
         if (vesRep.length > 0) {
-            reportOut.push({ type: 'frame', text: cap(formatCzechList(vesRep)) + '.', tableId: 'brain_vessels_main' });
+            reportOut.push({ type: 'frame', text: cap(formatCzechList(vesRep)) + '. Jinak je konfigurace mozkových tepen obvyklá.', tableId: 'brain_vessels_main' });
+        }
+
+        const stdVariations = [
+            { id: 'a1', label: 'hypoplázie A1 ACA' },
+            { id: 'va', label: 'hypoplázie VA' },
+            { id: 'vapica', label: 'VA končící jako PICA' },
+            { id: 'pica', label: 'gracilní PICA' }
+        ];
+
+        stdVariations.forEach(v => {
+            let r = ctx.isActive(`br_var_${v.id}_r`);
+            let l = ctx.isActive(`br_var_${v.id}_l`);
+            if (r && l) {
+                varRepList.push(`${v.label} bilat.`);
+                varConcList.push(`${v.label} bilat.`);
+            } else if (r) {
+                varRepList.push(`${v.label} vpravo`);
+                varConcList.push(`${v.label} vpravo`);
+            } else if (l) {
+                varRepList.push(`${v.label} vlevo`);
+                varConcList.push(`${v.label} vlevo`);
+            }
+        });
+
+        let fetalR = ctx.text('br_var_fetal_r');
+        let fetalL = ctx.text('br_var_fetal_l');
+
+        let pcoaR = (fetalR === 'P' || fetalR === 'C');
+        let pcoaL = (fetalL === 'P' || fetalL === 'C');
+        if (pcoaR && pcoaL) varRepList.push('silná zadní komunikanta bilat.');
+        else if (pcoaR) varRepList.push('silná zadní komunikanta vpravo');
+        else if (pcoaL) varRepList.push('silná zadní komunikanta vlevo');
+
+        let hypoP1R = (fetalR === 'P');
+        let hypoP1L = (fetalL === 'P');
+        if (hypoP1R && hypoP1L) varRepList.push('hypoplázie P1 PCA bilat.');
+        else if (hypoP1R) varRepList.push('hypoplázie P1 PCA vpravo');
+        else if (hypoP1L) varRepList.push('hypoplázie P1 PCA vlevo');
+
+        let aplaP1R = (fetalR === 'C');
+        let aplaP1L = (fetalL === 'C');
+        if (aplaP1R && aplaP1L) varRepList.push('aplázie P1 PCA bilat.');
+        else if (aplaP1R) varRepList.push('aplázie P1 PCA vpravo');
+        else if (aplaP1L) varRepList.push('aplázie P1 PCA vlevo');
+
+        if (fetalR === 'P' && fetalL === 'P') varConcList.push('parciální fetální typ PCA bilat.');
+        else if (fetalR === 'P') varConcList.push('parciální fetální typ PCA vpravo');
+        else if (fetalL === 'P') varConcList.push('parciální fetální typ PCA vlevo');
+
+        if (fetalR === 'C' && fetalL === 'C') varConcList.push('kompletní fetální typ PCA bilat.');
+        else if (fetalR === 'C') varConcList.push('kompletní fetální typ PCA vpravo');
+        else if (fetalL === 'C') varConcList.push('kompletní fetální typ PCA vlevo');
+
+        if (varRepList.length > 0) {
+            let varTextRep = `Variační anatomie: ${varRepList.join(', ')}.`;
+            reportOut.push({ type: 'frame', text: varTextRep, tableId: 'br_var_table' });
+        }
+
+        if (varConcList.length > 0) {
+            let varTextConc = `Variační anatomie: ${varConcList.join(', ')}.`;
+            concInc.push({ type: 'frame', text: varTextConc, tableId: 'br_var_table' });
         }
 
         let vesConc = ctx.field('br_ves_custom_conc');

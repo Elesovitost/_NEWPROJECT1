@@ -239,6 +239,7 @@
 </div>
 
 <script src="Region_brain.js"></script>
+<script src="Region_br_angiography.js"></script>
 <script src="Region_neck.js"></script>
 <script src="Region_thorax.js"></script>
 <script src="Region_abdomen.js"></script>
@@ -272,7 +273,7 @@ function saveSettings() {
 
 function formatCzechList(arr) {
     if (!arr || !arr.length) return '';
-
+    arr = arr.map(item => item.trim().replace(/[.,]\s*$/, ''));
     if (!APP_SETTINGS.grammarMerging) {
         return arr.join(', ');
     }
@@ -573,6 +574,7 @@ const EXAMS = {
     ],
     MR: [
         { id: 'mr_mozek', title: 'MR mozku', regs: ['brain'] },
+        { id: 'mr_angio_mozku', title: 'MR angiografie', regs: ['br_angiography'] },
         { id: 'mr_krk', title: 'MR krku', regs: ['neck'] },
         { id: 'mr_prostata', title: 'MR prostaty', regs: ['prostate'] },
         { id: 'mr_rekta', title: 'MR rekta', regs: ['rectum'] },
@@ -1069,19 +1071,13 @@ const LESIONS_DEFINITION = {
 ═══════════════════════════════════════════════ */
 const REGIONS = {
     brain: RegionBrain,
-
+    br_angiography: RegionBrAngiography,
     neck: RegionNeck,
-
     thorax: RegionThorax,
-    
     abdomen: RegionAbdomen,
-
     skeleton: RegionSkeleton,
-
     shoulder: RegionShoulder,
-
     knee: RegionKnee,
-
     ls_spine: RegionLSp
 
 }; // <-- Tohle už je uzavření celého REGIONS objektu
