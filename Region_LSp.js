@@ -14,13 +14,17 @@ const RegionLSp = {
         protrusion: { states: ['protruze', 'bulging', 'herniace', 'spondylofyty', 'kombinace'] },
         asym: { type: 'basic', text: 'asym' },
         migration: { states: ['M0', 'M↑', 'M↓'] },
-        arthrosis: { states: ['artróza', 'I', 'II', 'III', 'IR', 'IIR', 'IL', 'IIL'] },
+        arthrosis: { states: ['facets', 'lehká', 'střední', 'těžká', 'edém'] },
+        arthro_side: { states: ['bilat.', 'vpravo', 'vlevo'] },
         sten_f: { states: ['F', '0', '1', '2', '3'] },
-        sten_p: { states: ['P', '0', '1', '2', '3', 'S', 'F'] },
+        sten_p: { states: ['P', '0', '1', '2', '3', 'S', 'F', 'A'] },
         sten_c: { states: ['C', '0', '1', '2', '3'] },
         expansion: { states: ['expanze', 'ED-cysta', 'ID-meningeom', 'ID-schwannom', 'IM-ependymom', 'IM-astrocytom', 'IM-hemangiobl.'] },
         exp_side: { states: ['0', 'R', 'L', 'C'] },
-        lamin: { states: ['operace lamin', 'obou', 'vpravo', 'vlevo'] }
+        exp_segment: { states: ['etáž', 'L5/S1', 'L4/5', 'L3/4', 'L2/3', 'L1/2', 'T12/L1', 'T11/12'] },
+        lamin: { states: ['operace lamin', 'obou', 'vpravo', 'vlevo'] },
+        myelo_level: { states: ['etáž', 'T11', 'T12', 'L1', 'custom'] },
+        myelopatie: { states: ['myelopatie', 'centrálně', 'vpravo', 'vlevo', 'difuzně'] }
     },
     layout: (helpers) => {
         const axisTable = helpers.TableGrid('spine_lumbar_axis', [
@@ -31,21 +35,21 @@ const RegionLSp = {
         ]);
 
         const table = helpers.TableGrid('spine_lumbar_main', [
-            [ 'T11', { btn: 'shape', id: 't11_shape' }, [ { btn: 'shift', id: 't11_shift' }, { field: 'mm', id: 't11_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 't11_lesion' }, { btn: 'surgery', id: 't11_surgery' } ],
-            [ 'T11/12', { btn: 'degen', id: 't11_12_degen' }, { btn: 'modic', id: 't11_12_modic' }, [ { btn: 'protrusion', id: 't11_12_protrusion' }, { btn: 'asym', id: 't11_12_asym' }, { field: 'mm', id: 't11_12_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 't11_12_migration' } ], { btn: 'arthrosis', id: 't11_12_arthro' }, [ { btn: 'sten_f', id: 't11_12_f_r' }, { btn: 'sten_p', id: 't11_12_p_r' }, { btn: 'sten_c', id: 't11_12_c' }, { btn: 'sten_p', id: 't11_12_p_l' }, { btn: 'sten_f', id: 't11_12_f_l' } ], { field: 'size', id: 't11_12_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 't11_12_expansion' }, { btn: 'exp_side', id: 't11_12_exp_side' }, { field: 'size', id: 't11_12_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 't11_12_lamin' } ],
-            [ 'T12', { btn: 'shape', id: 't12_shape' }, [ { btn: 'shift', id: 't12_shift' }, { field: 'mm', id: 't12_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 't12_lesion' }, { btn: 'surgery', id: 't12_surgery' } ],
-            [ 'T12/L1', { btn: 'degen', id: 't12_l1_degen' }, { btn: 'modic', id: 't12_l1_modic' }, [ { btn: 'protrusion', id: 't12_l1_protrusion' }, { btn: 'asym', id: 't12_l1_asym' }, { field: 'mm', id: 't12_l1_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 't12_l1_migration' } ], { btn: 'arthrosis', id: 't12_l1_arthro' }, [ { btn: 'sten_f', id: 't12_l1_f_r' }, { btn: 'sten_p', id: 't12_l1_p_r' }, { btn: 'sten_c', id: 't12_l1_c' }, { btn: 'sten_p', id: 't12_l1_p_l' }, { btn: 'sten_f', id: 't12_l1_f_l' } ], { field: 'size', id: 't12_l1_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 't12_l1_expansion' }, { btn: 'exp_side', id: 't12_l1_exp_side' }, { field: 'size', id: 't12_l1_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 't12_l1_lamin' } ],
-            [ 'L1', { btn: 'shape', id: 'l1_shape' }, [ { btn: 'shift', id: 'l1_shift' }, { field: 'mm', id: 'l1_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 'l1_lesion' }, { btn: 'surgery', id: 'l1_surgery' } ],
-            [ 'L1/2', { btn: 'degen', id: 'l1_2_degen' }, { btn: 'modic', id: 'l1_2_modic' }, [ { btn: 'protrusion', id: 'l1_2_protrusion' }, { btn: 'asym', id: 'l1_2_asym' }, { field: 'mm', id: 'l1_2_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l1_2_migration' } ], { btn: 'arthrosis', id: 'l1_2_arthro' }, [ { btn: 'sten_f', id: 'l1_2_f_r' }, { btn: 'sten_p', id: 'l1_2_p_r' }, { btn: 'sten_c', id: 'l1_2_c' }, { btn: 'sten_p', id: 'l1_2_p_l' }, { btn: 'sten_f', id: 'l1_2_f_l' } ], { field: 'size', id: 'l1_2_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l1_2_expansion' }, { btn: 'exp_side', id: 'l1_2_exp_side' }, { field: 'size', id: 'l1_2_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l1_2_lamin' } ],
-            [ 'L2', { btn: 'shape', id: 'l2_shape' }, [ { btn: 'shift', id: 'l2_shift' }, { field: 'mm', id: 'l2_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 'l2_lesion' }, { btn: 'surgery', id: 'l2_surgery' } ],
-            [ 'L2/3', { btn: 'degen', id: 'l2_3_degen' }, { btn: 'modic', id: 'l2_3_modic' }, [ { btn: 'protrusion', id: 'l2_3_protrusion' }, { btn: 'asym', id: 'l2_3_asym' }, { field: 'mm', id: 'l2_3_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l2_3_migration' } ], { btn: 'arthrosis', id: 'l2_3_arthro' }, [ { btn: 'sten_f', id: 'l2_3_f_r' }, { btn: 'sten_p', id: 'l2_3_p_r' }, { btn: 'sten_c', id: 'l2_3_c' }, { btn: 'sten_p', id: 'l2_3_p_l' }, { btn: 'sten_f', id: 'l2_3_f_l' } ], { field: 'size', id: 'l2_3_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l2_3_expansion' }, { btn: 'exp_side', id: 'l2_3_exp_side' }, { field: 'size', id: 'l2_3_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l2_3_lamin' } ],
-            [ 'L3', { btn: 'shape', id: 'l3_shape' }, [ { btn: 'shift', id: 'l3_shift' }, { field: 'mm', id: 'l3_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 'l3_lesion' }, { btn: 'surgery', id: 'l3_surgery' } ],
-            [ 'L3/4', { btn: 'degen', id: 'l3_4_degen' }, { btn: 'modic', id: 'l3_4_modic' }, [ { btn: 'protrusion', id: 'l3_4_protrusion' }, { btn: 'asym', id: 'l3_4_asym' }, { field: 'mm', id: 'l3_4_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l3_4_migration' } ], { btn: 'arthrosis', id: 'l3_4_arthro' }, [ { btn: 'sten_f', id: 'l3_4_f_r' }, { btn: 'sten_p', id: 'l3_4_p_r' }, { btn: 'sten_c', id: 'l3_4_c' }, { btn: 'sten_p', id: 'l3_4_p_l' }, { btn: 'sten_f', id: 'l3_4_f_l' } ], { field: 'size', id: 'l3_4_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l3_4_expansion' }, { btn: 'exp_side', id: 'l3_4_exp_side' }, { field: 'size', id: 'l3_4_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l3_4_lamin' } ],
-            [ 'L4', { btn: 'shape', id: 'l4_shape' }, [ { btn: 'shift', id: 'l4_shift' }, { field: 'mm', id: 'l4_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 'l4_lesion' }, { btn: 'surgery', id: 'l4_surgery' } ],
-            [ 'L4/5', { btn: 'degen', id: 'l4_5_degen' }, { btn: 'modic', id: 'l4_5_modic' }, [ { btn: 'protrusion', id: 'l4_5_protrusion' }, { btn: 'asym', id: 'l4_5_asym' }, { field: 'mm', id: 'l4_5_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l4_5_migration' } ], { btn: 'arthrosis', id: 'l4_5_arthro' }, [ { btn: 'sten_f', id: 'l4_5_f_r' }, { btn: 'sten_p', id: 'l4_5_p_r' }, { btn: 'sten_c', id: 'l4_5_c' }, { btn: 'sten_p', id: 'l4_5_p_l' }, { btn: 'sten_f', id: 'l4_5_f_l' } ], { field: 'size', id: 'l4_5_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l4_5_expansion' }, { btn: 'exp_side', id: 'l4_5_exp_side' }, { field: 'size', id: 'l4_5_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l4_5_lamin' } ],
-            [ 'L5', { btn: 'shape', id: 'l5_shape' }, [ { btn: 'shift', id: 'l5_shift' }, { field: 'mm', id: 'l5_shift_mm', placeholder: 'mm' } ], '', '', '', '', '', '', { btn: 'lesion', id: 'l5_lesion' }, { btn: 'surgery', id: 'l5_surgery' } ],
-            [ 'L5/S1', { btn: 'degen', id: 'l5_s1_degen' }, { btn: 'modic', id: 'l5_s1_modic' }, [ { btn: 'protrusion', id: 'l5_s1_protrusion' }, { btn: 'asym', id: 'l5_s1_asym' }, { field: 'mm', id: 'l5_s1_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l5_s1_migration' } ], { btn: 'arthrosis', id: 'l5_s1_arthro' }, [ { btn: 'sten_f', id: 'l5_s1_f_r' }, { btn: 'sten_p', id: 'l5_s1_p_r' }, { btn: 'sten_c', id: 'l5_s1_c' }, { btn: 'sten_p', id: 'l5_s1_p_l' }, { btn: 'sten_f', id: 'l5_s1_f_l' } ], { field: 'size', id: 'l5_s1_size', placeholder: 'dur.vak mm' }, '', '', [ { btn: 'expansion', id: 'l5_s1_expansion' }, { btn: 'exp_side', id: 'l5_s1_exp_side' }, { field: 'size', id: 'l5_s1_expansion_size', placeholder: 'rozměr' } ], { btn: 'lamin', id: 'l5_s1_lamin' } ],
-            [ 'S1', { btn: 'shape', id: 's1_shape' }, [ { }, {  } ], '', '', '', '', '', '', { btn: 'lesion', id: 's1_lesion' }, { btn: 'surgery', id: 's1_surgery' } ],
+            [ 'T11', { btn: 'shape', id: 't11_shape' }, { btn: 'lesion', id: 't11_lesion' }, [ { btn: 'shift', id: 't11_shift' }, { field: 'mm', id: 't11_shift_mm', placeholder: 'mm' } ], '', '', '', { btn: 'surgery', id: 't11_surgery' } ],
+            [ 'T11/12', { btn: 'degen', id: 't11_12_degen' }, { btn: 'modic', id: 't11_12_modic' }, [ { btn: 'protrusion', id: 't11_12_protrusion' }, { btn: 'asym', id: 't11_12_asym' }, { field: 'mm', id: 't11_12_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 't11_12_migration' } ], [ { btn: 'sten_f', id: 't11_12_f_r' }, { btn: 'sten_p', id: 't11_12_p_r' }, { btn: 'sten_c', id: 't11_12_c' }, { btn: 'sten_p', id: 't11_12_p_l' }, { btn: 'sten_f', id: 't11_12_f_l' } ], { field: 'size', id: 't11_12_size', placeholder: 'dur.vak mm' }, [ { btn: 'arthrosis', id: 't11_12_arthro' }, { btn: 'arthro_side', id: 't11_12_arthro_side' } ], { btn: 'lamin', id: 't11_12_lamin' } ],
+            [ 'T12', { btn: 'shape', id: 't12_shape' }, { btn: 'lesion', id: 't12_lesion' }, [ { btn: 'shift', id: 't12_shift' }, { field: 'mm', id: 't12_shift_mm', placeholder: 'mm' } ], '', '', '', { btn: 'surgery', id: 't12_surgery' } ],
+            [ 'T12/L1', { btn: 'degen', id: 't12_l1_degen' }, { btn: 'modic', id: 't12_l1_modic' }, [ { btn: 'protrusion', id: 't12_l1_protrusion' }, { btn: 'asym', id: 't12_l1_asym' }, { field: 'mm', id: 't12_l1_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 't12_l1_migration' } ], [ { btn: 'sten_f', id: 't12_l1_f_r' }, { btn: 'sten_p', id: 't12_l1_p_r' }, { btn: 'sten_c', id: 't12_l1_c' }, { btn: 'sten_p', id: 't12_l1_p_l' }, { btn: 'sten_f', id: 't12_l1_f_l' } ], { field: 'size', id: 't12_l1_size', placeholder: 'dur.vak mm' }, [ { btn: 'arthrosis', id: 't12_l1_arthro' }, { btn: 'arthro_side', id: 't12_l1_arthro_side' } ], { btn: 'lamin', id: 't12_l1_lamin' } ],
+            [ 'L1', { btn: 'shape', id: 'l1_shape' }, { btn: 'lesion', id: 'l1_lesion' }, [ { btn: 'shift', id: 'l1_shift' }, { field: 'mm', id: 'l1_shift_mm', placeholder: 'mm' } ], '', '', '', { btn: 'surgery', id: 'l1_surgery' } ],
+            [ 'L1/2', { btn: 'degen', id: 'l1_2_degen' }, { btn: 'modic', id: 'l1_2_modic' }, [ { btn: 'protrusion', id: 'l1_2_protrusion' }, { btn: 'asym', id: 'l1_2_asym' }, { field: 'mm', id: 'l1_2_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l1_2_migration' } ], [ { btn: 'sten_f', id: 'l1_2_f_r' }, { btn: 'sten_p', id: 'l1_2_p_r' }, { btn: 'sten_c', id: 'l1_2_c' }, { btn: 'sten_p', id: 'l1_2_p_l' }, { btn: 'sten_f', id: 'l1_2_f_l' } ], { field: 'size', id: 'l1_2_size', placeholder: 'dur.vak mm' }, [ { btn: 'arthrosis', id: 'l1_2_arthro' }, { btn: 'arthro_side', id: 'l1_2_arthro_side' } ], { btn: 'lamin', id: 'l1_2_lamin' } ],
+            [ 'L2', { btn: 'shape', id: 'l2_shape' }, { btn: 'lesion', id: 'l2_lesion' }, [ { btn: 'shift', id: 'l2_shift' }, { field: 'mm', id: 'l2_shift_mm', placeholder: 'mm' } ], '', '', '', { btn: 'surgery', id: 'l2_surgery' } ],
+            [ 'L2/3', { btn: 'degen', id: 'l2_3_degen' }, { btn: 'modic', id: 'l2_3_modic' }, [ { btn: 'protrusion', id: 'l2_3_protrusion' }, { btn: 'asym', id: 'l2_3_asym' }, { field: 'mm', id: 'l2_3_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l2_3_migration' } ], [ { btn: 'sten_f', id: 'l2_3_f_r' }, { btn: 'sten_p', id: 'l2_3_p_r' }, { btn: 'sten_c', id: 'l2_3_c' }, { btn: 'sten_p', id: 'l2_3_p_l' }, { btn: 'sten_f', id: 'l2_3_f_l' } ], { field: 'size', id: 'l2_3_size', placeholder: 'dur.vak mm' }, [ { btn: 'arthrosis', id: 'l2_3_arthro' }, { btn: 'arthro_side', id: 'l2_3_arthro_side' } ], { btn: 'lamin', id: 'l2_3_lamin' } ],
+            [ 'L3', { btn: 'shape', id: 'l3_shape' }, { btn: 'lesion', id: 'l3_lesion' }, [ { btn: 'shift', id: 'l3_shift' }, { field: 'mm', id: 'l3_shift_mm', placeholder: 'mm' } ], '', '', '', { btn: 'surgery', id: 'l3_surgery' } ],
+            [ 'L3/4', { btn: 'degen', id: 'l3_4_degen' }, { btn: 'modic', id: 'l3_4_modic' }, [ { btn: 'protrusion', id: 'l3_4_protrusion' }, { btn: 'asym', id: 'l3_4_asym' }, { field: 'mm', id: 'l3_4_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l3_4_migration' } ], [ { btn: 'sten_f', id: 'l3_4_f_r' }, { btn: 'sten_p', id: 'l3_4_p_r' }, { btn: 'sten_c', id: 'l3_4_c' }, { btn: 'sten_p', id: 'l3_4_p_l' }, { btn: 'sten_f', id: 'l3_4_f_l' } ], { field: 'size', id: 'l3_4_size', placeholder: 'dur.vak mm' }, [ { btn: 'arthrosis', id: 'l3_4_arthro' }, { btn: 'arthro_side', id: 'l3_4_arthro_side' } ], { btn: 'lamin', id: 'l3_4_lamin' } ],
+            [ 'L4', { btn: 'shape', id: 'l4_shape' }, { btn: 'lesion', id: 'l4_lesion' }, [ { btn: 'shift', id: 'l4_shift' }, { field: 'mm', id: 'l4_shift_mm', placeholder: 'mm' } ], '', '', '', { btn: 'surgery', id: 'l4_surgery' } ],
+            [ 'L4/5', { btn: 'degen', id: 'l4_5_degen' }, { btn: 'modic', id: 'l4_5_modic' }, [ { btn: 'protrusion', id: 'l4_5_protrusion' }, { btn: 'asym', id: 'l4_5_asym' }, { field: 'mm', id: 'l4_5_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l4_5_migration' } ], [ { btn: 'sten_f', id: 'l4_5_f_r' }, { btn: 'sten_p', id: 'l4_5_p_r' }, { btn: 'sten_c', id: 'l4_5_c' }, { btn: 'sten_p', id: 'l4_5_p_l' }, { btn: 'sten_f', id: 'l4_5_f_l' } ], { field: 'size', id: 'l4_5_size', placeholder: 'dur.vak mm' }, [ { btn: 'arthrosis', id: 'l4_5_arthro' }, { btn: 'arthro_side', id: 'l4_5_arthro_side' } ], { btn: 'lamin', id: 'l4_5_lamin' } ],
+            [ 'L5', { btn: 'shape', id: 'l5_shape' }, { btn: 'lesion', id: 'l5_lesion' }, [ { btn: 'shift', id: 'l5_shift' }, { field: 'mm', id: 'l5_shift_mm', placeholder: 'mm' } ], '', '', '', { btn: 'surgery', id: 'l5_surgery' } ],
+            [ 'L5/S1', { btn: 'degen', id: 'l5_s1_degen' }, { btn: 'modic', id: 'l5_s1_modic' }, [ { btn: 'protrusion', id: 'l5_s1_protrusion' }, { btn: 'asym', id: 'l5_s1_asym' }, { field: 'mm', id: 'l5_s1_protrusion_mm', placeholder: 'mm' }, { btn: 'migration', id: 'l5_s1_migration' } ], [ { btn: 'sten_f', id: 'l5_s1_f_r' }, { btn: 'sten_p', id: 'l5_s1_p_r' }, { btn: 'sten_c', id: 'l5_s1_c' }, { btn: 'sten_p', id: 'l5_s1_p_l' }, { btn: 'sten_f', id: 'l5_s1_f_l' } ], { field: 'size', id: 'l5_s1_size', placeholder: 'dur.vak mm' }, [ { btn: 'arthrosis', id: 'l5_s1_arthro' }, { btn: 'arthro_side', id: 'l5_s1_arthro_side' } ], { btn: 'lamin', id: 'l5_s1_lamin' } ],
+            [ 'S1', { btn: 'shape', id: 's1_shape' }, { btn: 'lesion', id: 's1_lesion' }, [ { }, {  } ], '', '', '', { btn: 'surgery', id: 's1_surgery' } ],
         ]);
 
         const slider = el('div', { className: 'row', style: 'margin: 10px 0 15px 0; justify-content: flex-start; width: 100%; padding-left: 5px;' }, [
@@ -69,7 +73,18 @@ const RegionLSp = {
             if (cb) cb.checked = Store.fields['ls_spine_conc_mode'] === 'stenosis';
         }, 0);
 
-        return [axisTable, table, slider];
+        const expTable = helpers.TableGrid('spine_lumbar_exp', [
+            [ { btn: 'exp_segment', id: 'exp_segment' }, [ { btn: 'expansion', id: 'exp_type' }, { btn: 'exp_side', id: 'exp_side' }, { field: 'size', id: 'exp_size', placeholder: 'rozměr' } ] ],
+            [ { btn: 'myelo_level', id: 'myelo_level' }, [ { btn: 'myelopatie', id: 'myelopatie' }, { field: 'mm', id: 'myelo_size', placeholder: 'mm' } ] ]
+        ]);
+
+        // Odstranění centrování a zarovnání obsahu buněk doleva
+        expTable.classList.remove('tbl-center');
+        expTable.querySelectorAll('.row').forEach(row => row.style.justifyContent = 'flex-start');
+
+        const spacer = el('div', { style: 'height: 20px;' });
+
+        return [axisTable, table, spacer, expTable, slider];
     },
     compile: (ctx) => {
         let reportBlocks = [];
@@ -336,14 +351,26 @@ const RegionLSp = {
             });
 
             const arthro = ctx.text(`${seg.sPfx}_arthro`);
-            if (arthro && arthro !== 'artróza') {
-                const arthroMap = { 'I': 'mírná degenerace facetových skloubení', 'II': 'střední degenerace facetových skloubení', 'III': 'výrazná degenerace facetových skloubení', 'IR': 'mírná degenerace facetových skloubení vpravo', 'IIR': 'střední degenerace facetových skloubení vpravo', 'IL': 'mírná degenerace facetových skloubení vlevo', 'IIL': 'střední degenerace facetových skloubení vlevo' };
-                sentences.push(formatSentence(arthroMap[arthro] || arthro));
+            const arthroSide = ctx.text(`${seg.sPfx}_arthro_side`);
+            if (arthro && arthro !== 'facets') {
+                const sRep = arthroSide === 'vpravo' ? 'více vpravo' : (arthroSide === 'vlevo' ? 'více vlevo' : 'bilat.');
+                const sConc = arthroSide === 'vpravo' ? 'akcent. vpravo' : (arthroSide === 'vlevo' ? 'akcent. vlevo' : 'bilat.');
+                
+                let modRep = '';
+                let modConc = '';
+                let edemRep = '';
+                let edemConc = '';
+                
+                if (arthro === 'lehká') { modRep = 'mírná '; modConc = 'mírná '; }
+                else if (arthro === 'těžká') { modRep = 'výrazná '; modConc = 'výrazná '; }
+                else if (arthro === 'edém') { modRep = 'pokročilá '; modConc = 'pokročilá '; edemRep = ' s edémem'; edemConc = ' s edémem při dekompenzaci'; }
+                
+                let sentence = `${modRep}degenerace facetového skloubení ${sRep}${edemRep}`.trim();
+                sentences.push(formatSentence(sentence));
 
-                const arthroMapConc = { 'I': 'mírná facetová artróza', 'II': 'střední facetová artróza', 'III': 'výrazná facetová artróza', 'IR': 'mírná facetová artróza vpravo', 'IIR': 'střední facetová artróza vpravo', 'IL': 'mírná facetová artróza vlevo', 'IIL': 'střední facetová artróza vlevo' };
-                let aTxt = arthroMapConc[arthro] || arthro;
+                let aTxt = `${modConc}facetová artróza ${sConc}${edemConc}`.trim();
                 causesNom.push(aTxt);
-                causesGen.push(aTxt.replace('artróza', 'artrózy').replace('mírná', 'mírné').replace('výrazná', 'výrazné').replace('facetová', 'facetové'));
+                causesGen.push(aTxt.replace('artróza', 'artrózy').replace('mírná', 'mírné').replace('výrazná', 'výrazné').replace('pokročilá', 'pokročilé').replace('facetová', 'facetové'));
             }
 
             const size = ctx.field(`${seg.sPfx}_size`);
@@ -352,9 +379,16 @@ const RegionLSp = {
                 else sentences.push(formatSentence(`durální vak šíře ${size} mm`));
             }
 
-            const expansion = ctx.text(`${seg.sPfx}_expansion`);
-            const expSide = ctx.text(`${seg.sPfx}_exp_side`);
-            const expSize = ctx.field(`${seg.sPfx}_expansion_size`);
+            const globalExpSeg = ctx.text('exp_segment');
+            let expansion = null;
+            let expSide = null;
+            let expSize = null;
+            
+            if (globalExpSeg === seg.label) {
+                expansion = ctx.text('exp_type');
+                expSide = ctx.text('exp_side');
+                expSize = ctx.field('exp_size');
+            }
             if (expansion && expansion !== 'expanze') {
                 const expMap = { 'ED-cysta': 'epidurální cystická struktura', 'ID-meningeom': 'intradurální extramedulární expanze', 'ID-schwannom': 'intradurální expanze v průběhu kořene', 'IM-ependymom': 'intramedulární expanze', 'IM-astrocytom': 'intramedulární expanze', 'IM-hemangiobl.': 'intramedulární expanze' };
                 let expText = expMap[expansion] || expansion;
@@ -390,6 +424,7 @@ const RegionLSp = {
             if (valFL && valFL !== '0' && valFL !== 'F') hasForaminalStenosis = true;
 
             let fibrosisArr = [];
+            let adhesionArr = [];
             
             const getEffect = (val, type, side) => {
                 let nom = '', dat = '';
@@ -413,6 +448,11 @@ const RegionLSp = {
                         fibrosisArr.push(`epidurální fibróza ${side}`);
                         sentences.push(formatSentence(`epidurální fibróza ${side}`));
                         return null; 
+                    }
+                    else if (val === 'A') {
+                        adhesionArr.push(`vzájemná adheze kořenů ${seg.vLabel} a ${seg.root} ${side} v laterálním recesu nejasného klinického významu`);
+                        sentences.push(formatSentence(`vzájemná adheze kořenů ${seg.vLabel} a ${seg.root} ${side} v laterálním recesu nejasného klinického významu`));
+                        return null;
                     }
                 } else if (type === 'C') {
                     if (val === '1') { nom = `mírná spinální stenóza`; dat = `mírné spinální stenóze`; }
@@ -444,6 +484,11 @@ const RegionLSp = {
                         fibrosisArr.push(`epidurální fibróza bilat.`);
                         sentences.push(formatSentence(`epidurální fibróza bilat.`));
                         return null; 
+                    }
+                    else if (val === 'A') {
+                        adhesionArr.push(`vzájemná adheze kořenů ${seg.vLabel} a ${seg.root} bilat. v laterálních recesech nejasného klinického významu`);
+                        sentences.push(formatSentence(`vzájemná adheze kořenů ${seg.vLabel} a ${seg.root} bilat. v laterálních recesech nejasného klinického významu`));
+                        return null;
                     }
                 }
                 return { nom, dat, sev, typeOrder };
@@ -515,6 +560,13 @@ const RegionLSp = {
                 fStr = fStr.charAt(0).toUpperCase() + fStr.slice(1) + '.';
                 if (concLine) concLine += ' ' + fStr;
                 else concLine = fStr;
+            }
+
+            if (adhesionArr.length > 0) {
+                let aStr = joinCzech(adhesionArr);
+                aStr = aStr.charAt(0).toUpperCase() + aStr.slice(1) + '.';
+                if (concLine) concLine += ' ' + aStr;
+                else concLine = aStr;
             }
 
             if (concLine) {
@@ -618,7 +670,25 @@ const RegionLSp = {
             }
         }
         
-        reportBlocks.push({ type: 'frame', text: 'Přehledný úsek míchy bez signálových změn.' });
+        const myeloLevel = ctx.text('myelo_level');
+        const myeloLoc = ctx.text('myelopatie');
+        const myeloSize = ctx.field('myelo_size');
+        
+        if (myeloLevel && myeloLevel !== 'etáž' && myeloLoc && myeloLoc !== 'myelopatie') {
+            let reportMyelo = `ložisko vysoké SI intramedulárně ${myeloLoc} v úrovni ${myeloLevel}`;
+            let concMyelo = `myelopatie ${myeloLoc} v úrovni ${myeloLevel}`;
+            if (myeloSize) {
+                reportMyelo += ` délky cca ${myeloSize} mm`;
+                concMyelo += ` délky cca ${myeloSize} mm`;
+            }
+            reportMyelo = reportMyelo.charAt(0).toUpperCase() + reportMyelo.slice(1) + '.';
+            concMyelo = concMyelo.charAt(0).toUpperCase() + concMyelo.slice(1) + '.';
+            
+            reportBlocks.push({ type: 'frame', text: reportMyelo });
+            mainConc.push({ type: 'frame', text: concMyelo });
+        } else {
+            reportBlocks.push({ type: 'frame', text: 'Přehledný úsek míchy bez signálových změn.' });
+        }
 
         if (mainConc.length === 0) {
             mainConc.push({ type: 'frame', text: 'Přiměřený nález na bederní páteři.' });
