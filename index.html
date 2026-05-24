@@ -136,7 +136,6 @@
         /* --- DYNAMICKÉ SKRÝVÁNÍ POLÍ PODLE TYPU VYŠETŘENÍ (PET, CT, MR) --- */
         body.is-non-pet .tbl td:has(>[data-id*="_suv"]), body.is-non-pet .tbl td:has(+ td >[data-id*="_suv"]), body.is-non-pet .tbl td:has(>[data-id*="_act"]), body.is-non-pet .tbl td:has(+ td >[data-id*="_act"]), body.is-non-pet .tbl>tbody>tr:has([data-id*="_akt"]), body.is-non-pet .tbl>tbody>tr:has([data-id*="_neakt"]), body.is-non-pet .tbl>tbody>tr:has([data-id*="_fok"]), body.is-non-pet .tbl>tbody>tr:has([data-id*="_poly"]) { display: none !important; }
         .report-frame.no-prefix::before { content: ""; }
-        body .tbl > tbody > tr:has([data-id$="_br_gli"]:not(.modified)) [data-id$="_br_gli_loc"] { visibility: hidden !important; } 
         body.hide-ct .tbl > tbody > tr:has([data-id*="_ct_"]) { display: none !important; }
         body.hide-mr .tbl > tbody > tr:has([data-id*="_mr_"]) { display: none !important; }
         .expand-notes-btn { text-align: center; cursor: pointer; color: var(--dim); padding: 4px; font-weight: bold; font-size: 16px; transition: color 0.2s; letter-spacing: 2px; }
@@ -244,6 +243,7 @@
 <script src="Region_thorax.js"></script>
 <script src="Region_abdomen.js"></script>
 <script src="Region_skeleton.js"></script>
+<script src="Region_Cp.js"></script>
 <script src="Region_LSp.js"></script>
 <script src="Region_shoulder.js"></script>
 <script src="Region_knee.js"></script>
@@ -581,6 +581,7 @@ const EXAMS = {
         { id: 'mr_bricho', title: 'MR břicha', regs: ['abdomen'] },
         { id: 'mr_ramene', title: 'MR ramene', regs: ['shoulder'] },
         { id: 'mr_kolene', title: 'MR kolene', regs: ['knee'] },
+        { id: 'mr_c_patere', title: 'MR C páteře', regs: ['c_spine'] },
         { id: 'mr_ls_patere', title: 'MR L páteře', regs: ['ls_spine'] }
     ]
 };

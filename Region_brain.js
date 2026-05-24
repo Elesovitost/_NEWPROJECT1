@@ -139,9 +139,9 @@ const RegionBrain = {
             helpers.TableMain('brain_organ_main', 'WML, atrofie, komory...', [
                 helpers.Table2colNormal('br_svd_table', 'SVD, PVS a atrofie', [
                     [ 'Fazekas:', { btn: 'br_faz', states: ['0', '1', '2', '3'] } ],
-                    [ 'Lakuny:', { btn: 'br_lak', states: ['0', 'difuzně', 'BG', 'talamus', 'kmen'] } ],
-                    [ 'PVS:', { btn: 'br_pvs', states: ['0', 'BG', 'CSO', 'etat'] } ],
-                    [ 'Nespec. glióza:', [ { btn: 'br_gli', states: ['0', '+', '++', '+++'] }, { btn: 'br_gli_loc', states: ['0', 'supratent.', 'frontálně', 'parietálně'] } ] ]
+                    [ 'Lakuny:', [ { btn: 'br_lak', states: ['0', 'difuzně', 'CSO', 'BG', 'talamus'] }, { btn: 'br_lak_lat', states: ['bilat.', 'R', 'L'] } ] ],
+                    [ 'PVS:', [ { btn: 'br_pvs', states: ['0', 'BG', 'CSO', 'etat'] }, { btn: 'br_pvs_lat', states: ['bilat.', 'R', 'L'] } ] ],
+                    [ 'Nespec. glióza:', [ { btn: 'br_gli', states: ['0', '+', '++', '+++'] }, { btn: 'br_gli_loc', states: [ 'S-B', 'S-R', 'S-L', 'F-B', 'F-R', 'F-L', 'P-B', 'P-R', 'P-L'] } ] ]
                 ]),
                 helpers.Table2colNormal('br_dem_table', 'Demyelinizace', [
                     [ 'Periventrikulární:', { btn: 'br_dem_peri', states: ['0', '1', '1-', '1+', 'více', 'více-', 'více+'] } ],
@@ -539,27 +539,45 @@ const RegionBrain = {
 
         let lak = ctx.text('br_lak');
         if (lak && lak !== '0') {
-            const lMap = { 'difuzně': 'difuzně', 'BG': 'v BG', 'talamus': 'v talamu', 'kmen': 'v kmeni' };
-            bilaHmotaRep.push(`vícečetné lakuny ${lMap[lak] || lak}`);
-            concInc.push({ type: 'frame', text: `Postmalatické změny char. lakunárních infarktů ${lMap[lak] || lak}.`, tableId: 'brain_organ_main' });
+            let lakLat = ctx.text('br_lak_lat');
+            let latStr = lakLat === 'R' ? ' vpravo' : (lakLat === 'L' ? ' vlevo' : (lakLat === 'bilat.' ? ' bilat.' : ''));
+            const lMap = { 'difuzně': 'difuzně', 'CSO': 'v CSO', 'BG': 'v BG', 'talamus': 'v talamu' };
+            let lLoc = lMap[lak] || lak;
+            bilaHmotaRep.push(`vícečetné lakuny ${lLoc}${latStr}`);
+            concInc.push({ type: 'frame', text: `Postmalatické změny char. lakunárních infarktů ${lLoc}${latStr}.`, tableId: 'brain_organ_main' });
         }
 
         let pvs = ctx.text('br_pvs');
         if (pvs && pvs !== '0') {
+            let pvsLat = ctx.text('br_pvs_lat');
+            let latStr = pvsLat === 'R' ? ' vpravo' : (pvsLat === 'L' ? ' vlevo' : (pvsLat === 'bilat.' ? ' bilat.' : ''));
             const pMap = { 'BG': 'v BG', 'CSO': 'v centrum semiovale', 'etat': 'etat crible' };
-            let pTxt = `zvýrazněné perivaskulární prostory (${pMap[pvs] || pvs})`;
+            let pLoc = pMap[pvs] || pvs;
+            let pTxt = `zvýrazněné perivaskulární prostory (${pLoc}${latStr})`;
             bilaHmotaRep.push(pTxt);
-            concInc.push({ type: 'frame', text: cap(pTxt) + '.', tableId: 'brain_organ_main' });
+            concInc.push({ type: 'frame', text: cap(`zvýrazněné perivaskulární prostory ${pLoc}${latStr}.`), tableId: 'brain_organ_main' });
         }
 
         let gli = ctx.text('br_gli');
         if (gli && gli !== '0') {
             let gLoc = ctx.text('br_gli_loc');
-            let locStr = (gLoc && gLoc !== '0') ? ` ${gLoc}` : '';
+            let locStr = '';
+            let latStr = '';
+            
+            if (gLoc && gLoc !== '0') {
+                const parts = gLoc.split('-');
+                if (parts.length === 2) {
+                    const locMap = { 'S': 'supratentoriálně', 'F': 'frontálně', 'P': 'parietálně' };
+                    const latMap = { 'B': 'bilat.', 'R': 'vpravo', 'L': 'vlevo' };
+                    locStr = ` ${locMap[parts[0]]}`;
+                    latStr = ` ${latMap[parts[1]]}`;
+                }
+            }
+            
             let gWord = gli === '+' ? 'ojedinělé' : (gli === '++' ? 'sporadické' : 'vícečetné');
             let gWordCap = gWord.charAt(0).toUpperCase() + gWord.slice(1);
-            bilaHmotaRep.push(`${gWord} drobné T2W+ FLAIR+ léze v hlubší bílé hmotě${locStr}`);
-            concInc.push({ type: 'frame', text: `${gWordCap} nespecifické drobné gliové léze${locStr}.`, tableId: 'brain_organ_main' });
+            bilaHmotaRep.push(`${gWord} drobné T2W+ FLAIR+ léze v hlubší bílé hmotě${locStr}${latStr}`);
+            concInc.push({ type: 'frame', text: `${gWordCap} nespecifické drobné gliové léze${locStr}${latStr}.`, tableId: 'brain_organ_main' });
         }
 
         // --- BÍLÁ HMOTA: DEMYELINIZACE ---
