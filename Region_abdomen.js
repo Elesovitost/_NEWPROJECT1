@@ -255,8 +255,8 @@ const RegionAbdomen = {
             // 17. Velké cévy
             layoutNodes.push(helpers.TableMain('abdomen_velke_cevy_main', 'Velké cévy', [
                 helpers.Table2colNormal('vc_aneur_table', 'Aneurysma a Stentgraft', [
-                    [ 'Aneurysma aorty', { btn: 'vc_an', states: ['0', 'suprarenální [field:field_mm:val]', 'infrarenální [field:field_mm:val]', 'bifurkační [field:field_mm:val]']} ],
-                    [ 'Stentgraft', { btn: 'vc_sg', states: ['0', '+'] }, { field: 'text', id: 'vc_sg_txt', placeholder: 'poznámka (typ)' } ]
+                    [ 'Aneurysma aorty', { btn: 'vc_an', states: ['0', 'suprarenální', 'subrenální', 'bifurkační'] }, { field: 'mm', id: 'vc_an_val', placeholder: 'mm' } ],
+                    [ 'Stentgraft', { btn: 'vc_sg', states: ['0', '+'] } ]
                 ]),
                 helpers.Table3colRCL('vc_sklero_table', 'Ateroskleróza', [
                     [ '', { btn: 'vc_sk_aorta', type: 'basic', text: 'Aorta' }, '' ],
@@ -708,30 +708,24 @@ const RegionAbdomen = {
 
             // 17. Velké cévy - sekce Aneurysma
             let vcRep = [];
-            let vcSg = ctx.isActive('vc_sg'), vcSgTxt = ctx.field('vc_sg_txt');
+            let vcSg = ctx.isActive('vc_sg');
             
-            let vcAn = '';
-            if (ctx.isActive('vc_an')) {
-                let globalId = `${examId}_abdomen_vc_an`;
-                let rawState = ButtonConfigs[globalId].states[Store.buttonStates[globalId]];
-                vcAn = rawState.replace(/\s*\[field:.*\]/, '');
-            }
-            
+            let vcAn = ctx.text('vc_an');
             let vcAnMm = ctx.field('vc_an_val');
 
             if (vcAn && vcAn !== '0') {
-                let mmString = vcAnMm ? ` (${vcAnMm} mm)` : '';
+                let mmString = vcAnMm ? ` (max diametru ${vcAnMm} mm)` : '';
                 let fullAnText = `${cap(vcAn)} aneurysma aorty${mmString}`;
                 
                 if (vcSg) {
-                    vcRep.push(`${fullAnText} ošetřeno stentgraftem${vcSgTxt ? ' (' + vcSgTxt + ')' : ''}`);
-                    concMain.push({ type: 'frame', text: `${fullAnText} ošetřeno SG.`, tableId: 'abdomen_velke_cevy_main' });
+                    vcRep.push(`${fullAnText} ošetřeno stentgraftem`);
+                    concMain.push({ type: 'frame', text: `${fullAnText} ošetřeno stentgraftem.`, tableId: 'abdomen_velke_cevy_main' });
                 } else {
                     vcRep.push(fullAnText);
                     concMain.push({ type: 'frame', text: `${fullAnText}.`, tableId: 'abdomen_velke_cevy_main' });
                 }
             } else if (vcSg) {
-                vcRep.push(`zaveden stentgraft${vcSgTxt ? ' (' + vcSgTxt + ')' : ''}`);
+                vcRep.push(`zaveden stentgraft`);
                 concInc.push({ type: 'frame', text: "Stentgraft in situ.", tableId: 'abdomen_velke_cevy_main' });
             }
             

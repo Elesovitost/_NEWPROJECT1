@@ -676,9 +676,9 @@ const LESIONS_DEFINITION = {
         let sizeOld = ctx.field(`${metPfx}_size_old`);
         let suvOld = ctx.field(`${metPfx}_suv_old`);
         
-        let nejSuffix = '';
+        let prefixNej = '';
         if (nejText && pocetText !== 'solitární') {
-            nejSuffix = (pocetText === 'dvě') ? ` (větší ${nejText})` : ` (největší ${nejText})`;
+            prefixNej = (pocetText === 'dvě') ? `, větší ${nejText}` : `, největší ${nejText}`;
         }
 
         let pastArr = [];
@@ -704,15 +704,20 @@ const LESIONS_DEFINITION = {
 
         let suvText = suv ? MetricsEngine.getSuvText(suv) : '';
         let metrikyStr = '';
+        
         if (size) {
             let dimLabel = size.includes('x') ? 'rozměru' : 'max. diametru';
-            metrikyStr = ` ${dimLabel} ${size} mm${nejSuffix}${suv ? ' a ' + suvText : ''}${pastStr}`;
+            metrikyStr = `${prefixNej} ${dimLabel} ${size} mm${suv ? ' ' + suvText : ''}${pastStr}`;
         } else if (suv) {
-            metrikyStr = ` ${suvText}${nejSuffix}${pastStr}`;
-        } else if (nejSuffix) {
-            metrikyStr = `${nejSuffix}${pastStr}`;
+            metrikyStr = `${prefixNej} ${suvText}${pastStr}`;
+        } else if (prefixNej) {
+            metrikyStr = `${prefixNej}${pastStr}`;
         } else if (pastStr) {
-            metrikyStr = pastStr;
+            metrikyStr = `${pastStr}`;
+        }
+
+        if (metrikyStr && !metrikyStr.startsWith(',') && !metrikyStr.startsWith(' ')) {
+             metrikyStr = ' ' + metrikyStr;
         }
         return metrikyStr;
     },
@@ -835,9 +840,9 @@ const LESIONS_DEFINITION = {
         let sizeOld = ctx.field(`${metPfx}_size_old`);
         let suvOld = ctx.field(`${metPfx}_suv_old`);
         
-        let nejSuffix = '';
+        let prefixNej = '';
         if (nejText && pocetText !== 'solitární') {
-            nejSuffix = (pocetText === 'dvě') ? ` (větší ${nejText})` : ` (největší ${nejText})`;
+            prefixNej = (pocetText === 'dvě') ? `, větší ${nejText}` : `, největší ${nejText}`;
         }
 
         let pastArr = [];
@@ -863,17 +868,22 @@ const LESIONS_DEFINITION = {
 
         let suvText = suv ? MetricsEngine.getSuvText(suv) : '';
         let metrikyStr = '';
+        
         if (size) {
             let is1D = !size.includes('x');
             let dimLabel = is1D ? 'diametru' : 'rozměru';
             let osaSufix = is1D ? ' v krátké ose' : '';
-            metrikyStr = ` ${dimLabel} ${size} mm${osaSufix}${nejSuffix}${suv ? ' a ' + suvText : ''}${pastStr}`;
+            metrikyStr = `${prefixNej} ${dimLabel} ${size} mm${osaSufix}${suv ? ' ' + suvText : ''}${pastStr}`;
         } else if (suv) {
-            metrikyStr = ` ${suvText}${nejSuffix}${pastStr}`;
-        } else if (nejSuffix) {
-            metrikyStr = `${nejSuffix}${pastStr}`;
+            metrikyStr = `${prefixNej} ${suvText}${pastStr}`;
+        } else if (prefixNej) {
+            metrikyStr = `${prefixNej}${pastStr}`;
         } else if (pastStr) {
-            metrikyStr = pastStr;
+            metrikyStr = `${pastStr}`;
+        }
+
+        if (metrikyStr && !metrikyStr.startsWith(',') && !metrikyStr.startsWith(' ')) {
+             metrikyStr = ' ' + metrikyStr;
         }
         return metrikyStr;
     },
@@ -1368,10 +1378,10 @@ const MetricsEngine = {
         if (pct === null) return "obdobná";
         
         const absPct = Math.abs(pct);
-        if (absPct < 20) return "obdobná";
+        if (absPct < 20) return "obdobná akumulace";
         
         const mod = absPct < 50 ? "mírný " : (absPct < 75 ? "" : "výrazný ");
-        return pct > 0 ? `${mod}vzestup`.trim() : `${mod}pokles`.trim();
+        return pct > 0 ? `${mod}vzestup akumulace`.trim() : `${mod}pokles akumulace`.trim();
     },
 
     calculateDynamics: function(currSize, minSize, currSuv, minSuv, cLiv, mLiv, isRecistActive) {
@@ -2859,6 +2869,23 @@ const ActionHandlers = {
         Store.customTexts = filterExamData(Store.customTexts);
         Store.fields = filterExamData(Store.fields);
         Store.expandedNotes = filterExamData(Store.expandedNotes);
+        
+        if (next.size === 0) {
+            Store.instances = {};
+        } else {
+            const newInstances = {};
+            const hasData = (instId) => {
+                const check = (obj) => Object.keys(obj).some(k => k.includes(instId));
+                return check(Store.buttonStates) || check(Store.customTexts) || check(Store.fields);
+            };
+            for (const [tableId, insts] of Object.entries(Store.instances || {})) {
+                const validInsts = insts.filter(instId => hasData(instId));
+                if (validInsts.length > 0) {
+                    newInstances[tableId] = validInsts;
+                }
+            }
+            Store.instances = newInstances;
+        }
         
         UI.renderReport(); 
     },
