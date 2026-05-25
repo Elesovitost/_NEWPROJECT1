@@ -288,7 +288,19 @@ const RegionLSp = {
                 locStates.push({ type: 'P', val: valPL, isAct: valPL && valPL !== 'P', zeroTxt: `bez tlaku na kořen ${seg.root} vlevo`, name: 'paracentrálně vlevo', t1: `kontakt s kořenem ${seg.root} vlevo`, t2: `dislokace kořene ${seg.root} vlevo`, t3: `komprese kořene ${seg.root} vlevo`, tS: 'stenóza laterálního recesu vlevo' });
             }
 
-            locStates.push({ type: 'C', val: valC,  isAct: valC && valC !== 'C', zeroTxt: 'bez tlaku na durální vak', name: 'centrálně', t1: 'mírná imprese durálního vaku', t2: 'útlak durálního vaku', t3: 'výrazný útlak durálního vaku s agregací kaudy' });
+            const c_size = ctx.field(`${seg.sPfx}_size`);
+            let c_t1 = 'mírná imprese durálního vaku';
+            let c_t2 = 'útlak durálního vaku';
+            let c_t3 = 'výrazný útlak durálního vaku s agregací kaudy';
+
+            if (c_size && ['1', '2', '3'].includes(valC)) {
+                const sizeText = c_size.includes('x') ? `(který rozměrů ${c_size} mm)` : `(který diametru ${c_size} mm AP)`;
+                c_t1 = `mírná imprese durálního vaku ${sizeText}`;
+                c_t2 = `útlak durálního vaku ${sizeText}`;
+                c_t3 = `výrazný útlak durálního vaku ${sizeText} s agregací kaudy`;
+            }
+
+            locStates.push({ type: 'C', val: valC,  isAct: valC && valC !== 'C', zeroTxt: 'bez tlaku na durální vak', name: 'centrálně', t1: c_t1, t2: c_t2, t3: c_t3 });
             
             const activeLocs = locStates.filter(l => l.isAct);
 
@@ -374,7 +386,7 @@ const RegionLSp = {
             }
 
             const size = ctx.field(`${seg.sPfx}_size`);
-            if (size) {
+            if (size && !(['1', '2', '3'].includes(valC))) {
                 if (size.includes('x')) sentences.push(formatSentence(`durální vak rozměrů cca ${size} mm`));
                 else sentences.push(formatSentence(`durální vak šíře ${size} mm`));
             }
