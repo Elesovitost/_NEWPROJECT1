@@ -2397,14 +2397,16 @@ const UI = {
             const examIdForPhysio = examId.toLowerCase();
             let physioText = '';
             
-            if (examIdForPhysio.includes('fdg')) {
-                physioText = "Neložisková akumulace radiofarmaka ve svalech, v gastrointestinálním traktu a urotraktu je přítomna na podkladě fyziologických procesů či jako zcela nespecifický nález. Akumulace RF vztažena k referenčním játrům.";
-            } else if (examIdForPhysio.includes('psma')) {
-                physioText = "Neložisková akumulace radiofarmaka ve slinných a slzných žlazách, v jaterním parenchymu, slezině, v gastrointestinální traktu a urotraktu je přítomna na podkladě fyziologických procesů či jako zcela nespecifický nález. Akumulace RF vztažena k referenčním játrům a parotidám.";
-            } else if (examIdForPhysio.includes('dotatoc')) {
-                physioText = "Neložisková akumulace radiofarmaka v hypofýze, štítné žláze, nadledvinách a urotraktu je přítomna na podkladě fyziologických procesů či jako zcela nespecifický nález. Akumulace RF vztažena k referenčním játrům a slezině.";
-            } else if (examIdForPhysio.includes('dopa')) {
-                physioText = "Neložisková akumulace radiofarmaka v BG bilat., játrech a urotraktu je přítomna na podkladě fyziologických procesů či jako zcela nespecifický nález. Akumulace RF vztažena k referenčním játrům.";
+            if (examIdForPhysio.includes('trup')) {
+                if (examIdForPhysio.includes('fdg')) {
+                    physioText = "Neložisková akumulace radiofarmaka ve svalech, v gastrointestinálním traktu a urotraktu je přítomna na podkladě fyziologických procesů či jako zcela nespecifický nález. Akumulace RF vztažena k referenčním játrům.";
+                } else if (examIdForPhysio.includes('psma')) {
+                    physioText = "Neložisková akumulace radiofarmaka ve slinných a slzných žlazách, v jaterním parenchymu, slezině, v gastrointestinální traktu a urotraktu je přítomna na podkladě fyziologických procesů či jako zcela nespecifický nález. Akumulace RF vztažena k referenčním játrům a parotidám.";
+                } else if (examIdForPhysio.includes('dotatoc')) {
+                    physioText = "Neložisková akumulace radiofarmaka v hypofýze, štítné žláze, nadledvinách a urotraktu je přítomna na podkladě fyziologických procesů či jako zcela nespecifický nález. Akumulace RF vztažena k referenčním játrům a slezině.";
+                } else if (examIdForPhysio.includes('dopa')) {
+                    physioText = "Neložisková akumulace radiofarmaka v BG bilat., játrech a urotraktu je přítomna na podkladě fyziologických procesů či jako zcela nespecifický nález. Akumulace RF vztažena k referenčním játrům.";
+                }
             }
 
             if (physioText) {

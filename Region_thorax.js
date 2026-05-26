@@ -305,43 +305,63 @@ const RegionThorax = {
 
             let difuzniRep = [];
 
-            const getDistText = (loc, isConc) => {
-                if (!loc || loc === 'distr.' || loc === '0') return { rep: '', conc: '', isDifuzni: false };
+            const getLocText = (loc) => {
+                if (!loc || loc === '0') return { rep: '', conc: '', isDifuzni: false };
+                if (loc === 'distr.') return { rep: ' s nepravidelnou distribucí', conc: ' s nepravidelnou distribucí', isDifuzni: false };
                 if (loc === 'apikálně') return { rep: ' s apikální predominancí', conc: ' s maximem apikálně', isDifuzni: false };
                 if (loc === 'bazálně') return { rep: ' s bazální predominancí', conc: ' s maximem bazálně', isDifuzni: false };
-                if (loc === 'všude') return { rep: ' difuzně ve všech plicních polích', conc: ' difuzně', isDifuzni: true };
+                if (loc === 'všude') return { rep: '', conc: ' difuzně', isDifuzni: true };
                 return { rep: ` ${loc}`, conc: ` ${loc}`, isDifuzni: false };
             };
 
             let fib = ctx.text('pl_fib'), fibLoc = ctx.text('pl_fib_loc');
-            if (fib && fib !== '0') { 
-                let dist = getDistText(fibLoc, false);
-                
-                if (dist.isDifuzni) {
-                    difuzniRep.push(`${fib} difuzní fibróza`);
-                } else {
-                    difuzniRep.push(`${fib} fibróza${dist.rep}`); 
+            if (fib && fib !== '0') {
+                let loc = getLocText(fibLoc);
+                let fibRep = "";
+                let fibConc = "";
+
+                if (fib === 'mírná') {
+                    fibRep = loc.isDifuzni ? "mírné difuzní retikulární intersticiální změny" : `mírné retikulární intersticiální změny${loc.rep}`;
+                    fibConc = `Mírné intersticiální fibrotické změny${loc.conc}.`;
+                } else if (fib === 'střední') {
+                    fibRep = loc.isDifuzni ? "difuzní fibrotické pruhovité změny s iniciálními trakčními bronchiektáziemi" : `fibrotické pruhovité změny s iniciálními trakčními bronchiektáziemi${loc.rep}`;
+                    fibConc = `Středně pokročilá plicní fibróza${loc.conc}.`;
+                } else if (fib === 'výrazná') {
+                    fibRep = loc.isDifuzni ? "difuzní rozsáhlá plicní fibróza s obrazem voštinovité přestavby" : `rozsáhlá plicní fibróza s obrazem voštinovité přestavby${loc.rep}`;
+                    fibConc = `Pokročilá plicní fibróza (honeycombing)${loc.conc}.`;
                 }
-                
-                let fibConcText = fib === 'mírná' ? `Mírné subpleurální intersticiální změny${dist.conc}.` : 
-                                  fib === 'střední' ? `Výraznější fibrózní změny${dist.conc}.` : 
-                                  `Pokročilá fibróza s bronchiektáziemi a honeycombingem${dist.conc}.`;
-                
-                concInc.push({ type: 'frame', text: fibConcText, tableId: 'thorax_plice_main' }); 
+
+                if (fibRep) {
+                    difuzniRep.push(fibRep);
+                    concInc.push({ type: 'frame', text: fibConc, tableId: 'thorax_plice_main' });
+                }
             }
-            
+
             let emf = ctx.text('pl_emf'), emfLoc = ctx.text('pl_emf_loc');
-            if (emf && emf !== '0') { 
+            if (emf && emf !== '0') {
                 let emfMap = { 'parasept.': 'paraseptální', 'centrilob.': 'centrilobulární', 'panacin.': 'panacinární' };
                 let emfFull = emfMap[emf] || emf;
-                let dist = getDistText(emfLoc, false);
-                
-                if (dist.isDifuzni) {
-                    difuzniRep.push(`difuzní ${emfFull} emfyzém`); 
-                    concInc.push({ type: 'frame', text: `Difuzní ${emfFull} plicní emfyzém.`, tableId: 'thorax_plice_main' }); 
+                let loc = getLocText(emfLoc);
+                let emfRep = "";
+
+                if (emf === 'centrilob.') {
+                    emfRep = loc.isDifuzni ? "difuzní drobné oblasti centrilobulárního projasnění plicního parenchymu bez detekovatelných stěn" : `drobné oblasti centrilobulárního projasnění plicního parenchymu bez detekovatelných stěn${loc.rep}`;
+                } else if (emf === 'parasept.') {
+                    emfRep = loc.isDifuzni ? "difuzní subpleurálně lokalizované oblasti projasnění plicního parenchymu" : `subpleurálně lokalizované oblasti projasnění plicního parenchymu${loc.rep}`;
+                } else if (emf === 'panacin.') {
+                    emfRep = loc.isDifuzni ? "difuzní panlobulární úbytek plicního parenchymu s výraznou redukcí cévní kresby" : `panlobulární úbytek plicního parenchymu s výraznou redukcí cévní kresby${loc.rep}`;
                 } else {
-                    difuzniRep.push(`${emfFull} emfyzém${dist.rep}`); 
-                    concInc.push({ type: 'frame', text: `${cap(emfFull)} plicní emfyzém${dist.conc}.`, tableId: 'thorax_plice_main' }); 
+                    emfRep = loc.isDifuzni ? "difuzní strukturální změny charakteru hyperlucence parenchymu" : `strukturální změny charakteru hyperlucence parenchymu${loc.rep}`;
+                }
+
+                if (emfRep) {
+                    difuzniRep.push(emfRep);
+                }
+
+                if (loc.isDifuzni) {
+                    concInc.push({ type: 'frame', text: `Difuzní ${emfFull} plicní emfyzém.`, tableId: 'thorax_plice_main' });
+                } else {
+                    concInc.push({ type: 'frame', text: `${cap(emfFull)} plicní emfyzém${loc.conc}.`, tableId: 'thorax_plice_main' });
                 }
             }
             
