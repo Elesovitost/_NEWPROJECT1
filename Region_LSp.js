@@ -350,18 +350,6 @@ const RegionLSp = {
                 causesGen.push(degenDesc.replace('mírná', 'mírné').replace('výrazná', 'výrazné'));
             }
 
-            const activeCount = activeLocs.length;
-            const popisOrderMap = { 'C': 1, 'P': 2, 'F': 3 };
-            let stenosisLocs = [...activeLocs].sort((a, b) => popisOrderMap[a.type] - popisOrderMap[b.type]);
-            
-            stenosisLocs.forEach(loc => {
-                if (loc.val === '0') { if (activeCount === 1) sentences.push(formatSentence(loc.zeroTxt)); }
-                else if (loc.val === '1') sentences.push(formatSentence(loc.t1));
-                else if (loc.val === '2') sentences.push(formatSentence(loc.t2));
-                else if (loc.val === '3') sentences.push(formatSentence(loc.t3));
-                else if (loc.val === 'S') sentences.push(formatSentence(loc.tS));
-            });
-
             const arthro = ctx.text(`${seg.sPfx}_arthro`);
             const arthroSide = ctx.text(`${seg.sPfx}_arthro_side`);
             if (arthro && arthro !== 'facets') {
@@ -384,6 +372,18 @@ const RegionLSp = {
                 causesNom.push(aTxt);
                 causesGen.push(aTxt.replace('artróza', 'artrózy').replace('mírná', 'mírné').replace('výrazná', 'výrazné').replace('pokročilá', 'pokročilé').replace('facetová', 'facetové'));
             }
+
+            const activeCount = activeLocs.length;
+            const popisOrderMap = { 'C': 1, 'P': 2, 'F': 3 };
+            let stenosisLocs = [...activeLocs].sort((a, b) => popisOrderMap[a.type] - popisOrderMap[b.type]);
+            
+            stenosisLocs.forEach(loc => {
+                if (loc.val === '0') { if (activeCount === 1) sentences.push(formatSentence(loc.zeroTxt)); }
+                else if (loc.val === '1') sentences.push(formatSentence(loc.t1));
+                else if (loc.val === '2') sentences.push(formatSentence(loc.t2));
+                else if (loc.val === '3') sentences.push(formatSentence(loc.t3));
+                else if (loc.val === 'S') sentences.push(formatSentence(loc.tS));
+            });
 
             const size = ctx.field(`${seg.sPfx}_size`);
             if (size && !(['1', '2', '3'].includes(valC))) {

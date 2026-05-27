@@ -275,7 +275,7 @@ function formatCzechList(arr) {
     if (!arr || !arr.length) return '';
     arr = arr.map(item => item.trim().replace(/[.,]\s*$/, ''));
     if (!APP_SETTINGS.grammarMerging) {
-        return arr.join(', ');
+        return arr.join(', ').replace(/\u200B/g, '');
     }
 
     const groups = new Map();
@@ -315,8 +315,17 @@ function formatCzechList(arr) {
     function joinWithAnd(list) {
         if (list.length === 0) return '';
         if (list.length === 1) return list[0];
-        if (list.length === 2) return list.join(' a ');
-        return list.slice(0, -1).join(', ') + ' a ' + list[list.length - 1];
+        let res = list[0];
+        for (let i = 1; i < list.length; i++) {
+            const prevHasMarker = list[i-1].includes('\u200B');
+            const currHasMarker = list[i].includes('\u200B');
+            if (i === list.length - 1 && !prevHasMarker && !currHasMarker) {
+                res += ' a ' + list[i];
+            } else {
+                res += ', ' + list[i];
+            }
+        }
+        return res;
     }
 
     function optimizeTerms(list) {
@@ -395,7 +404,7 @@ function formatCzechList(arr) {
         }
     });
 
-    return joinWithAnd(finalPhrases);
+    return joinWithAnd(finalPhrases).replace(/\u200B/g, '');
 }
 
 // Global registry of all button configurations extracted during render
@@ -493,15 +502,15 @@ const ORGAN_MAP = {
     "Ledviny": { name: "Ledviny", table: "abdomen_ledviny_main", regions: ['abdomen'] },
     "Žaludek": { name: "Žaludek", table: "abdomen_zaludek_main", regions: ['abdomen'] },
     "Pankreas": { name: "Pankreas", table: "abdomen_pankreas_main", regions: ['abdomen'] },
-    "Tračník": { name: "Tračník", table: "abdomen_tracnik_main", regions: ['abdomen'] },
+    "Tračník": { name: "Tračník", table: "abdomen_tracnik_main", regions: ['abdomen', 'prostate', 'rectum'] },
     "Peritoneum": { name: "Peritoneum", table: "abdomen_peritoneum_main", regions: ['abdomen'] },
     "Tenké střevo": { name: "Tenké střevo", table: null, regions: ['abdomen'] },
-    "Močový měchýř": { name: "Močový měchýř", table: "abdomen_moc_mechyr_main", regions: ['abdomen'] },
-    "Ovária": { name: "Ovária", table: "abdomen_ovaria_main", regions: ['abdomen'] },
-    "Děloha": { name: "Děloha", table: "abdomen_deloha_main", regions: ['abdomen'] },
-    "Testes": { name: "Testes", table: "abdomen_testes_main", regions: ['abdomen'] },
-    "Prostata": { name: "Prostata", table: "abdomen_prostata_main", regions: ['abdomen'] },
-    "Skelet": { name: "Kosti / Klouby", table: "region:skeleton", regions: ['skeleton'] },
+    "Močový měchýř": { name: "Močový měchýř", table: "abdomen_moc_mechyr_main", regions: ['abdomen', 'prostate', 'rectum'] },
+    "Ovária": { name: "Ovária", table: "abdomen_ovaria_main", regions: ['abdomen', 'rectum'] },
+    "Děloha": { name: "Děloha", table: "abdomen_deloha_main", regions: ['abdomen', 'rectum'] },
+    "Testes": { name: "Testes", table: "abdomen_testes_main", regions: ['abdomen', 'prostate'] },
+    "Prostata": { name: "Prostata", table: "abdomen_prostata_main", regions: ['abdomen', 'prostate', 'rectum'] },
+    "Skelet": { name: "Kosti / Klouby", table: "region:skeleton", regions: ['skeleton',] },
     "Sval": { name: "Svaly / Měkké tkáně", table: null, regions: ['skeleton'] },
     "Svaly": { name: "Svaly / Měkké tkáně", table: null, regions: ['skeleton'] },
     "Aorta": { name: "Velké cévy", table: "abdomen_velke_cevy_main", regions: ['thorax', 'abdomen'] },
@@ -512,11 +521,11 @@ const ORGAN_MAP = {
     "Brain Hemorrhage": { name: "Krvácení / Ischemie", table: "brain_hemo_main", regions: ['brain'] },
     "Neck Lesion": { name: "Léze (Krk)", table: "neck_lesion_main", regions: ['neck'] },
     "Thorax Lesion": { name: "Léze (Hrudník)", table: "thorax_lesion_main", regions: ['thorax'] },
-    "Abdomen Lesion": { name: "Léze (Břicho)", table: "abdomen_lesion_main", regions: ['abdomen'] },
+    "Abdomen Lesion": { name: "Léze (Břicho)", table: "abdomen_lesion_main", regions: ['abdomen', 'prostate', 'rectum'] },
     "Soft Tissues Lesion": { name: "Léze (Skelet / Měkké tkáně)", table: "skeleton_lesion_main", regions: ['skeleton'] },
     "Neck Lymph Node": { name: "Lymfadenopatie (Krk)", table: "neck_lymphnode_main", regions: ['neck'] },
     "Thorax Lymph Node": { name: "Lymfadenopatie (Hrudník)", table: "thorax_lymphnode_main", regions: ['thorax'] },
-    "Abdomen Lymph Node": { name: "Lymfadenopatie (Břicho)", table: "abdomen_lymphnode_main", regions: ['abdomen'] },
+    "Abdomen Lymph Node": { name: "Lymfadenopatie (Břicho)", table: "abdomen_lymphnode_main", regions: ['abdomen', 'prostate', 'rectum'] },
     "Chest Wall": { name: "Hrudní stěna / Prsa", table: "thorax_mamma_main", regions: ['thorax'] },
     "Abdominal Wall": { name: "Břišní stěna", table: "abdomen_wall_main", regions: ['abdomen'] },
     "Neck Tissues": { name: "Krk měkké tkáně", table: null, regions: ['neck'] },
@@ -1182,7 +1191,7 @@ function createContext(regionId, examId) {
             if (cfg.type === 'standard') {
                 const stateNameRaw = cfg.states[val];
                 if (stateNameRaw === 'custom') {
-                    txt = Store.customTexts[globalId] || '[Nevyplněno]';
+                    txt = '\u200B' + (Store.customTexts[globalId] || '[Nevyplněno]');
                 } else {
                     const fieldMatch = stateNameRaw.match(/^(.*?)\s*\[field:([^:]+):([^:\]]+)(?::([^\]]+))?\]$/);
                     if (fieldMatch) {
@@ -1195,18 +1204,22 @@ function createContext(regionId, examId) {
                     }
                 }
             } else if (cfg.type === 'basic') {
-                if (val === 'custom') txt = Store.customTexts[globalId] || '[Nevyplněno]';
+                if (val === 'custom') txt = '\u200B' + (Store.customTexts[globalId] || '[Nevyplněno]');
                 else if (val === true) txt = cfg.text;
                 else txt = 'Negativní';
             } else if (cfg.type === 'basic_custom') {
-                txt = val ? (Store.customTexts[globalId] || '[Nevyplněno]') : 'Negativní';
+                txt = val ? ('\u200B' + (Store.customTexts[globalId] || '[Nevyplněno]')) : 'Negativní';
             }
             
             return lowercase ? txt.toLowerCase() : txt;
         },
         field(fieldId) {
             if (isPetOnly(fieldId)) return '';
-            return Store.fields[`${examId}_${regionId}_${fieldId}`] || '';
+            const val = Store.fields[`${examId}_${regionId}_${fieldId}`] || '';
+            if (val && (fieldId.includes('custom') || fieldId.includes('desc') || fieldId.includes('conc'))) {
+                return '\u200B' + val;
+            }
+            return val;
         },
         getDynamics(sizeId, sizeOldId, suvId, suvOldId) {
             if (!Store.pastDate) return "";
@@ -2037,7 +2050,7 @@ const UI = {
         if (!activeExam) return;
 
         const activeRegions = activeExam.regs;
-        const usesSvg = activeRegions.some(r => ['brain', 'neck', 'thorax', 'abdomen', 'knee', 'shoulder'].includes(r));
+        const usesSvg = activeRegions.some(r => ['brain', 'neck', 'thorax', 'abdomen', 'knee', 'shoulder', 'prostate', 'rectum'].includes(r));
         const isKnee = activeRegions.includes('knee');
         const isShoulder = activeRegions.includes('shoulder');
         const isLsSpine = activeRegions.includes('ls_spine');
