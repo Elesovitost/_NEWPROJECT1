@@ -194,13 +194,31 @@ const RegionThorax = {
                         if (r || left) {
                             let segR = r && ctx.text(`${p}_p_${l.id}_r`) !== '+' ? ` (${ctx.text(`${p}_p_${l.id}_r`)})` : '';
                             let segL = left && ctx.text(`${p}_p_${l.id}_l`) !== '+' ? ` (${ctx.text(`${p}_p_${l.id}_l`)})` : '';
-                            if (r && left) lokace.push(`${l.name}${segR} bilat.`);
-                            else if (r) lokace.push(`${l.name}${segR} vpravo`);
-                            else if (left) lokace.push(`${l.name}${segL} vlevo`);
+                            
+                            if (['hl', 'sl', 'dl'].includes(l.id)) {
+                                if (r && left) {
+                                    if (l.id === 'sl') {
+                                        lokace.push(`ve středním laloku pravé plíce${segR} a v lingule levé plíce${segL}`);
+                                    } else {
+                                        if (segR === segL) lokace.push(`${l.name} obou plic${segR}`);
+                                        else lokace.push(`${l.name} pravé plíce${segR} a ${l.name} levé plíce${segL}`);
+                                    }
+                                } else if (r) {
+                                    let nameR = l.id === 'sl' ? 've středním laloku' : l.name;
+                                    lokace.push(`${nameR} pravé plíce${segR}`);
+                                } else if (left) {
+                                    let nameL = l.id === 'sl' ? 'v lingule' : l.name;
+                                    lokace.push(`${nameL} levé plíce${segL}`);
+                                }
+                            } else {
+                                if (r && left) lokace.push(`${l.name}${segR} bilat.`);
+                                else if (r) lokace.push(`${l.name}${segR} vpravo`);
+                                else if (left) lokace.push(`${l.name}${segL} vlevo`);
+                            }
                         }
                     });
                     
-                    if (ctx.isActive(`${p}_p_pulm_r`) && ctx.isActive(`${p}_p_pulm_l`)) lokace.push('v plicích bilat.');
+                    if (ctx.isActive(`${p}_p_pulm_r`) && ctx.isActive(`${p}_p_pulm_l`)) lokace.push('v obou plicích');
                     else if (ctx.isActive(`${p}_p_pulm_r`)) lokace.push('v pravé plíci');
                     else if (ctx.isActive(`${p}_p_pulm_l`)) lokace.push('v levé plíci');
                     
@@ -369,17 +387,17 @@ const RegionThorax = {
             let fokMap = { pl_mikro: { s: 'nespecifický mikronodul', p: 'nespecifické mikronoduly' }, pl_nodul: { s: 'nespecifický nodul', p: 'nespecifické noduly' }, pl_opac: { s: 'nespecifická opacita', p: 'nespecifické opacity' }, pl_kons: { s: 'drobná konsolidace', p: 'drobné konsolidace' }, pl_hypo: { s: 'drobné hypoventilace', p: 'drobné hypoventilace' }, pl_jizva: { s: 'jizva', p: 'jizvy' }, pl_rad: { s: 'poradiační změny', p: 'poradiační změny' } };
             for (let k in fokMap) {
                 let p = ctx.text(`${k}_r`), l = ctx.text(`${k}_l`);
-                if (p && p !== '0' || l && l !== '0') {
-                    let side = (p !== '0' && l !== '0') ? 'bilat.' : (p !== '0' ? 'vpravo' : 'vlevo');
-                    fokalniRep.push(`${(p === 'více' || l === 'více' || side === 'bilat.') ? fokMap[k].p : fokMap[k].s} ${side}`);
+                if ((p && p !== '0') || (l && l !== '0')) {
+                    let side = (p !== '0' && l !== '0') ? 'obou plic' : (p !== '0' ? 'pravé plíce' : 'levé plíce');
+                    fokalniRep.push(`${(p === 'více' || l === 'více' || side === 'obou plic') ? fokMap[k].p : fokMap[k].s} ${side}`);
                 }
             }
             
             let opMap = { pl_op_pulm: 'pulmonektomii', pl_op_lob_h: 'lobektomii horního laloku', pl_op_lob_s: 'lobektomii', pl_op_lob_d: 'lobektomii dolního laloku', pl_op_res_h: 'resekci v horním laloku', pl_op_res_s: 'resekci', pl_op_res_d: 'resekci v dolním laloku' };
             let allOps = [];
             for (let k in opMap) {
-                if (ctx.isActive(`${k}_r`)) allOps.push(`${k.includes('_s') ? opMap[k] + ' středního laloku' : opMap[k]} vpravo`);
-                if (ctx.isActive(`${k}_l`)) allOps.push(`${k.includes('_s') ? opMap[k] + ' v lingule' : opMap[k]} vlevo`);
+                if (ctx.isActive(`${k}_r`)) allOps.push(`${k.includes('_s') ? opMap[k] + ' středního laloku' : opMap[k]} pravé plíce`);
+                if (ctx.isActive(`${k}_l`)) allOps.push(`${k.includes('_s') ? opMap[k] + ' v lingule' : opMap[k]} levé plíce`);
             }
 
             let pliceDesc = ctx.field('plice_custom_desc');

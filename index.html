@@ -186,6 +186,13 @@
     <div id="settings-modal" class="panel" style="display: none; position: absolute; top: 38px; right: 5px; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.8); width: 250px; border: 1px solid var(--accent-hi);">
         <h2 style="margin-bottom: 8px;">Nastavení</h2>
         <div class="row" style="margin-bottom: 8px;">
+            <span class="label" title="Slučování stran (vpravo/vlevo -> bilat.) a gramatické úpravy textu.">Gramatika (slučování):</span>
+            <label class="switch">
+                <input type="checkbox" id="setting-grammar-merging" data-action="update-setting" data-setting="grammarMerging">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="row" style="margin-bottom: 8px;">
             <span class="label">Slovně místo SUVmax:</span>
             <label class="switch">
                 <input type="checkbox" id="setting-suv-word" data-action="update-setting" data-setting="suvWord">
@@ -255,7 +262,7 @@
 ═══════════════════════════════════════════════ */
 const savedConfig = JSON.parse(localStorage.getItem('medAppConfig') || '{}');
 const APP_SETTINGS = { 
-    grammarMerging: true,
+    grammarMerging: savedConfig.grammarMerging !== undefined ? savedConfig.grammarMerging : true,
     suvWord: savedConfig.suvWord || false,
     hidePredefined: savedConfig.hidePredefined || false,
     previewReport: savedConfig.previewReport || false
@@ -263,6 +270,7 @@ const APP_SETTINGS = {
 
 function saveSettings() {
     localStorage.setItem('medAppConfig', JSON.stringify({ 
+        grammarMerging: APP_SETTINGS.grammarMerging,
         suvWord: APP_SETTINGS.suvWord, 
         hidePredefined: APP_SETTINGS.hidePredefined,
         previewReport: APP_SETTINGS.previewReport
@@ -530,10 +538,10 @@ const ORGAN_MAP = {
     "Abdominal Wall": { name: "Břišní stěna", table: "abdomen_wall_main", regions: ['abdomen'] },
     "Neck Tissues": { name: "Krk měkké tkáně", table: null, regions: ['neck'] },
 
-    "LFC": { name: "Laterální kondyl femuru", table: "knee_lfc_main", regions: ['knee'] },
-    "LTC": { name: "Laterální tibiální kondyl", table: "knee_ltc_main", regions: ['knee'] },
-    "MFC": { name: "Mediální kondyl femuru", table: "knee_mfc_main", regions: ['knee'] },
-    "MTC": { name: "Mediální tibiální kondyl", table: "knee_mtc_main", regions: ['knee'] },
+    "LFC": { name: "Laterální kondyl femuru", table: "knee_lat_comp_main", regions: ['knee'] },
+    "LTC": { name: "Laterální tibiální kondyl", table: "knee_lat_comp_main", regions: ['knee'] },
+    "MFC": { name: "Mediální kondyl femuru", table: "knee_med_comp_main", regions: ['knee'] },
+    "MTC": { name: "Mediální tibiální kondyl", table: "knee_med_comp_main", regions: ['knee'] },
     "Fibula": { name: "Hlavička fibuly", table: "knee_bones_main", regions: ['knee'] },
     "LCL": { name: "Laterální kolaterální vaz (LCL)", table: "knee_lcl_main", regions: ['knee'] },
     "MCL": { name: "Mediální kolaterální vaz (LCM)", table: "knee_mcl_main", regions: ['knee'] },
@@ -3196,6 +3204,9 @@ document.addEventListener('mousedown', e => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    const grammarMergingCheckbox = document.getElementById('setting-grammar-merging');
+    if (grammarMergingCheckbox) grammarMergingCheckbox.checked = APP_SETTINGS.grammarMerging;
+
     const suvWordCheckbox = document.getElementById('setting-suv-word');
     if (suvWordCheckbox) suvWordCheckbox.checked = APP_SETTINGS.suvWord;
     

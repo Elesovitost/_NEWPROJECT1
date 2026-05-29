@@ -34,12 +34,10 @@ const RegionKnee = {
             
             // --- KONDYLY A MENISKY (Factory vzor pro DRY kód) ---
             ...(() => {
-                const makeCondyle = (id, title, prefix) => helpers.TableMain(id, title, [
-                    helpers.Table2colNormal(`${prefix}_table`, '', [
-                        [ 'Chrupavka:', [ { btn: `${prefix}_chr_gr`, states: ['GR 0', 'GR 1', 'GR 2', 'GR 3', 'GR 4'] }, { btn: `${prefix}_chr_lez`, states: ['Léze 0', 'Fisura', 'Fisury', 'Defekt', 'Defekty', 'Delaminace'] }, { btn: `${prefix}_chr_edem`, states: ['edém 0', 'edém +', 'edém ++'] } ] ],
-                        [ 'Subchondr. kost:', [ { btn: `${prefix}_sub_sifk`, states: ['SIFK 0', 'SIFK +', 'SIFK ++'] }, { btn: `${prefix}_sub_ocl`, states: ['OCL 0', 'OCL I', 'OCL II', 'OCL III', 'OCL IV'] }, { btn: `${prefix}_sub_bml`, states: ['BML 0', 'BML +', 'BML ++', 'BML +++'] } ] ],
-                        [ 'Fraktura:', { btn: `${prefix}_frac`, states: ['0', 'impakční', 'vertikální', 'komin.'] } ]
-                    ])
+                const makeCondyleTable = (title, prefix) => helpers.Table2colNormal(`${prefix}_table`, title, [
+                    [ 'Chrupavka:', [ { btn: `${prefix}_chr_gr`, states: ['GR 0', 'GR 1', 'GR 2', 'GR 3', 'GR 4'] }, { btn: `${prefix}_chr_lez`, states: ['Léze 0', 'Fisura', 'Fisury', 'Defekt', 'Defekty', 'Delaminace'] }, { btn: `${prefix}_chr_edem`, states: ['edém 0', 'edém +', 'edém ++'] } ] ],
+                    [ 'Subchondr. kost:', [ { btn: `${prefix}_sub_sifk`, states: ['SIFK 0', 'SIFK +', 'SIFK ++'] }, { btn: `${prefix}_sub_ocl`, states: ['OCL 0', 'OCL I', 'OCL II', 'OCL III', 'OCL IV'] }, { btn: `${prefix}_sub_bml`, states: ['BML 0', 'BML +', 'BML ++', 'BML +++'] } ] ],
+                    [ 'Fraktura:', { btn: `${prefix}_frac`, states: ['0', 'impakční', 'vertikální', 'komin.'] } ]
                 ]);
 
                 const makeMeniscus = (id, title, prefix) => helpers.TableMain(id, title, [
@@ -64,14 +62,18 @@ const RegionKnee = {
                 ]);
 
                 return [
-                    makeCondyle('knee_lfc_main', 'Laterální kondyl femuru (LFC)', 'kn_lfc'),
-                    makeCondyle('knee_ltc_main', 'Laterální plato tibie (LTC)', 'kn_ltc'),
+                    helpers.TableMain('knee_lat_comp_main', 'Laterální kompartment', [
+                        makeCondyleTable('Laterální kondyl femuru (LFC)', 'kn_lfc'),
+                        makeCondyleTable('Laterální plato tibie (LTC)', 'kn_ltc')
+                    ]),
                     makeMeniscus('knee_lm_main', 'Laterální meniskus (LM)', 'kn_lm'),
                     makeCollateralLigament('knee_lcl_main', 'Laterální kolaterální vaz', 'kn_lcl'),
                     
                     // --- MEDIÁLNÍ KOMPARTMENT ---
-                    makeCondyle('knee_mfc_main', 'Mediální kondyl femuru (MFC)', 'kn_mfc'),
-                    makeCondyle('knee_mtc_main', 'Mediální plato tibie (MTC)', 'kn_mtc'),
+                    helpers.TableMain('knee_med_comp_main', 'Mediální kompartment', [
+                        makeCondyleTable('Mediální kondyl femuru (MFC)', 'kn_mfc'),
+                        makeCondyleTable('Mediální plato tibie (MTC)', 'kn_mtc')
+                    ]),
                     makeMeniscus('knee_mm_main', 'Mediální meniskus (MM)', 'kn_mm'),
                     makeCollateralLigament('knee_mcl_main', 'Mediální kolaterální vaz', 'kn_mcl')
                 ];
@@ -475,8 +477,8 @@ const RegionKnee = {
                 if (chrGr && chrGr !== 'GR 0') concPat += ` ${gradeMapConc[chrGr]}`;
                 
                 if (hasLez) {
-                    const lezMapNom = { 'Fisura': 'fisura', 'Fisury': 'fisury', 'Defekt': 'defekt', 'Defekty': 'vícečetné defekty', 'Delaminace': 'delaminace' };
-                    concPat += ` (${lezMapNom[chrLez]})`;
+                    const lezMapInstr = { 'Fisura': 's fisurou', 'Fisury': 's fisurami', 'Defekt': 's defektem', 'Defekty': 's vícečetnými defekty', 'Delaminace': 's delaminací' };
+                    concPat += ` (${lezMapInstr[chrLez]})`;
                 }
                 pathologies.push(concPat);
                 
@@ -536,7 +538,7 @@ const RegionKnee = {
             let concsToPush = [];
             
             if (!hasPathology) {
-                repText = `${nameTitle} bez výraznější léze.`;
+                repText = nameTitle ? `${nameTitle} bez výraznější léze.` : `bez výraznější léze.`;
             } else {
                 const joinCzech = (arr) => {
                     if (arr.length === 0) return '';
@@ -544,13 +546,14 @@ const RegionKnee = {
                     return arr.slice(0, -1).join(', ') + ' a ' + arr[arr.length - 1];
                 };
 
-                repText = `${nameTitle}: ${joinCzech(repParts)}.`;
+                repText = nameTitle ? `${nameTitle}: ${joinCzech(repParts)}.` : `${joinCzech(repParts)}.`;
 
                 const firstPat = pathologies[0];
                 const preposition = (firstPat.startsWith('SIFK') || firstPat.startsWith('středním') || firstPat.startsWith('subchondrální')) ? 'se' : 's';
-                concsToPush.push({ type: 'frame', text: `${nameTitle} ${preposition} ${joinCzech(pathologies)}.`, tableId: tableId });
+                const concSentence = nameTitle ? `${nameTitle} ${preposition} ${joinCzech(pathologies)}.` : `${preposition} ${joinCzech(pathologies)}.`;
+                concsToPush.push({ type: 'frame', text: concSentence, tableId: tableId });
             }
-            return { text: repText, concs: concsToPush, dimmed: !hasPathology };
+            return { text: repText, concs: concsToPush, pathologies: pathologies, dimmed: !hasPathology };
         };
 
         // ═══ KOMPILÁTOR PRO MENISKY (LM, MM) ═══
@@ -693,39 +696,63 @@ const RegionKnee = {
         };
 
         // ═══ EXEKUCE LATERÁLNÍHO A MEDIÁLNÍHO KOMPARTMENTU ═══
-        const lfc = parseKneeCondyle('kn_lfc', 'Laterální kondyl femuru', 'LFC', 'knee_lfc_main');
-        const ltc = parseKneeCondyle('kn_ltc', 'Laterální plato tibie', 'LTC', 'knee_ltc_main');
-        
-        const latReports = [lfc.text, ltc.text].filter(Boolean);
-        if (latReports.length > 0) {
-            const mergedReport = typeof formatCzechList === 'function' ? formatCzechList(latReports) : latReports.join(' ');
-            reportOut.push({ type: 'frame', text: mergedReport.replace(/\.?$/, '.'), tableId: 'knee_lfc_main', dimmed: lfc.dimmed && ltc.dimmed });
-        }
-        
-        const latConcs = [...lfc.concs, ...ltc.concs].map(c => c.text);
-        if (latConcs.length > 0) {
-            const mergedText = typeof formatCzechList === 'function' ? formatCzechList(latConcs) : latConcs.join(' ');
-            concMain.push({ type: 'frame', text: mergedText.replace(/\.?$/, '.'), tableId: 'knee_lfc_main' });
-        }
+        const processCompartment = (femPrefix, tibPrefix, compName, tableId) => {
+            const fem = parseKneeCondyle(femPrefix, '', '', tableId);
+            const tib = parseKneeCondyle(tibPrefix, '', '', tableId);
+            
+            const isFemNormal = fem.dimmed;
+            const isTibNormal = tib.dimmed;
 
+            if (isFemNormal && isTibNormal) {
+                reportOut.push({ type: 'frame', text: `${compName} bez výraznější léze.`, tableId: tableId, dimmed: true });
+                return;
+            }
+
+            // --- Logika pro report (textová část) ---
+            const femTextClean = fem.text.replace(/\.$/, '');
+            const tibTextClean = tib.text.replace(/\.$/, '');
+
+            if (femTextClean === tibTextClean && !isFemNormal) {
+                reportOut.push({ type: 'frame', text: `${compName}: ${femTextClean}.`, tableId: tableId });
+            } else {
+                let parts = [];
+                if (!isFemNormal) parts.push(`femorálně ${femTextClean}`);
+                if (!isTibNormal) parts.push(`tibiálně ${tibTextClean}`);
+                reportOut.push({ type: 'frame', text: `${compName}: ${parts.join(', ')}.`, tableId: tableId });
+            }
+
+            // --- Logika pro conclusion (závěr) ---
+            const femPathStr = fem.pathologies.join(' a ');
+            const tibPathStr = tib.pathologies.join(' a ');
+
+            if (femPathStr === tibPathStr && femPathStr !== '') {
+                const prep = (femPathStr.startsWith('SIFK') || femPathStr.startsWith('středním') || femPathStr.startsWith('subchondrální')) ? 'se' : 's';
+                concMain.push({ type: 'frame', text: `${compName} ${prep} ${femPathStr}.`, tableId: tableId });
+            } else {
+                let concParts = [];
+                let firstPathStr = '';
+                
+                if (femPathStr) {
+                    concParts.push(`${femPathStr} femorálně`);
+                    if (!firstPathStr) firstPathStr = femPathStr;
+                }
+                if (tibPathStr) {
+                    concParts.push(`${tibPathStr} tibiálně`);
+                    if (!firstPathStr) firstPathStr = tibPathStr;
+                }
+                
+                if (concParts.length > 0) {
+                    const prep = (firstPathStr.startsWith('SIFK') || firstPathStr.startsWith('středním') || firstPathStr.startsWith('subchondrální')) ? 'se' : 's';
+                    concMain.push({ type: 'frame', text: `${compName} ${prep} ${concParts.join(' a ')}.`, tableId: tableId });
+                }
+            }
+        };
+
+        processCompartment('kn_lfc', 'kn_ltc', 'Laterální kompartment', 'knee_lat_comp_main');
         parseMeniscus('kn_lm', 'Laterální meniskus', 'laterálního menisku', 'LM', 'knee_lm_main');
         parseCollateralLigament('kn_lcl', 'Laterální kolaterální vaz', 'knee_lcl_main');
 
-        const mfc = parseKneeCondyle('kn_mfc', 'Mediální kondyl femuru', 'MFC', 'knee_mfc_main');
-        const mtc = parseKneeCondyle('kn_mtc', 'Mediální plato tibie', 'MTC', 'knee_mtc_main');
-        
-        const medReports = [mfc.text, mtc.text].filter(Boolean);
-        if (medReports.length > 0) {
-            const mergedReport = typeof formatCzechList === 'function' ? formatCzechList(medReports) : medReports.join(' ');
-            reportOut.push({ type: 'frame', text: mergedReport.replace(/\.?$/, '.'), tableId: 'knee_mfc_main', dimmed: mfc.dimmed && mtc.dimmed });
-        }
-        
-        const medConcs = [...mfc.concs, ...mtc.concs].map(c => c.text);
-        if (medConcs.length > 0) {
-            const mergedText = typeof formatCzechList === 'function' ? formatCzechList(medConcs) : medConcs.join(' ');
-            concMain.push({ type: 'frame', text: mergedText.replace(/\.?$/, '.'), tableId: 'knee_mfc_main' });
-        }
-
+        processCompartment('kn_mfc', 'kn_mtc', 'Mediální kompartment', 'knee_med_comp_main');
         parseMeniscus('kn_mm', 'Mediální meniskus', 'mediálního menisku', 'MM', 'knee_mm_main');
         parseCollateralLigament('kn_mcl', 'Mediální kolaterální vaz', 'knee_mcl_main');
 
@@ -1107,16 +1134,14 @@ const RegionKnee = {
             'knee_pcl_main': 2,
             'knee_mm_main': 3,
             'knee_mcl_main': 4,
-            'knee_mfc_main': 5,
-            'knee_mtc_main': 6,
-            'knee_lm_main': 7,
-            'knee_lcl_main': 8,
-            'knee_lfc_main': 9,
-            'knee_ltc_main': 10,
-            'knee_patella_main': 11,
-            'knee_joint_main': 12,
-            'knee_soft_main': 13,
-            'knee_bones_main': 14
+            'knee_med_comp_main': 5,
+            'knee_lm_main': 6,
+            'knee_lcl_main': 7,
+            'knee_lat_comp_main': 8,
+            'knee_patella_main': 9,
+            'knee_joint_main': 10,
+            'knee_soft_main': 11,
+            'knee_bones_main': 12
         };
 
         const sortConclusions = (a, b) => {
