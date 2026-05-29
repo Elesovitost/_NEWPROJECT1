@@ -666,7 +666,7 @@ const RegionThorax = {
                 if (!p && !l) continue;
                 allDev.push(`${devMap[k]} ${(p && l) ? 'bilat.' : (p ? 'zprava' : 'zleva')}`);
             }
-            let devText = allDev.length > 0 ? `zaveden ${formatList(allDev)}` : "";
+            let devText = allDev.length > 0 ? `Zaveden ${formatList(allDev)}` : "";
             let devDesc = ctx.field('devices_custom_desc');
             let devParts = [];
             if (devText) devParts.push(devText);
