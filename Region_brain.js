@@ -951,10 +951,17 @@ const RegionBrain = {
         if (orbDesc) orbRep.push(orbDesc);
 
         // --- 8. VÝSTUP: ORBITY ---
+        let extracranialText = [];
+        let isOrbDimmed = false;
+        let isSinusDimmed = false;
+        let isUchoDimmed = false;
+
+        // --- 8. VÝSTUP: ORBITY ---
         if (orbRep.length === 0) {
-            reportOut.push({ type: 'frame', text: 'Orbity bez patologie.', tableId: 'brain_orbits_main', dimmed: true });
+            extracranialText.push('Orbity bez patologie.');
+            isOrbDimmed = true;
         } else {
-            reportOut.push({ type: 'frame', text: cap(formatCzechList(orbRep)) + '.', tableId: 'brain_orbits_main' });
+            extracranialText.push(cap(formatCzechList(orbRep)) + '.');
         }
 
         // --- SINY (Vedlejší nosní dutiny) ---
@@ -978,9 +985,10 @@ const RegionBrain = {
         
         // --- 10. VÝSTUP: SINY ---
         if (sinyParts.length === 0) {
-            reportOut.push({ type: 'frame', text: 'Dutiny vzdušné.', tableId: 'brain_sinus_main', dimmed: true });
+            extracranialText.push('Dutiny vzdušné.');
+            isSinusDimmed = true;
         } else {
-            reportOut.push({ type: 'frame', text: cap(formatCzechList(sinyParts)) + '.', tableId: 'brain_sinus_main' });
+            extracranialText.push(cap(formatCzechList(sinyParts)) + '.');
         }
 
         const sinusItems = [
@@ -1056,10 +1064,19 @@ const RegionBrain = {
 
         // --- 9. VÝSTUP: UŠI A MASTOIDY ---
         if (uchoRep.length === 0) {
-            reportOut.push({ type: 'frame', text: 'Mastoideální sklípky vzdušné.', tableId: 'brain_sinus_main', dimmed: true });
+            extracranialText.push('Mastoideální sklípky vzdušné.');
+            isUchoDimmed = true;
         } else {
-            reportOut.push({ type: 'frame', text: cap(formatCzechList(uchoRep)) + '.', tableId: 'brain_sinus_main' });
+            extracranialText.push(cap(formatCzechList(uchoRep)) + '.');
         }
+
+        // --- KOMBINOVANÝ VÝSTUP ---
+        reportOut.push({ 
+            type: 'frame', 
+            text: extracranialText.join(' '), 
+            tableId: 'brain_sinus_main', 
+            dimmed: (isOrbDimmed && isSinusDimmed && isUchoDimmed)
+        });
 
         return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
     }
