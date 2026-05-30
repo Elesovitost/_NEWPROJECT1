@@ -489,7 +489,7 @@ function getExamById(id) {
    ORGAN MAP & SVG DIMMING CONF
 ═══════════════════════════════════════════════ */
 const ORGAN_MAP = {
-    "Mozek": { name: "Mozek", table: "brain_organ_main", regions: ['brain'] },
+    "Mozek": { name: "Mozek", table: "group:brain_wml_main,brain_atr_main,brain_cpa_main,brain_sella_main", regions: ['brain'] },
     "Cévy hlavy": { name: "Cévní zásobení", table: "brain_vessels_main", regions: ['brain'] },
     "Eyebulb": { name: "Orbity", table: "brain_orbits_main", regions: ['brain'] },
     "Siny": { 
@@ -2212,19 +2212,34 @@ const UI = {
         const activeExam = getExamById(Store.activeTab);
         if (!activeExam) return;
 
-        if (Store.activeTable.startsWith('region:')) {
-            const rId = Store.activeTable.substring(7);
-            const region = REGIONS[rId];
+        if (Store.activeTable.startsWith('region:') || Store.activeTable.startsWith('group:')) {
+            const isGroup = Store.activeTable.startsWith('group:');
+            const targetIds = isGroup ? Store.activeTable.substring(6).split(',') : [];
+            const rId = isGroup ? null : Store.activeTable.substring(7);
+            
             let foundAny = false;
-            if (region) {
-                const layoutNodes = this.generateLayoutNodes(rId, region);
-                layoutNodes.forEach(n => {
-                    if (n.id && !n.id.includes('lesion') && !n.id.includes('lymphnode') && !n.id.includes('hemo')) {
-                        overlay.appendChild(n);
-                        foundAny = true;
-                    }
-                });
-            }
+            const regionsToSearch = isGroup ? Object.keys(REGIONS) : [rId];
+            
+            regionsToSearch.forEach(regionId => {
+                const region = REGIONS[regionId];
+                if (region) {
+                    const layoutNodes = this.generateLayoutNodes(regionId, region);
+                    layoutNodes.forEach(n => {
+                        if (isGroup) {
+                            if (targetIds.includes(n.id)) {
+                                overlay.appendChild(n);
+                                foundAny = true;
+                            }
+                        } else {
+                            if (n.id && !n.id.includes('lesion') && !n.id.includes('lymphnode') && !n.id.includes('hemo')) {
+                                overlay.appendChild(n);
+                                foundAny = true;
+                            }
+                        }
+                    });
+                }
+            });
+
             if (!foundAny) {
                 overlay.appendChild(el('div', { textContent: 'Tabulky nenalezeny.', className: 'label' }));
             } else {
