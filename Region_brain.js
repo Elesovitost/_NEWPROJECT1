@@ -965,51 +965,82 @@ const RegionBrain = {
         }
 
         // --- SINY (Vedlejší nosní dutiny) ---
-        let sinyStates = ctx.mapStates({
-            separator: ', ',
-            items: [
-                { id: 'sinus_front_r', 1: 'cysta/polyp ve frontálním sinu vpravo', 2: 'hyperplázie sliznic ve frontálním sinu vpravo', 3: 'výrazná hyperplázie sliznic ve frontálním sinu vpravo', 4: 'tekutina ve frontálním sinu vpravo' },
-                { id: 'sinus_front_l', 1: 'cysta/polyp ve frontálním sinu vlevo', 2: 'hyperplázie sliznic ve frontálním sinu vlevo', 3: 'výrazná hyperplázie sliznic ve frontálním sinu vlevo', 4: 'tekutina ve frontálním sinu vlevo' },
-                { id: 'sinus_ethmo_r', 1: 'cysta/polyp v ethmoidálním sinu vpravo', 2: 'hyperplázie sliznic v ethmoidálním sinu vpravo', 3: 'výrazná hyperplázie sliznic v ethmoidálním sinu vpravo', 4: 'tekutina v ethmoidálním sinu vpravo' },
-                { id: 'sinus_ethmo_l', 1: 'cysta/polyp v ethmoidálním sinu vlevo', 2: 'hyperplázie sliznic v ethmoidálním sinu vlevo', 3: 'výrazná hyperplázie sliznic v ethmoidálním sinu vlevo', 4: 'tekutina v ethmoidálním sinu vlevo' },
-                { id: 'sinus_sfeno_r', 1: 'cysta/polyp ve sfenoidálním sinu vpravo', 2: 'hyperplázie sliznic ve sfenoidálním sinu vpravo', 3: 'výrazná hyperplázie sliznic ve sfenoidálním sinu vpravo', 4: 'tekutina ve sfenoidálním sinu vpravo' },
-                { id: 'sinus_sfeno_l', 1: 'cysta/polyp ve sfenoidálním sinu vlevo', 2: 'hyperplázie sliznic ve sfenoidálním sinu vlevo', 3: 'výrazná hyperplázie sliznic ve sfenoidálním sinu vlevo', 4: 'tekutina ve sfenoidálním sinu vlevo' },
-                { id: 'sinus_maxil_r', 1: 'cysta/polyp v maxilárním sinu vpravo', 2: 'hyperplázie sliznic v maxilárním sinu vpravo', 3: 'výrazná hyperplázie sliznic v maxilárním sinu vpravo', 4: 'tekutina v maxilárním sinu vpravo' },
-                { id: 'sinus_maxil_l', 1: 'cysta/polyp v maxilárním sinu vlevo', 2: 'hyperplázie sliznic v maxilárním sinu vlevo', 3: 'výrazná hyperplázie sliznic v maxilárním sinu vlevo', 4: 'tekutina v maxilárním sinu vlevo' }
-            ]
+        const sinusTypes = [
+            { id: 'front', bilat: 've frontálních sinech bilat.', r: 've frontálním sinu vpravo', l: 've frontálním sinu vlevo' },
+            { id: 'ethmo', bilat: 'v ethmoidálních sinech bilat.', r: 'v ethmoidálním sinu vpravo', l: 'v ethmoidálním sinu vlevo' },
+            { id: 'sfeno', bilat: 've sfenoidálních sinech bilat.', r: 've sfenoidálním sinu vpravo', l: 've sfenoidálním sinu vlevo' },
+            { id: 'maxil', bilat: 'v maxilárních sinech bilat.', r: 'v maxilárním sinu vpravo', l: 'v maxilárním sinu vlevo' }
+        ];
+
+        const sinusStateMap = {
+            'cysta': 'cysta/polyp',
+            'hyper+': 'hyperplázie sliznic',
+            'hyper++': 'výrazná hyperplázie sliznic',
+            'tekutina': 'tekutina'
+        };
+
+        let sinyPartsArr = [];
+        
+        Object.keys(sinusStateMap).forEach(stateKey => {
+            let locsForState = [];
+            sinusTypes.forEach(st => {
+                let valR = ctx.text(`sinus_${st.id}_r`);
+                let valL = ctx.text(`sinus_${st.id}_l`);
+
+                if (valR === stateKey && valL === stateKey) {
+                    locsForState.push(st.bilat);
+                } else {
+                    if (valR === stateKey) locsForState.push(st.r);
+                    if (valL === stateKey) locsForState.push(st.l);
+                }
+            });
+
+            if (locsForState.length > 0) {
+                sinyPartsArr.push(`${sinusStateMap[stateKey]} ${locsForState.join(', ')}`);
+            }
         });
+
         let sinyCustomDesc = ctx.field('sinus_custom_desc');
-        let sinyParts = [];
-        if (sinyStates) sinyParts.push(sinyStates);
-        if (sinyCustomDesc) sinyParts.push(sinyCustomDesc);
+        if (sinyCustomDesc) {
+            sinyPartsArr.push(sinyCustomDesc);
+        }
         
         // --- 10. VÝSTUP: SINY ---
-        if (sinyParts.length === 0) {
+        if (sinyPartsArr.length === 0) {
             extracranialText.push('Dutiny vzdušné.');
             isSinusDimmed = true;
         } else {
-            extracranialText.push(cap(formatCzechList(sinyParts)) + '.');
+            extracranialText.push(cap(formatCzechList(sinyPartsArr)) + '.');
         }
 
-        const sinusItems = [
-            { id: 'sinus_front_r', text: 've frontálním sinu vpravo' },
-            { id: 'sinus_front_l', text: 've frontálním sinu vlevo' },
-            { id: 'sinus_ethmo_r', text: 'v ethmoidálním sinu vpravo' },
-            { id: 'sinus_ethmo_l', text: 'v ethmoidálním sinu vlevo' },
-            { id: 'sinus_sfeno_r', text: 've sfenoidálním sinu vpravo' },
-            { id: 'sinus_sfeno_l', text: 've sfenoidálním sinu vlevo' },
-            { id: 'sinus_maxil_r', text: 'v maxilárním sinu vpravo' },
-            { id: 'sinus_maxil_l', text: 'v maxilárním sinu vlevo' }
-        ];
+        let concChron = [];
+        let concAkut = [];
+        sinusTypes.forEach(st => {
+            let valR = ctx.text(`sinus_${st.id}_r`);
+            let valL = ctx.text(`sinus_${st.id}_l`);
+            
+            if (valR === 'hyper++' && valL === 'hyper++') concChron.push(st.bilat);
+            else {
+                if (valR === 'hyper++') concChron.push(st.r);
+                if (valL === 'hyper++') concChron.push(st.l);
+            }
+            
+            if (valR === 'tekutina' && valL === 'tekutina') concAkut.push(st.bilat);
+            else {
+                if (valR === 'tekutina') concAkut.push(st.r);
+                if (valL === 'tekutina') concAkut.push(st.l);
+            }
+        });
+
+        let sinyConcArr = [];
+        if (concChron.length > 0) sinyConcArr.push(`Chronická sinusitis (${concChron.join(', ')}).`);
+        if (concAkut.length > 0) sinyConcArr.push(`Akutní sinusitis (${concAkut.join(', ')}).`);
         
-        let sinyConcStr = ctx.mapConditions([
-            { states: [3], prefix: 'Chronická sinusitis (', suffix: ').', separator: ', ', items: sinusItems },
-            { states: [4], prefix: 'Akutní sinusitis (', suffix: ').', separator: ', ', items: sinusItems }
-        ]).trim();
         let customSinusConc = ctx.field('sinus_custom_conc');
-        if (sinyConcStr || customSinusConc) {
-            let s = [sinyConcStr, customSinusConc].filter(Boolean).join('\n');
-            concInc.push({ type: 'frame', text: s, tableId: 'brain_sinus_main' });
+        if (customSinusConc) sinyConcArr.push(customSinusConc);
+
+        if (sinyConcArr.length > 0) {
+            concInc.push({ type: 'frame', text: sinyConcArr.join('\n'), tableId: 'brain_sinus_main' });
         }
 
         // --- UŠI A MASTOIDY ---
