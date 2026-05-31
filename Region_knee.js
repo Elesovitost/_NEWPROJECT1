@@ -55,7 +55,7 @@ const RegionKnee = {
                 const makeCollateralLigament = (id, title, prefix) => helpers.TableMain(id, title, [
                     helpers.Table2colNormal(`${prefix}_table`, '', [
                         [ 'Ruptura:', [ 
-                            { btn: `${prefix}_rupt`, states: ['0', 'low-grade', 'high-grade', 'kompletní', 'po starší'] },
+                            { btn: `${prefix}_rupt`, states: ['0', 'low-grade', 'parciální', 'high-grade', 'kompletní', 'po starší'] },
                             { btn: `${prefix}_loc`, states: ['lokace 0', 'femorálně', 'střed', 'tibiálně'] }
                         ] ]
                     ])
@@ -81,7 +81,7 @@ const RegionKnee = {
 
             helpers.TableMain('knee_acl_main', 'Přední zkřížený vaz (ACL)', [
                 helpers.Table2colNormal('kn_acl_table', '', [
-                    [ 'Ruptura:', [ { btn: 'kn_acl_rupt', states: ['0', 'low-grade', 'high-grade', 'kompletní'] }, { btn: 'kn_acl_bml', states: ['skelet 0', 'kont. edém', '+ fr. F', '+ fr. T', '+ fr. F+T'] } ] ],
+                    [ 'Ruptura:', [ { btn: 'kn_acl_rupt', states: ['0', 'low-grade', 'parciální', 'high-grade', 'kompletní'] }, { btn: 'kn_acl_bml', states: ['skelet 0', 'kont. edém', '+ fr. F', '+ fr. T', '+ fr. F+T'] } ] ],
                     [ 'Morfologie:', { btn: 'kn_acl_morf', states: ['0', 'zvlnění', 'elongace', 'mukoid. deg.', 'ganglion'] } ],
                     [ 'Náhrada (štěp):', [ { btn: 'kn_acl_plast', states: ['0', 'intaktní', 'parc. léze', 'kompl. rupt.'] }, { btn: 'kn_acl_vzhled', states: ['orientace OK', 'laxita', 'vertikální', 'horizontální', 'impingement'] } ] ],
                     [ '', { btn: 'kn_acl_tunel', states: ['tunely', 'širší F', 'širší T', 'ventrální T'] } ]
@@ -89,7 +89,7 @@ const RegionKnee = {
             ]),
             helpers.TableMain('knee_pcl_main', 'Zadní zkřížený vaz (PCL)', [
                 helpers.Table2colNormal('kn_pcl_table', '', [
-                    [ 'Ruptura:', [ { btn: 'kn_pcl_rupt', states: ['0', 'low-grade', 'high-grade', 'kompletní'] }, { btn: 'kn_pcl_bml', states: ['skelet 0', 'BML +', 'avulze tibie'] } ] ],
+                    [ 'Ruptura:', [ { btn: 'kn_pcl_rupt', states: ['0', 'low-grade', 'parciální', 'high-grade', 'kompletní'] }, { btn: 'kn_pcl_bml', states: ['skelet 0', 'BML +', 'avulze tibie'] } ] ],
                     [ 'Morfologie:', { btn: 'kn_pcl_morf', states: ['0', 'elongace', 'mukoid. deg.', 'cysta'] } ]
                 ])
             ]),
@@ -680,6 +680,9 @@ const RegionKnee = {
                 if (lRupt === 'low-grade') {
                     repStr = `vaz je${locRep} s periligamentózním edémem, zachovanou kontinuitou vláken`;
                     concStr = `${nameTitle} s low-grade lézí (distenzí)${locConc}`;
+                } else if (lRupt === 'parciální') {
+                    repStr = `vaz je${locRep} se zvýšeným intrasubstanciálním signálem a drobným defektem kontinuity vláken`;
+                    concStr = `${nameTitle} s parciální rupturou${locConc}`;
                 } else if (lRupt === 'high-grade') {
                     repStr = `vaz je${locRep} nehomogenní se zřetelným zvýšením signálu a parciálním defektem kontinuity vláken`;
                     concStr = `${nameTitle} s high-grade parciální rupturou${locConc}`;
@@ -809,11 +812,15 @@ const RegionKnee = {
                 let concParts = [];
 
                 // 1. Ruptura
+                // 1. Ruptura
                 let isRuptured = aclRupt && aclRupt !== '0';
                 if (isRuptured) {
                     if (aclRupt === 'low-grade') {
                         nRep.push('vlákna vazu se zvýšenou intenzitou signálu, jejich kontinuita je však zachována');
                         concParts.push('s low-grade parciální lézí');
+                    } else if (aclRupt === 'parciální') {
+                        nRep.push('vaz je prosáklý se zvýšeným intrasubstanciálním signálem a parc. defektem kontinuity vláken');
+                        concParts.push('s parciální rupturou');
                     } else if (aclRupt === 'high-grade') {
                         nRep.push('vaz je ztenčený, se zvýšeným intrasubstanciálním signálem a parciálním defektem kontinuity vláken');
                         concParts.push('s high-grade rupturou');
@@ -899,11 +906,15 @@ const RegionKnee = {
             let concPartsPcl = [];
 
             // 1. Ruptura
+            // 1. Ruptura
             let isPclRuptured = pclRupt && pclRupt !== '0';
             if (isPclRuptured) {
                 if (pclRupt === 'low-grade') {
                     nRepPcl.push('vlákna vazu se zvýšenou SI, kontinuita je zachována');
                     concPartsPcl.push('s low-grade parciální lézí');
+                } else if (pclRupt === 'parciální') {
+                    nRepPcl.push('vaz je se zvýšeným intrasubstanciálním signálem a parc. defektem kontinuity vláken');
+                    concPartsPcl.push('s parciální rupturou');
                 } else if (pclRupt === 'high-grade') {
                     nRepPcl.push('vaz je difuzně ztluštělý, s parciálním defektem kontinuity vláken');
                     concPartsPcl.push('s high-grade parciální rupturou');
