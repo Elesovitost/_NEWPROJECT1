@@ -291,10 +291,10 @@ const RegionLSp = {
             }
 
             if (valPR === valPL && valPR && valPR !== 'P' && valPR !== '0') {
-                locStates.push({ type: 'P', val: valPR, isAct: true, name: 'paracentrálně bilat.', t1: `kontakt s kořeny ${seg.root} bilat.`, t2: `dislokace kořenů ${seg.root} bilat.`, t3: `komprese kořenů ${seg.root} bilat.`, tS: 'stenóza laterálních recesů bilat.' });
+                locStates.push({ type: 'P', val: valPR, isAct: true, name: 'paracentrálně bilat.', t1: `kontakt s kořeny ${seg.root} bilat.`, t2: `útlak kořenů ${seg.root} bilat.`, t3: `komprese kořenů ${seg.root} bilat.`, tS: 'stenóza laterálních recesů bilat.' });
             } else {
-                locStates.push({ type: 'P', val: valPR, isAct: valPR && valPR !== 'P', zeroTxt: `bez tlaku na kořen ${seg.root} vpravo`, name: 'paracentrálně vpravo', t1: `kontakt s kořenem ${seg.root} vpravo`, t2: `dislokace kořene ${seg.root} vpravo`, t3: `komprese kořene ${seg.root} vpravo`, tS: 'stenóza laterálního recesu vpravo' });
-                locStates.push({ type: 'P', val: valPL, isAct: valPL && valPL !== 'P', zeroTxt: `bez tlaku na kořen ${seg.root} vlevo`, name: 'paracentrálně vlevo', t1: `kontakt s kořenem ${seg.root} vlevo`, t2: `dislokace kořene ${seg.root} vlevo`, t3: `komprese kořene ${seg.root} vlevo`, tS: 'stenóza laterálního recesu vlevo' });
+                locStates.push({ type: 'P', val: valPR, isAct: valPR && valPR !== 'P', zeroTxt: `bez tlaku na kořen ${seg.root} vpravo`, name: 'paracentrálně vpravo', t1: `kontakt s kořenem ${seg.root} vpravo`, t2: `útlak kořene ${seg.root} vpravo`, t3: `komprese kořene ${seg.root} vpravo`, tS: 'stenóza laterálního recesu vpravo' });
+                locStates.push({ type: 'P', val: valPL, isAct: valPL && valPL !== 'P', zeroTxt: `bez tlaku na kořen ${seg.root} vlevo`, name: 'paracentrálně vlevo', t1: `kontakt s kořenem ${seg.root} vlevo`, t2: `útlak kořene ${seg.root} vlevo`, t3: `komprese kořene ${seg.root} vlevo`, tS: 'stenóza laterálního recesu vlevo' });
             }
 
             const c_size = ctx.field(`${seg.sPfx}_size`);
@@ -469,8 +469,8 @@ const RegionLSp = {
                     }
                 } else if (type === 'P') {
                     if (val === '1') { nom = `kontakt s kořenem ${seg.root} ${side}`; dat = `kontaktu s kořenem ${seg.root} ${side}`; }
-                    else if (val === '2') { nom = `dislokace kořene ${seg.root} ${side}`; dat = `dislokaci kořene ${seg.root} ${side}`; }
-                    else if (val === '3') { nom = `útlak kořene ${seg.root} ${side}`; dat = `útlaku kořene ${seg.root} ${side}`; }
+                    else if (val === '2') { nom = `útlak kořene ${seg.root} ${side}`; dat = `útlaku kořene ${seg.root} ${side}`; }
+                    else if (val === '3') { nom = `útlak kořene ${seg.root} ${side}`; dat = `kompresi kořene ${seg.root} ${side}`; }
                     else if (val === 'S') { nom = `stenóza laterálního recesu ${side}`; dat = `stenóze laterálního recesu ${side}`; }
                     else if (val === 'F') { 
                         fibrosisArr.push(`epidurální fibróza ${side}`);
@@ -505,8 +505,8 @@ const RegionLSp = {
                     }
                 } else if (type === 'P') {
                     if (val === '1') { nom = `kontakt s kořeny ${seg.root} bilat.`; dat = `kontaktu s kořeny ${seg.root} bilat.`; }
-                    else if (val === '2') { nom = `dislokace kořenů ${seg.root} bilat.`; dat = `dislokaci kořenů ${seg.root} bilat.`; }
-                    else if (val === '3') { nom = `útlak kořenů ${seg.root} bilat.`; dat = `útlaku kořenů ${seg.root} bilat.`; }
+                    else if (val === '2') { nom = `útlak kořenů ${seg.root} bilat.`; dat = `útlaku kořenů ${seg.root} bilat.`; }
+                    else if (val === '3') { nom = `útlak kořenů ${seg.root} bilat.`; dat = `kompresi kořenů ${seg.root} bilat.`; }
                     else if (val === 'S') { nom = `stenóza laterálních recesů bilat.`; dat = `stenóze laterálních recesů bilat.`; }
                     else if (val === 'F') { 
                         fibrosisArr.push(`epidurální fibróza bilat.`);
