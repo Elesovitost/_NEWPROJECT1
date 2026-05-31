@@ -43,7 +43,7 @@ const RegionKnee = {
                 const makeMeniscus = (id, title, prefix) => helpers.TableMain(id, title, [
                     helpers.Table2colNormal(`${prefix}_table`, '', [
                         [ 'Ruptura:', [ 
-                            { btn: `${prefix}_rupt`, states: ['0', 'horizontální', 'longitudinální', 'radiální part', 'radiální full', 'komplexní', 'bucket-handle', 'flap', 'parrot-beak', 'macerace'] }, 
+                            { btn: `${prefix}_rupt`, states: ['0', 'horizontální', 'longitudinální', 'radiální part', 'radiální full', 'komplexní', 'bucket-handle', 'flap', 'parrot-beak', 'macerace', 'inkompletní'] }, 
                             { btn: `${prefix}_loc`, states: ['lokace 0', 'přední úpon', 'přední roh', 'tělo', 'zadní roh', 'zadní úpon'] },
                             { btn: `${prefix}_cyst`, states: ['cysta 0', 'cysta +', 'cysta ++'] }
                         ] ],
@@ -595,18 +595,19 @@ const RegionKnee = {
                         'radiální part': 'parciálním radiálním přerušením', 'radiální full': 'kompletní radiálním přerušením',
                         'komplexní': 'komplexní trhlinou', 'bucket-handle': 'obrazem luxace fragmentu typu bucket-handle',
                         'flap': 'dislokovanou flap rupturou', 'parrot-beak': 'parrot-beak rupturou volného okraje',
-                        'macerace': 'macerací a destrukcí tkáně'
+                        'macerace': 'macerací a destrukcí tkáně', 'inkompletní': 'vysokou SI'
                     };
                     const rConc = {
                         'horizontální': 'horizontální rupturou', 'longitudinální': 'longitudinální rupturou',
                         'radiální part': 'parciální radiální rupturou', 'radiální full': 'kompletní radiální rupturou',
                         'komplexní': 'komplexní rupturou', 'bucket-handle': 'bucket-handle rupturou',
                         'flap': 'flap rupturou', 'parrot-beak': 'parrot-beak rupturou',
-                        'macerace': 'pokročilou macerací'
+                        'macerace': 'pokročilou macerací', 'inkompletní': 'degenerací / inkompletní lézí'
                     };
 
                     ruptRep = `s ${rRep[mRupt]}${locLoc}`;
                     if (['horizontální', 'longitudinální'].includes(mRupt)) ruptRep += ' v kontaktu s artik. plochou';
+                    else if (mRupt === 'inkompletní') ruptRep += ' bez kontaktu s artik. plochou';
                     ruptConc = `s ${rConc[mRupt]}${locLoc}`;
                 } else if (mOper && mOper !== '0') {
                     ruptRep = 'přiměřeného postoperačního vzhledu bez přesvědčivé recidivy ruptury';
