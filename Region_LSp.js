@@ -225,9 +225,18 @@ const RegionLSp = {
             if (degen === 'náhrada') {
                 collDegenNahrada.push(seg.label);
             } else if (degen && degen !== 'DDD') {
-                if (degen === 'mírná') { degenModifier = 'mírně sníženého '; degenDesc = 'mírná degenerace disku'; }
-                else if (degen === 'střední') { degenModifier = 'středně sníženého '; degenDesc = 'střední degenerace disku'; }
-                else if (degen === 'výrazná') { degenModifier = 'výrazně sníženého '; degenDesc = 'výrazná degenerace disku'; }
+                if (degen === 'mírná') { 
+                    degenModifier = 'mírně sníženého '; 
+                    degenDesc = 'mírně snížený disk'; 
+                }
+                else if (degen === 'střední') { 
+                    degenModifier = 'středně sníženého '; 
+                    degenDesc = 'středně snížený disk'; 
+                }
+                else if (degen === 'výrazná') { 
+                    degenModifier = 'výrazně sníženého '; 
+                    degenDesc = 'výrazně snížený disk'; 
+                }
             }
 
             const modic = ctx.text(`${seg.sPfx}_modic`);
@@ -312,6 +321,13 @@ const RegionLSp = {
             if (protr && protr !== 'protruze') {
                 const protrMap = { 'bulging': `bulging ${degenModifier}disku`.trim(), 'herniace': `herniace ${degenModifier}disku`.trim(), 'spondylofyty': 'spondylofyty okrajů krycích ploch', 'kombinace': `kombinace spondylofytů a protruze ${degenModifier}disku`.trim() };
                 let baseProtr = protrMap[protr] || protr;
+                
+                if (protr === 'spondylofyty' && degenDesc) {
+                    sentences.push(formatSentence(degenDesc));
+                    causesNom.push(degenDesc);
+                    causesGen.push(degenDesc.replace('mírná', 'mírné').replace('výrazná', 'výrazné'));
+                }
+
                 if (protrMm) baseProtr += ` o ${protrMm} mm`;
 
                 const protrMapConc = { 'bulging': 'bulging disku', 'herniace': 'herniace disku', 'spondylofyty': 'spondylofyty', 'kombinace': 'kombinace spondylofytů a protruze disku' };
