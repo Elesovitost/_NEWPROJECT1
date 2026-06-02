@@ -6,7 +6,10 @@
 <style>
         :root { --bg: #050505; --panel: #121418; --border: #2a313a; --text: #e6edf3; --dim: #7d8590; --accent: #005a9e; --accent-hi: #58a6ff; --btn-bg: rgba(255,255,255,0.03); }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); display: grid; grid-template-columns: 1fr clamp(250px,20vw,350px) clamp(250px,20vw,350px); grid-template-rows: max-content 1fr; height: 100vh; padding: 5px; gap: 5px; overflow: hidden; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); display: grid; grid-template-columns: 1fr clamp(250px,20vw,350px) clamp(250px,20vw,350px); grid-template-rows: max-content 1fr; height: 100vh; padding: 5px; gap: 5px; overflow: hidden; user-select: none; -webkit-user-select: none; cursor: default; }
+        .input, textarea { user-select: text; -webkit-user-select: text; }
+        .report-frame, .report-heading, .report-exam-heading, #report-container, #conclusion-container { user-select: none; -webkit-user-select: none; cursor: default; }
+        .report-frame[data-action="open-table"], .report-heading[data-action="open-region"] { cursor: pointer; }
         .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; position: relative; min-height: 0; }
         .panel.combined-highlight { border-color: var(--accent-hi); box-shadow: 0 0 12px var(--accent-hi); z-index: 10; }
         #header-panel { grid-column: 1 / -1; gap: 12px; z-index: 100; overflow: visible; }
@@ -2045,7 +2048,7 @@ const UI = {
 
         const indicationInput = el('input', {
             className: 'input',
-            style: 'flex: 1; min-width: 150px; font-weight: normal;',
+            style: 'width: 250px; font-weight: normal; margin-left: auto;',
             value: Store.indication || '',
             'data-action': 'update-indication',
             placeholder: 'Indikace'

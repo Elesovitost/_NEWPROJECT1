@@ -83,8 +83,14 @@ const RegionLSp = {
         expTable.querySelectorAll('.row').forEach(row => row.style.justifyContent = 'flex-start');
 
         const spacer = el('div', { style: 'height: 20px;' });
+        const spacer2 = el('div', { style: 'height: 20px;' });
 
-        return [axisTable, table, spacer, expTable, slider];
+        const customAdd = helpers.Table1col('lsp_ost_add', [
+            { field: 'text', id: 'lsp_custom_desc', placeholder: 'vlastní...popis...' },
+            { field: 'text', id: 'lsp_custom_conc', placeholder: 'vlastní...závěr...' }
+        ]);
+
+        return [axisTable, table, spacer, expTable, spacer2, customAdd, slider];
     },
     compile: (ctx) => {
         let reportBlocks = [];
@@ -720,6 +726,26 @@ const RegionLSp = {
 
         if (mainConc.length === 0) {
             mainConc.push({ type: 'frame', text: 'Přiměřený nález na bederní páteři.' });
+        }
+
+        const customDesc = ctx.field('lsp_custom_desc');
+        if (customDesc) {
+            let txt = customDesc.trim();
+            if (txt && !txt.endsWith('.')) txt += '.';
+            if (txt) {
+                txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+                reportBlocks.push({ type: 'frame', text: txt });
+            }
+        }
+
+        const customConc = ctx.field('lsp_custom_conc');
+        if (customConc) {
+            let txt = customConc.trim();
+            if (txt && !txt.endsWith('.')) txt += '.';
+            if (txt) {
+                txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+                incConc.push({ type: 'frame', text: txt });
+            }
         }
 
         return {
