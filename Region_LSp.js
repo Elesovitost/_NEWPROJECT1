@@ -133,12 +133,12 @@ const RegionLSp = {
         if (axisState && axisState !== '0') {
             const axisMap = {
                 'přímá': 'Osa přímá',
-                '(': 'mírná sinistrokonvexní skolióza',
-                '((': 'střední sinistrokonvexní skolióza',
-                '(((': 'výrazná sinistrokonvexní skolióza',
-                ')': 'mírná dextrokonvexní skolióza',
-                '))': 'střední dextrokonvexní skolióza',
-                ')))': 'výrazná dextrokonvexní skolióza'
+                '(': 'mírná dextrokonvexní skolióza',
+                '((': 'dextrokonvexní skolióza',
+                '(((': 'výrazná dextrokonvexní skolióza',
+                ')': 'mírná sinistrokonvexní skolióza',
+                '))': 'sinistrokonvexní skolióza',
+                ')))': 'výrazná sinistrokonvexní skolióza'
             };
             const axisText = axisMap[axisState];
             if (axisText) {
