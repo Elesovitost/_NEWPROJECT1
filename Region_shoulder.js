@@ -3,16 +3,6 @@ const RegionShoulder = {
     reportLayout: 'block',
     layout: (helpers) => {
         
-        // Factory pro rotátorovou manžetu
-        const makeTendon = (id, title, prefix) => helpers.TableMain(id, title, [
-            helpers.Table2colNormal(`${prefix}_table`, '', [
-                [ 'Stav šlachy:', { btn: `${prefix}_stav`, states: ['0', 'tendinóza', 'parc. art. ruptura', 'parc. burz. ruptura', 'intrasub. ruptura', 'kompletní ruptura'] } ],
-                [ 'Retrakce (Patte):', { btn: `${prefix}_retr`, states: ['0', 'St. 1', 'St. 2', 'St. 3'] } ],
-                [ 'Tuková degen. (Goutallier):', { btn: `${prefix}_gout`, states: ['0', 'Gr. 1', 'Gr. 2', 'Gr. 3', 'Gr. 4'] } ],
-                [ 'Sval. atrofie:', { btn: `${prefix}_atrofie`, states: ['0', '+', '++'] } ]
-            ])
-        ]);
-
         return [
             // --- AC KLOUB A AKROMION ---
             helpers.TableMain('shoulder_ac_main', 'AC kloub a Akromion', [
@@ -36,9 +26,30 @@ const RegionShoulder = {
             ]),
 
             // --- ROTÁTOROVÁ MANŽETA ---
-            makeTendon('shoulder_ssp_main', 'Supraspinatus (SSP)', 'sh_ssp'),
-            makeTendon('shoulder_isp_main', 'Infraspinatus (ISP)', 'sh_isp'),
-            makeTendon('shoulder_ssc_main', 'Subscapularis (SSC)', 'sh_ssc'),
+            helpers.TableMain('shoulder_rm_main', 'Rotátorová manžeta', [
+                helpers.Table2colNormal('sh_ssp_table', 'Supraspinatus', [
+                    [ 'Léze:', { btn: 'sh_ssp_stav', states: ['0', 'tendinóza', 'parc. rpt.', 'parc. art. rpt.', 'parc. burz. rpt.', 'komplet. rpt.'] } ],
+                    [ 'Retrakce:', { btn: 'sh_ssp_retr', states: ['0', '1', '2', '3', '4'] } ],
+                    [ 'Atrofie:', { btn: 'sh_ssp_atrofie', states: ['0', '+', '++'] } ],
+                    [ 'Kalcif.:', { btn: 'sh_ssp_kalcif', states: ['0', 'HADD', 'CPPD', 'dystrofická'] } ]
+                ]),
+                helpers.Table2colNormal('sh_isp_table', 'Infraspinatus', [
+                    [ 'Léze:', { btn: 'sh_isp_stav', states: ['0', 'tendinóza', 'parc. rpt.', 'parc. art. rpt.', 'parc. burz. rpt.', 'komplet. rpt.'] } ],
+                    [ 'Retrakce:', { btn: 'sh_isp_retr', states: ['0', '1', '2', '3', '4'] } ],
+                    [ 'Atrofie:', { btn: 'sh_isp_atrofie', states: ['0', '+', '++'] } ],
+                    [ 'Kalcif.:', { btn: 'sh_isp_kalcif', states: ['0', 'HADD', 'CPPD', 'dystrofická'] } ]
+                ]),
+                helpers.Table2colNormal('sh_ssc_table', 'Subscapularis', [
+                    [ 'Léze:', { btn: 'sh_ssc_stav', states: ['0', 'tendinóza', 'parc. rpt.', 'parc. art. rpt.', 'parc. burz. rpt.', 'komplet. rpt.'] } ],
+                    [ 'Retrakce:', { btn: 'sh_ssc_retr', states: ['0', '1', '2', '3', '4'] } ],
+                    [ 'Atrofie:', { btn: 'sh_ssc_atrofie', states: ['0', '+', '++'] } ],
+                    [ 'Kalcif.:', { btn: 'sh_ssc_kalcif', states: ['0', 'HADD', 'CPPD', 'dystrofická'] } ]
+                ]),
+                helpers.Table1col('sh_rm_vlastni_table', [
+                    { field: 'text', id: 'sh_rm_custom_desc', placeholder: 'vlastní popis...' },
+                    { field: 'text', id: 'sh_rm_custom_conc', placeholder: 'vlastní závěr...' }
+                ])
+            ]),
             
             helpers.TableMain('shoulder_tm_main', 'Teres Minor (TM)', [
                 helpers.Table2colNormal('sh_tm_table', '', [
@@ -178,78 +189,110 @@ const RegionShoulder = {
         }
 
         // --- 3. ROTÁTOROVÁ MANŽETA ---
-        const parseTendon = (prefix, nameTitle, tableId) => {
+        const parseTendon = (prefix, nameTitle) => {
             const stav = ctx.text(`${prefix}_stav`);
             const retr = ctx.text(`${prefix}_retr`);
-            const gout = ctx.text(`${prefix}_gout`);
             const atrofie = ctx.text(`${prefix}_atrofie`);
+            const kalcif = ctx.text(`${prefix}_kalcif`);
 
             let repParts = [];
             let concParts = [];
 
-            if (!stav || stav === '0') {
-                if ((gout && gout !== '0') || (atrofie && atrofie !== '0')) {
-                    // Stav je sice 0, ale je tam svalová atrofie/degenerace
-                } else {
-                    return null; // Zcela normální
-                }
+            if ((!stav || stav === '0') && (!atrofie || atrofie === '0') && (!kalcif || kalcif === '0')) {
+                return null;
             }
 
-            // Patologie šlachy
             if (stav && stav !== '0') {
                 const repStav = {
-                    'tendinóza': 'ztluštění a intrasubstanciální hyperintenzita v T2/PD bez diskontinuity vláken',
-                    'parc. art. ruptura': 'částečný defekt vláken ze strany artikulární plochy',
-                    'parc. burz. ruptura': 'částečný defekt vláken ze strany burzální plochy',
-                    'intrasub. ruptura': 'delaminující tekutinový defekt uvnitř substance šlachy',
-                    'kompletní ruptura': 'transmurální defekt s úplným přerušením kontinuity vláken'
+                    'tendinóza': 'ztluštění a intrasubstanciální hyperintenzita charakteru tendinózy',
+                    'parc. rpt.': 'parciální ruptura bez jasné specifikace lokalizace',
+                    'parc. art. rpt.': 'částečný defekt vláken ze strany artikulární plochy',
+                    'parc. burz. rpt.': 'částečný defekt vláken ze strany burzální plochy',
+                    'komplet. rpt.': 'transmurální defekt s úplným přerušením kontinuity vláken'
                 };
                 const concStav = {
                     'tendinóza': 'Tendinóza',
-                    'parc. art. ruptura': 'Parciální ruptura (artikulární) šlachy m.',
-                    'parc. burz. ruptura': 'Parciální ruptura (burzální) šlachy m.',
-                    'intrasub. ruptura': 'Intrasubstanciální parciální ruptura šlachy m.',
-                    'kompletní ruptura': 'Kompletní ruptura šlachy m.'
+                    'parc. rpt.': 'Parciální ruptura šlachy m.',
+                    'parc. art. rpt.': 'Parciální ruptura (artikulární) šlachy m.',
+                    'parc. burz. rpt.': 'Parciální ruptura (burzální) šlachy m.',
+                    'komplet. rpt.': 'Kompletní ruptura šlachy m.'
                 };
                 
                 repParts.push(repStav[stav]);
                 concParts.push(`${concStav[stav]} ${nameTitle}`);
+
+                // Retrakce se uplatní pouze při rupturách
+                if (stav.includes('rpt.') && retr && retr !== '0') {
+                    repParts.push(`pahýl šlachy je retrahován (stupeň ${retr})`);
+                    concParts[0] += ` s retrakcí (st. ${retr})`;
+                }
             }
 
-            // Retrakce (Patte)
-            if (retr && retr !== '0' && stav === 'kompletní ruptura') {
-                const mapRetr = { 'St. 1': 'kousek proximálně od úponu', 'St. 2': 'na úroveň apexu hlavice humeru', 'St. 3': 'na úroveň glenoidu' };
-                repParts.push(`pahýl šlachy je retrahován ${mapRetr[retr]} (Patte ${retr.split('.')[1].trim()})`);
-                concParts[0] += ` s retrakcí pahýlu (Patte ${retr.split('.')[1].trim()})`;
-            }
-
-            // Svalová atrofie a tuková degenerace
-            let degenParts = [];
-            if (gout && gout !== '0') degenParts.push(`tukovou degenerací (Goutallier ${gout.split('.')[1].trim()})`);
-            if (atrofie && atrofie !== '0') degenParts.push(atrofie === '+' ? 'mírnou úbytkem svalové hmoty' : 'výraznou atrofií svalového bříška');
-            
-            if (degenParts.length > 0) {
-                repParts.push('svalové bříško vykazuje patologické změny s ' + degenParts.join(' a '));
-                let concAdd = degenParts.join(' a ').replace('mírnou úbytkem', 'mírným úbytkem');
-                if (concParts.length > 0) {
-                    concMain.push({ type: 'frame', text: `Sekundární svalové změny m. ${nameTitle}: ${concAdd}.`, tableId });
+            if (atrofie && atrofie !== '0') {
+                const atrofieText = atrofie === '+' ? 'mírná atrofie' : 'pokročilá atrofie';
+                repParts.push(`svalové bříško vykazuje patologické změny (${atrofieText})`);
+                if (concParts.length === 0) {
+                    concParts.push(`Atrofie svalu m. ${nameTitle}`);
                 } else {
-                    concParts.push(`Strukturální degenerace svalu m. ${nameTitle} s ${concAdd}`);
+                    concMain.push({ type: 'frame', text: `Sekundární svalová atrofie m. ${nameTitle}.`, tableId: 'shoulder_rm_main' });
+                }
+            }
+
+            if (kalcif && kalcif !== '0') {
+                if (kalcif === 'HADD') {
+                    repParts.push('ložisko nápadně sníženého signálu odpovídající depozitům hydroxyapatitu');
+                    concMain.push({ type: 'frame', text: `Tendinopathia calcificans (HADD) šlachy m. ${nameTitle}.`, tableId: 'shoulder_rm_main' });
+                } else if (kalcif === 'CPPD') {
+                    repParts.push('lineární usazeniny nízkého signálu suspektní z krystalické artropatie (CPPD)');
+                    concInc.push({ type: 'frame', text: `Podezření na depozici CPPD ve šlaše m. ${nameTitle}.`, tableId: 'shoulder_rm_main' });
+                } else if (kalcif === 'dystrofická') {
+                    repParts.push('drobné nepravidelné signálové ztráty charakteru dystrofických kalcifikací');
                 }
             }
 
             return {
                 text: `Šlacha m. ${nameTitle}: ${repParts.join(', ')}.`,
-                conc: concParts[0] || '',
-                tableId
+                conc: concParts[0] || ''
             };
         };
 
-        const ssp = parseTendon('sh_ssp', 'supraspinatus', 'shoulder_ssp_main');
-        const isp = parseTendon('sh_isp', 'infraspinatus', 'shoulder_isp_main');
-        const ssc = parseTendon('sh_ssc', 'subscapularis', 'shoulder_ssc_main');
+        const ssp = parseTendon('sh_ssp', 'supraspinatus');
+        const isp = parseTendon('sh_isp', 'infraspinatus');
+        const ssc = parseTendon('sh_ssc', 'subscapularis');
+        
+        let cuffArr = [ssp, isp, ssc].filter(Boolean);
+        
+        const customDesc = ctx.field('sh_rm_custom_desc');
+        const customConc = ctx.field('sh_rm_custom_conc');
 
-        // Teres minor logic je mírně odlišná (jiná tlačítka)
+        if (cuffArr.length === 0 && !customDesc) {
+            reportOut.push({ type: 'frame', text: 'Rotátorová manžeta (SSP, ISP, SSC) přiměřeného průběhu, signálu i morfologie bez detekovatelné trhliny.', tableId: 'shoulder_rm_main', dimmed: true });
+        } else {
+            cuffArr.forEach(item => {
+                reportOut.push({ type: 'frame', text: item.text, tableId: 'shoulder_rm_main' });
+                if (item.conc) concMain.push({ type: 'frame', text: item.conc + '.', tableId: 'shoulder_rm_main' });
+            });
+            
+            if (customDesc) {
+                let txt = customDesc.trim();
+                if (txt && !txt.endsWith('.')) txt += '.';
+                if (txt) {
+                    txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+                    reportOut.push({ type: 'frame', text: txt, tableId: 'shoulder_rm_main' });
+                }
+            }
+        }
+
+        if (customConc) {
+            let txt = customConc.trim();
+            if (txt && !txt.endsWith('.')) txt += '.';
+            if (txt) {
+                txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+                concMain.push({ type: 'frame', text: txt, tableId: 'shoulder_rm_main' });
+            }
+        }
+
+        // Teres minor logic (ponecháno nezávisle na RM bloku)
         let tmText = '';
         let tmConc = '';
         const tmStav = ctx.text('sh_tm_stav');
@@ -267,15 +310,9 @@ const RegionShoulder = {
             tmText = `Šlacha m. teres minor: ${parts.join(', ')}.`;
         }
 
-        let cuffArr = [ssp, isp, ssc, tmText ? { text: tmText, conc: tmConc, tableId: 'shoulder_tm_main' } : null].filter(Boolean);
-
-        if (cuffArr.length === 0) {
-            reportOut.push({ type: 'frame', text: 'Rotátorová manžeta (šlachy a svalová bříška m. supraspinatus, infraspinatus, subscapularis a teres minor) přiměřeného průběhu, signálu i morfologie bez detekovatelné trhliny.', tableId: 'shoulder_ssp_main', dimmed: true });
-        } else {
-            cuffArr.forEach(item => {
-                reportOut.push({ type: 'frame', text: item.text, tableId: item.tableId });
-                if (item.conc) concMain.push({ type: 'frame', text: item.conc + '.', tableId: item.tableId });
-            });
+        if (tmText) {
+            reportOut.push({ type: 'frame', text: tmText, tableId: 'shoulder_tm_main' });
+            if (tmConc) concMain.push({ type: 'frame', text: tmConc + '.', tableId: 'shoulder_tm_main' });
         }
 
         // --- 4. BICEPS A BICEPSOVÁ KLADKA (LHB) ---
