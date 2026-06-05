@@ -3,7 +3,7 @@ const RegionLSp = {
     reportLayout: 'block',
     buttons: {
         axis: { states: ['přímá', '(', '((', '(((', ')', '))', ')))'] },
-        lordosis: { states: ['přiměřená', 'mělká', 'vyrovnaná', 'kyfotizace'] },
+        lordosis: { states: ['přiměřená', 'mělká', 'vymizelá', 'kyfotizace'] },
         lstv: { states: ['není', 'L5', 'S1'] },
         shape: { states: ['tělo', 'schmorl', 'H plotna', 'D plotna', 'klínovitá', 'výrazná', 'propagace'] },
         shift: { states: ['posun', 'ventr', 'ventr+lýza', 'dorz', 'dorz+lýza'] },
@@ -155,7 +155,7 @@ const RegionLSp = {
             const lordosisMap = {
                 'přiměřená': 'přiměřená bederní lordóza',
                 'mělká': 'mělká bederní lordóza',
-                'vyrovnaná': 'vyrovnaná bederní lordóza',
+                'vymizelá': 'vymizelá bederní lordóza',
                 'kyfotizace': 'kyfotizace bederní páteře'
             };
             const lordosisText = lordosisMap[lordosisState];
