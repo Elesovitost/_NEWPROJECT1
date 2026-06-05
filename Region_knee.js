@@ -433,6 +433,7 @@ const RegionKnee = {
             let hasPathology = false;
             let repParts = [];
             let pathologies = [];
+            let struct = { frac: '', sifk: '', ocl: '', chrBase: '', chrGrade: '', chrLez: '', edem: '' };
 
             // --- Sekce Chrupavka (Outerbridge & Morfologie) ---
             const chrGr = ctx.text(`${prefix}_chr_gr`);
@@ -471,19 +472,18 @@ const RegionKnee = {
                 }
                 repParts.push(cRep);
 
-                let concPat = hasLez ? 'fokální chondropatií' : 'chondropatií';
+                struct.chrBase = hasLez ? 'fokální chondropatií' : 'chondropatií';
                 const gradeMapConc = { 'GR 1': 'gr. I', 'GR 2': 'gr. II', 'GR 3': 'gr. III', 'GR 4': 'gr. IV' };
                 
-                if (chrGr && chrGr !== 'GR 0') concPat += ` ${gradeMapConc[chrGr]}`;
+                if (chrGr && chrGr !== 'GR 0') struct.chrGrade = gradeMapConc[chrGr];
                 
                 if (hasLez) {
                     const lezMapInstr = { 'Fisura': 's fisurou', 'Fisury': 's fisurami', 'Defekt': 's defektem', 'Defekty': 's vícečetnými defekty', 'Delaminace': 's delaminací' };
-                    concPat += ` (${lezMapInstr[chrLez]})`;
+                    struct.chrLez = lezMapInstr[chrLez];
                 }
-                pathologies.push(concPat);
                 
                 if (chrEdem && chrEdem !== 'edém 0') {
-                    pathologies.push(chrEdem === 'edém +' ? 'mírným reaktivním edémem dřeně' : 'výrazným reaktivním edémem dřeně');
+                    struct.edem = chrEdem === 'edém +' ? 'mírným reaktivním edémem dřeně' : 'výrazným reaktivním edémem dřeně';
                 }
             }
 
@@ -494,8 +494,8 @@ const RegionKnee = {
 
             if (sifk && sifk !== 'SIFK 0') {
                 hasPathology = true;
-                if (sifk === 'SIFK +') { repParts.push("v subchondrální kosti lineární hypointenzita"); pathologies.push("SIFK"); }
-                else if (sifk === 'SIFK ++') { repParts.push("subchondrální kost s fokálním kolapsem"); pathologies.push("SIFK s fokálním kolapsem"); }
+                if (sifk === 'SIFK +') { repParts.push("v subchondrální kosti lineární hypointenzita"); struct.sifk = "SIFK"; }
+                else if (sifk === 'SIFK ++') { repParts.push("subchondrální kost s fokálním kolapsem"); struct.sifk = "SIFK s fokálním kolapsem"; }
             }
 
             if (ocl && ocl !== 'OCL 0') {
@@ -503,7 +503,7 @@ const RegionKnee = {
                 const oclMapRep = { 'OCL I': 'subchondrální ložiskové prosáknutí bez strukturální deformace', 'OCL II': 'parciální separace osteochondrálního fragmentu in situ', 'OCL III': 'kompletní separace osteochondrálního fragmentu bez dislokace', 'OCL IV': 'dislokovaný osteochondrální fragment s obnažením subchondrálního lůžka vyplněného tekutinou' };
                 const oclMapConc = { 'OCL I': 'osteochondrální lézí I. st.', 'OCL II': 'osteochondrální lézí II. st.', 'OCL III': 'osteochondrální lézí III. st.', 'OCL IV': 'osteochondrální lézí IV. st.' };
                 repParts.push(oclMapRep[ocl] || `osteochondrální léze stupně ${ocl}`);
-                pathologies.push(oclMapConc[ocl] || `osteochondrální lézí stupně ${ocl}`);
+                struct.ocl = oclMapConc[ocl] || `osteochondrální lézí stupně ${ocl}`;
             }
 
             if (bml && bml !== 'BML 0') {
@@ -512,7 +512,7 @@ const RegionKnee = {
                 const bmlMapConc = { 'BML +': 'mírným subchondrálním edémem', 'BML ++': 'středním subchondrálním edémem', 'BML +++': 'výrazným subchondrálním edémem' };
                 repParts.push(bmlMapRep[bml]);
                 
-                if (!chrEdem || chrEdem === 'edém 0') pathologies.push(bmlMapConc[bml]);
+                if (!struct.edem) struct.edem = bmlMapConc[bml];
             }
 
             // --- Sekce Fraktura ---
@@ -530,8 +530,19 @@ const RegionKnee = {
                     'komin.': 'kominutivní frakturou'
                 };
                 repParts.unshift(fracMapRep[frac]);
-                pathologies.unshift(fracMapConc[frac]);
+                struct.frac = fracMapConc[frac];
             }
+
+            if (struct.frac) pathologies.push(struct.frac);
+            if (struct.sifk) pathologies.push(struct.sifk);
+            if (struct.ocl) pathologies.push(struct.ocl);
+            if (struct.chrBase || struct.chrGrade || struct.chrLez) {
+                let p = struct.chrBase || 'chondropatií';
+                if (struct.chrGrade) p += ` ${struct.chrGrade}`;
+                if (struct.chrLez) p += ` (${struct.chrLez})`;
+                pathologies.push(p);
+            }
+            if (struct.edem) pathologies.push(struct.edem);
 
             // --- Sestavení a formátování výstupů ---
             let repText = "";
@@ -553,7 +564,7 @@ const RegionKnee = {
                 const concSentence = nameTitle ? `${nameTitle} ${preposition} ${joinCzech(pathologies)}.` : `${preposition} ${joinCzech(pathologies)}.`;
                 concsToPush.push({ type: 'frame', text: concSentence, tableId: tableId });
             }
-            return { text: repText, concs: concsToPush, pathologies: pathologies, dimmed: !hasPathology };
+            return { text: repText, concs: concsToPush, pathologies: pathologies, struct: struct, dimmed: !hasPathology };
         };
 
         // ═══ KOMPILÁTOR PRO MENISKY (LM, MM) ═══
@@ -726,29 +737,99 @@ const RegionKnee = {
             }
 
             // --- Logika pro conclusion (závěr) ---
-            const femPathStr = fem.pathologies.join(' a ');
-            const tibPathStr = tib.pathologies.join(' a ');
+            const normalizeArr = (arr) => arr.map(i => i.startsWith('s ') ? i.substring(2) : (i.startsWith('se ') ? i.substring(3) : i));
 
-            if (femPathStr === tibPathStr && femPathStr !== '') {
-                const prep = (femPathStr.startsWith('SIFK') || femPathStr.startsWith('středním') || femPathStr.startsWith('subchondrální')) ? 'se' : 's';
-                concMain.push({ type: 'frame', text: `${compName} ${prep} ${femPathStr}.`, tableId: tableId });
+            const joinWithS = (arr) => {
+                if (arr.length === 0) return '';
+                if (arr.length === 1) return arr[0];
+                let res = arr[0];
+                for (let i = 1; i < arr.length; i++) {
+                    let prep = (arr[i].startsWith('SIFK') || arr[i].startsWith('středním') || arr[i].startsWith('subchondrální')) ? 'se' : 's';
+                    res += ` ${prep} ${arr[i]}`;
+                }
+                return res;
+            };
+
+            const addS = (str) => {
+                if (!str) return '';
+                if (str.startsWith('s ') || str.startsWith('se ')) return str;
+                return (str.startsWith('SIFK') || str.startsWith('středním') || str.startsWith('subchondrální')) ? `se ${str}` : `s ${str}`;
+            };
+
+            const getChrStr = (struct) => {
+                if (!struct.chrBase && !struct.chrGrade) return '';
+                return `${struct.chrBase || 'chondropatií'} ${struct.chrGrade}`.trim();
+            };
+
+            const buildDetails = (struct) => {
+                let items = [];
+                if (struct.frac) items.push(struct.frac);
+                if (struct.sifk) items.push(struct.sifk);
+                if (struct.ocl) items.push(struct.ocl);
+                if (struct.chrLez) items.push(struct.chrLez);
+                if (struct.edem) items.push(struct.edem);
+
+                if (items.length === 0) return '';
+                return addS(joinWithS(normalizeArr(items)));
+            };
+
+            const buildFull = (struct) => {
+                let items = [];
+                if (struct.frac) items.push(struct.frac);
+                if (struct.sifk) items.push(struct.sifk);
+                if (struct.ocl) items.push(struct.ocl);
+                
+                let chr = getChrStr(struct);
+                if (chr) items.push(chr);
+                
+                if (struct.chrLez) items.push(struct.chrLez);
+                if (struct.edem) items.push(struct.edem);
+
+                if (items.length === 0) return '';
+                return addS(joinWithS(normalizeArr(items)));
+            };
+
+            let femChr = getChrStr(fem.struct);
+            let tibChr = getChrStr(tib.struct);
+            const hasFemChr = !!femChr;
+            const hasTibChr = !!tibChr;
+            const sameGrade = hasFemChr && hasTibChr && fem.struct.chrGrade === tib.struct.chrGrade;
+
+            let concParts = [];
+
+            if (sameGrade) {
+                let baseChr = (fem.struct.chrBase === 'fokální chondropatií' || tib.struct.chrBase === 'fokální chondropatií') ? 'fokální chondropatií' : 'chondropatií';
+                let sharedChr = `${baseChr} ${fem.struct.chrGrade}`.trim();
+                
+                let femDet = buildDetails(fem.struct);
+                let tibDet = buildDetails(tib.struct);
+
+                if (femDet === tibDet && femDet !== '') {
+                     concParts.push(`${addS(sharedChr)} ${femDet}`);
+                } else {
+                     let res = addS(sharedChr);
+                     let locs = [];
+                     if (femDet) locs.push(`femorálně ${femDet}`);
+                     if (tibDet) locs.push(`tibiálně ${tibDet}`);
+                     if (locs.length > 0) res += `, ${locs.join(', ')}`;
+                     concParts.push(res);
+                }
             } else {
-                let concParts = [];
-                let firstPathStr = '';
-                
-                if (femPathStr) {
-                    concParts.push(`${femPathStr} femorálně`);
-                    if (!firstPathStr) firstPathStr = femPathStr;
+                let femFull = buildFull(fem.struct);
+                let tibFull = buildFull(tib.struct);
+
+                if (femFull === tibFull && femFull !== '') {
+                    concParts.push(femFull);
+                } else {
+                    let locs = [];
+                    if (femFull) locs.push(`femorálně ${femFull}`);
+                    if (tibFull) locs.push(`tibiálně ${tibFull}`);
+                    if (locs.length > 0) concParts.push(locs.join(', '));
                 }
-                if (tibPathStr) {
-                    concParts.push(`${tibPathStr} tibiálně`);
-                    if (!firstPathStr) firstPathStr = tibPathStr;
-                }
-                
-                if (concParts.length > 0) {
-                    const prep = (firstPathStr.startsWith('SIFK') || firstPathStr.startsWith('středním') || firstPathStr.startsWith('subchondrální')) ? 'se' : 's';
-                    concMain.push({ type: 'frame', text: `${compName} ${prep} ${concParts.join(' a ')}.`, tableId: tableId });
-                }
+            }
+
+            if (concParts.length > 0) {
+                concMain.push({ type: 'frame', text: `${compName} ${concParts[0]}.`, tableId: tableId });
             }
         };
 
