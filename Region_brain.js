@@ -800,10 +800,12 @@ const RegionBrain = {
             if (sella === 'cysta') {
                 sellaRep.push('drobná cysta v sella turcica v pars intermedia');
                 concInc.push({ type: 'frame', text: 'Intrasellárně drobná cysta rathkeho výchlipky.', tableId: 'brain_sella_main' });
-            } else {
-                const sellaMap = { 'partial': 'parciálně prázdná sella', 'empty': 'obraz empty sella' };
-                sellaRep.push(sellaMap[sella]);
-                concInc.push({ type: 'frame', text: `${cap(sellaMap[sella])}.`, tableId: 'brain_sella_main' });
+            } else if (sella === 'partial') {
+                sellaRep.push('sella z větší části vyplněna tekutinou, na dně výrazně ztenčená hypofýza');
+                concInc.push({ type: 'frame', text: 'Parciálně prázdná sella.', tableId: 'brain_sella_main' });
+            } else if (sella === 'empty') {
+                sellaRep.push('sella vyplněna tekutinou, hypofýza není patrna');
+                concInc.push({ type: 'frame', text: 'Obraz empty sella.', tableId: 'brain_sella_main' });
             }
         }
 
