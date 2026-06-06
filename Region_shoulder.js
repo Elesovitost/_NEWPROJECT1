@@ -8,9 +8,10 @@ const RegionShoulder = {
             helpers.TableMain('shoulder_ac_main', 'AC kloub a Akromion', [
                 helpers.Table2colNormal('shoulder_ac_table', '', [
                     [ 'Tvar akromia:', { btn: 'sh_ac_tvar', states: ['Typ I (ploché)', 'Typ II (křivka)', 'Typ III (hák)'] } ],
-                    [ 'AC artróza:', { btn: 'sh_ac_art', states: ['0', 'mírná', 'pokročilá'] } ],
-                    [ 'AC edém (BML):', { btn: 'sh_ac_edem', states: ['0', '+', '++'] } ],
-                    [ 'Os acromiale:', { btn: 'sh_ac_os', states: ['0', 'přítomno', 'edém synchondrózy'] } ],
+                    [ 'AC artróza:', { btn: 'sh_ac_art', states: ['0', 'mírná', 'střední', 'pokročilá'] } ],
+                    [ 'AC luxace:', { btn: 'sh_ac_lux', states: ['0', 'Tossy I', 'Tossy II', 'Tossy III'] } ],
+                    [ 'AC edém (BML):', { btn: 'sh_ac_edem', states: ['0', '+', '++', 'DCO'] } ],
+                    [ 'Os acromiale:', { btn: 'sh_ac_os', states: ['0', 'přítomno', 'edém'] } ],
                     [ 'Impingement:', { btn: 'sh_ac_impingement', states: ['0', 'subakromiální', 'subkorakoidní'] } ]
                 ])
             ]),
@@ -27,23 +28,23 @@ const RegionShoulder = {
 
             // --- ROTÁTOROVÁ MANŽETA ---
             helpers.TableMain('shoulder_rm_main', 'Rotátorová manžeta', [
-                helpers.Table2colNormal('sh_ssp_table', 'Supraspinatus', [
-                    [ 'Léze:', { btn: 'sh_ssp_stav', states: ['0', 'tendinóza', 'parc. rpt.', 'parc. art. rpt.', 'parc. burz. rpt.', 'komplet. rpt.'] } ],
-                    [ 'Retrakce:', { btn: 'sh_ssp_retr', states: ['0', '1', '2', '3', '4'] } ],
-                    [ 'Atrofie:', { btn: 'sh_ssp_atrofie', states: ['0', '+', '++'] } ],
-                    [ 'Kalcif.:', { btn: 'sh_ssp_kalcif', states: ['0', 'HADD', 'CPPD', 'dystrofická'] } ]
+                helpers.Table2colNormal('sh_ssp_table', 'Supraspinatus (SSP)', [
+                    [ 'Léze:', { btn: 'sh_ssp_stav', states: ['0', 'tendinóza', 'gr. I', 'gr. II', 'gr. III', 'kompletní'] } ],
+                    [ '', { btn: 'sh_ssp_rozmer', states: ['Rozměr...', 'do 1 cm', '1-3 cm', 'nad 3 cm'] } ],
+                    [ '', [ { btn: 'sh_ssp_retr', states: ['Retrakce...', '+', '++', '+++'] }, { btn: 'sh_ssp_atrofie', states: ['Atrofie...', '+', '++'] } ] ],
+                    [ 'Kalcifikace:', { btn: 'sh_ssp_kalcif', states: ['0', 'HADD', 'dystrofická'] } ]
                 ]),
-                helpers.Table2colNormal('sh_isp_table', 'Infraspinatus', [
-                    [ 'Léze:', { btn: 'sh_isp_stav', states: ['0', 'tendinóza', 'parc. rpt.', 'parc. art. rpt.', 'parc. burz. rpt.', 'komplet. rpt.'] } ],
-                    [ 'Retrakce:', { btn: 'sh_isp_retr', states: ['0', '1', '2', '3', '4'] } ],
-                    [ 'Atrofie:', { btn: 'sh_isp_atrofie', states: ['0', '+', '++'] } ],
-                    [ 'Kalcif.:', { btn: 'sh_isp_kalcif', states: ['0', 'HADD', 'CPPD', 'dystrofická'] } ]
+                helpers.Table2colNormal('sh_isp_table', 'Infraspinatus (ISP)', [
+                    [ 'Léze:', { btn: 'sh_isp_stav', states: ['0', 'tendinóza', 'gr. I', 'gr. II', 'gr. III', 'kompletní'] } ],
+                    [ '', { btn: 'sh_isp_rozmer', states: ['Rozměr...', 'do 1 cm', '1-3 cm', 'nad 3 cm'] } ],
+                    [ '', [ { btn: 'sh_isp_retr', states: ['Retrakce...', '+', '++', '+++'] }, { btn: 'sh_isp_atrofie', states: ['Atrofie...', '+', '++'] } ] ],
+                    [ 'Kalcifikace:', { btn: 'sh_isp_kalcif', states: ['0', 'HADD', 'dystrofická'] } ]
                 ]),
-                helpers.Table2colNormal('sh_ssc_table', 'Subscapularis', [
-                    [ 'Léze:', { btn: 'sh_ssc_stav', states: ['0', 'tendinóza', 'parc. rpt.', 'parc. art. rpt.', 'parc. burz. rpt.', 'komplet. rpt.'] } ],
-                    [ 'Retrakce:', { btn: 'sh_ssc_retr', states: ['0', '1', '2', '3', '4'] } ],
-                    [ 'Atrofie:', { btn: 'sh_ssc_atrofie', states: ['0', '+', '++'] } ],
-                    [ 'Kalcif.:', { btn: 'sh_ssc_kalcif', states: ['0', 'HADD', 'CPPD', 'dystrofická'] } ]
+                helpers.Table2colNormal('sh_ssc_table', 'Subscapularis (SSC)', [
+                    [ 'Léze:', { btn: 'sh_ssc_stav', states: ['0', 'tendinóza', 'gr. I', 'gr. II', 'gr. III', 'kompletní'] } ],
+                    [ '', { btn: 'sh_ssc_rozmer', states: ['Rozměr...', 'do 1 cm', '1-3 cm', 'nad 3 cm'] } ],
+                    [ '', [ { btn: 'sh_ssc_retr', states: ['Retrakce...', '+', '++', '+++'] }, { btn: 'sh_ssc_atrofie', states: ['Atrofie...', '+', '++'] } ] ],
+                    [ 'Kalcifikace:', { btn: 'sh_ssc_kalcif', states: ['0', 'HADD', 'dystrofická'] } ]
                 ]),
                 helpers.Table1col('sh_rm_vlastni_table', [
                     { field: 'text', id: 'sh_rm_custom_desc', placeholder: 'vlastní popis...' },
@@ -53,24 +54,23 @@ const RegionShoulder = {
             
             helpers.TableMain('shoulder_tm_main', 'Teres Minor (TM)', [
                 helpers.Table2colNormal('sh_tm_table', '', [
-                    [ 'Stav šlachy:', { btn: 'sh_tm_stav', states: ['0', 'tendinóza', 'parc. ruptura', 'kompletní ruptura'] } ],
+                    [ 'Stav šlachy:', { btn: 'sh_tm_stav', states: ['0', 'tendinóza', 'parc. ruptura', 'kompletní'] } ],
                     [ 'Tuk. degen. / atrofie:', { btn: 'sh_tm_gout', states: ['0', '+', '++'] } ]
                 ])
             ]),
 
             // --- BICEPS A BICEPSOVÁ KLADKA ---
-            helpers.TableMain('shoulder_lhb_main', 'Šlacha dlouhé hlavy bicepsu (LHB)', [
+            helpers.TableMain('shoulder_lhb_main', 'LHBT', [
                 helpers.Table2colNormal('shoulder_lhb_table', '', [
-                    [ 'Stav LHB:', { btn: 'sh_lhb_stav', states: ['0', 'tenosynovitida', 'tendinóza', 'parc. ruptura', 'kompletní ruptura'] } ],
-                    [ 'Poloha v sulku:', { btn: 'sh_lhb_poloha', states: ['in situ', 'subluxace', 'luxace', 'prázdný sulkus'] } ],
-                    [ 'Pulley léze:', { btn: 'sh_lhb_pulley', states: ['0', 'SGHL/CHL léze'] } ]
+                    [ 'Stav:', { btn: 'sh_lhb_stav', states: ['0', 'tendinóza', 'gr. I', 'gr. II', 'gr. III', 'kompletní'] } ],
+                    [ 'Poloha:', { btn: 'sh_lhb_poloha', states: ['in situ', 'pulley', 'subluxace', 'luxace', 'retrakce'] } ]
                 ])
             ]),
 
             // --- LABRUM A LIGAMENTA ---
             helpers.TableMain('shoulder_labrum_main', 'Glenoidální labrum', [
                 helpers.Table2colNormal('sh_lab_table', '', [
-                    [ 'Horní labrum:', { btn: 'sh_lab_sup', states: ['0', 'degenerace', 'SLAP I', 'SLAP II', 'SLAP III', 'SLAP IV'] } ],
+                    [ 'Horní labrum:', { btn: 'sh_lab_sup', states: ['0', 'degenerace', 'SLAP I', 'SLAP II', 'komplexní SLAP'] } ],
                     [ 'Přední labrum:', { btn: 'sh_lab_ant', states: ['0', 'degenerace', 'Bankart', 'ALPSA', 'Perthes'] } ],
                     [ 'Zadní labrum:', { btn: 'sh_lab_pos', states: ['0', 'degenerace', 'Reverse Bankart'] } ],
                     [ 'Paralabrální cysta:', { btn: 'sh_lab_cysta', states: ['0', 'spinoglenoidní', 'supraskapulární'] } ]
@@ -97,14 +97,15 @@ const RegionShoulder = {
 
         // --- 1. AC KLOUB A AKROMION ---
         let acParts = [];
-        let acConc = [];
         let isAcNormal = true;
+        let impCauses = [];
+        let acStandaloneConc = [];
 
         const acTvar = ctx.text('sh_ac_tvar');
-        if (acTvar && acTvar.includes('Typ')) {
+        if (acTvar && acTvar.includes('Typ') && acTvar !== 'Typ I (ploché)') {
             acParts.push(`akromion ${acTvar}`);
             if (acTvar.includes('Typ III')) {
-                acConc.push('Akromion tvaru Bigliani III (hák) s predispozicí k impingementu');
+                impCauses.push('akromia typu III');
                 isAcNormal = false;
             }
         }
@@ -112,13 +113,35 @@ const RegionShoulder = {
         const acArt = ctx.text('sh_ac_art');
         if (acArt && acArt !== '0') {
             acParts.push(`${acArt} hypertrofická AC artróza`);
-            acConc.push(`AC artróza (${acArt})`);
+            impCauses.push(`AC artrózy (${acArt})`);
+            isAcNormal = false;
+        }
+
+        const acLux = ctx.text('sh_ac_lux');
+        if (acLux && acLux !== '0') {
+            if (acLux === 'Tossy I') {
+                acParts.push('edém pouzdra a AC vazů bez dislokace klíčku s intaktními CC vazy');
+                acStandaloneConc.push('distorze AC kloubu (Tossy I)');
+            } else if (acLux === 'Tossy II') {
+                acParts.push('ruptura AC vazů se subluxací klíčku a edémem okolních měkkých tkání, CC vazy zachovány');
+                acStandaloneConc.push('subluxace AC kloubu (Tossy II)');
+            } else if (acLux === 'Tossy III') {
+                acParts.push('kompletní ruptura AC i CC vazů s kraniální luxací distálního klíčku');
+                acStandaloneConc.push('luxace AC kloubu (Tossy III)');
+            }
             isAcNormal = false;
         }
 
         const acEdem = ctx.text('sh_ac_edem');
         if (acEdem && acEdem !== '0') {
-            acParts.push(`se subchondrálním edémem dřeně (${acEdem})`);
+            if (acEdem === 'DCO') {
+                acParts.push('edém a resorpce distálního konce klíčku');
+                acStandaloneConc.push('distální klavikulární osteolýza (DCO)');
+            } else {
+                const edemStupen = acEdem === '+' ? 'mírný' : 'výrazný';
+                acParts.push(`${edemStupen} subchondrální edém kostní dřeně`);
+                acStandaloneConc.push(`${edemStupen} aktivní edém AC kloubu`);
+            }
             isAcNormal = false;
         }
 
@@ -126,27 +149,42 @@ const RegionShoulder = {
         if (acOs && acOs !== '0') {
             if (acOs === 'přítomno') {
                 acParts.push('přítomno os acromiale bez edému');
-                acConc.push('Os acromiale');
+                impCauses.push('os acromiale');
             } else {
-                acParts.push('přítomno os acromiale s reaktivním edémem přilehlých kostí (známky instability)');
-                acConc.push('Symptomatické os acromiale se známkami instability');
+                acParts.push('přítomno os acromiale s reaktivním edémem přilehlých kostí');
+                impCauses.push('symptomatického os acromiale');
             }
             isAcNormal = false;
         }
 
         const acImp = ctx.text('sh_ac_impingement');
         if (acImp && acImp !== '0') {
+            let causeStr = impCauses.length > 0 ? ` na podkladě ${impCauses.join(', ')}` : '';
             acParts.push(`${acImp} impingement syndrom s redukcí prostoru pro manžetu`);
-            acConc.push(cap(acImp) + ' impingement syndrom');
+            
+            let finalConc = `${cap(acImp)} impingement syndrom${causeStr}`;
+            if (acStandaloneConc.length > 0) {
+                finalConc += `, přidružena ${acStandaloneConc.join(', ')}`;
+            }
+            concMain.push({ type: 'frame', text: finalConc + '.', tableId: 'shoulder_ac_main' });
             isAcNormal = false;
+        } else if (!isAcNormal) {
+            let allFindings = [];
+            if (acArt && acArt !== '0') allFindings.push(`AC artróza (${acArt})`);
+            if (acTvar && acTvar.includes('Typ III')) allFindings.push('akromion typu III');
+            if (acOs && acOs !== '0') allFindings.push(acOs === 'přítomno' ? 'os acromiale' : 'symptomatické os acromiale');
+            allFindings = allFindings.concat(acStandaloneConc);
+
+            if (allFindings.length > 0) {
+                concMain.push({ type: 'frame', text: cap(allFindings.join(', ')) + '.', tableId: 'shoulder_ac_main' });
+            }
         }
 
         if (isAcNormal) {
             reportOut.push({ type: 'frame', text: 'Akromion klidné, AC skloubení bez významných degenerativních změn, prostor pod klenbou prostorný.', tableId: 'shoulder_ac_main', dimmed: true });
         } else {
-            let acText = 'AC kloub a akromion: ' + acParts.join(', ').replace(/, ([^,]*)$/, ' a $1') + '.';
+            let acText = 'AC kloub a akromion: ' + acParts.join(', ') + '.';
             reportOut.push({ type: 'frame', text: acText, tableId: 'shoulder_ac_main' });
-            acConc.forEach(c => concMain.push({ type: 'frame', text: c + '.', tableId: 'shoulder_ac_main' }));
         }
 
         // --- 2. GH KLOUB A BURZY ---
@@ -191,68 +229,103 @@ const RegionShoulder = {
         // --- 3. ROTÁTOROVÁ MANŽETA ---
         const parseTendon = (prefix, nameTitle) => {
             const stav = ctx.text(`${prefix}_stav`);
+            const rozmer = ctx.text(`${prefix}_rozmer`);
             const retr = ctx.text(`${prefix}_retr`);
             const atrofie = ctx.text(`${prefix}_atrofie`);
             const kalcif = ctx.text(`${prefix}_kalcif`);
 
-            let repParts = [];
-            let concParts = [];
-
-            if ((!stav || stav === '0') && (!atrofie || atrofie === '0') && (!kalcif || kalcif === '0')) {
+            if ((!stav || stav === '0') && (!kalcif || kalcif === '0')) {
                 return null;
             }
 
+            let repParts = [];
+            let concParts = [];
+
+            let isComplete = stav === 'kompletní';
+            let isPartial = stav === 'gr. I' || stav === 'gr. II' || stav === 'gr. III';
+
             if (stav && stav !== '0') {
                 const repStav = {
-                    'tendinóza': 'ztluštění a intrasubstanciální hyperintenzita charakteru tendinózy',
-                    'parc. rpt.': 'parciální ruptura bez jasné specifikace lokalizace',
-                    'parc. art. rpt.': 'částečný defekt vláken ze strany artikulární plochy',
-                    'parc. burz. rpt.': 'částečný defekt vláken ze strany burzální plochy',
-                    'komplet. rpt.': 'transmurální defekt s úplným přerušením kontinuity vláken'
+                    'tendinóza': 'ztluštění a hyperintenzita signálu charakteru tendinózy',
+                    'gr. I': 'parciální ruptura zasahující do 25 % tloušťky šlachy',
+                    'gr. II': 'parciální ruptura zasahující do 50 % tloušťky šlachy',
+                    'gr. III': 'parciální ruptura zasahující nad 50 % tloušťky šlachy (high-grade)',
+                    'kompletní': 'transmurální defekt s úplným přerušením kontinuity vláken'
                 };
                 const concStav = {
-                    'tendinóza': 'Tendinóza',
-                    'parc. rpt.': 'Parciální ruptura šlachy m.',
-                    'parc. art. rpt.': 'Parciální ruptura (artikulární) šlachy m.',
-                    'parc. burz. rpt.': 'Parciální ruptura (burzální) šlachy m.',
-                    'komplet. rpt.': 'Kompletní ruptura šlachy m.'
+                    'tendinóza': 'tendinopatií',
+                    'gr. I': 'low-grade (gr. I) rupturou',
+                    'gr. II': 'parciální (gr. II) rupturou',
+                    'gr. III': 'high-grade (gr. III) rupturou',
+                    'kompletní': 'kompletní rupturou'
                 };
                 
-                repParts.push(repStav[stav]);
-                concParts.push(`${concStav[stav]} ${nameTitle}`);
+                let rText = repStav[stav];
+                let cText = concStav[stav];
 
-                // Retrakce se uplatní pouze při rupturách
-                if (stav.includes('rpt.') && retr && retr !== '0') {
-                    repParts.push(`pahýl šlachy je retrahován (stupeň ${retr})`);
-                    concParts[0] += ` s retrakcí (st. ${retr})`;
+                if (isPartial && rozmer && !rozmer.includes('Rozměr')) {
+                    rText += ` v AP rozsahu ${rozmer}`;
                 }
-            }
 
-            if (atrofie && atrofie !== '0') {
-                const atrofieText = atrofie === '+' ? 'mírná atrofie' : 'pokročilá atrofie';
-                repParts.push(`svalové bříško vykazuje patologické změny (${atrofieText})`);
-                if (concParts.length === 0) {
-                    concParts.push(`Atrofie svalu m. ${nameTitle}`);
-                } else {
-                    concMain.push({ type: 'frame', text: `Sekundární svalová atrofie m. ${nameTitle}.`, tableId: 'shoulder_rm_main' });
+                if (isComplete) {
+                    let cRetr = '', cAtr = '';
+                    
+                    if (retr && !retr.includes('Retrakce')) {
+                        if (retr === '+') {
+                            rText += `, pahýl šlachy je mírně retrahován`;
+                            cRetr = `mírnou retrakcí`;
+                        } else if (retr === '++') {
+                            rText += `, pahýl šlachy je retrahován k úrovni kloubní hlavice`;
+                            cRetr = `retrakcí k hlavici`;
+                        } else if (retr === '+++') {
+                            rText += `, pahýl šlachy je retrahován k úrovni glenoidu`;
+                            cRetr = `retrakcí ke glenoidu`;
+                        }
+                    }
+                    
+                    if (atrofie && !atrofie.includes('Atrofie')) {
+                        if (atrofie === '+') {
+                            rText += `, svalové bříško vykazuje mírnou tukovou atrofii`;
+                            cAtr = `mírnou tukovou atrofií bříška`;
+                        } else if (atrofie === '++') {
+                            rText += `, svalové bříško vykazuje výraznou tukovou atrofii`;
+                            cAtr = `výraznou tukovou atrofií bříška`;
+                        }
+                    }
+                    
+                    if (cRetr && cAtr) cText += `, ${cRetr} a ${cAtr}`;
+                    else if (cRetr) cText += `, ${cRetr}`;
+                    else if (cAtr) cText += `, ${cAtr}`;
                 }
+
+                repParts.push(rText);
+                concParts.push(cText);
             }
 
             if (kalcif && kalcif !== '0') {
                 if (kalcif === 'HADD') {
                     repParts.push('ložisko nápadně sníženého signálu odpovídající depozitům hydroxyapatitu');
-                    concMain.push({ type: 'frame', text: `Tendinopathia calcificans (HADD) šlachy m. ${nameTitle}.`, tableId: 'shoulder_rm_main' });
-                } else if (kalcif === 'CPPD') {
-                    repParts.push('lineární usazeniny nízkého signálu suspektní z krystalické artropatie (CPPD)');
-                    concInc.push({ type: 'frame', text: `Podezření na depozici CPPD ve šlaše m. ${nameTitle}.`, tableId: 'shoulder_rm_main' });
+                    if (stav === 'tendinóza') {
+                        concParts[0] = 'kalcifikující tendinopatií (HADD)';
+                    } else if (concParts.length === 0) {
+                        concParts.push('kalcifikující tendinopatií (HADD)');
+                    } else {
+                        concParts.push('kalcifikací (HADD)');
+                    }
                 } else if (kalcif === 'dystrofická') {
                     repParts.push('drobné nepravidelné signálové ztráty charakteru dystrofických kalcifikací');
+                    if (concParts.length === 0) {
+                        concParts.push('dystrofickými kalcifikacemi');
+                    } else {
+                        concParts.push('dystrofickými kalcifikacemi');
+                    }
                 }
             }
 
             return {
+                name: nameTitle,
                 text: `Šlacha m. ${nameTitle}: ${repParts.join(', ')}.`,
-                conc: concParts[0] || ''
+                conc: `m. ${nameTitle} s ${concParts.join(' a ')}`
             };
         };
 
@@ -270,8 +343,15 @@ const RegionShoulder = {
         } else {
             cuffArr.forEach(item => {
                 reportOut.push({ type: 'frame', text: item.text, tableId: 'shoulder_rm_main' });
-                if (item.conc) concMain.push({ type: 'frame', text: item.conc + '.', tableId: 'shoulder_rm_main' });
             });
+            
+            if (cuffArr.length === 1) {
+                let txt = cuffArr[0].conc.charAt(0).toUpperCase() + cuffArr[0].conc.slice(1);
+                concMain.push({ type: 'frame', text: txt + '.', tableId: 'shoulder_rm_main' });
+            } else if (cuffArr.length > 1) {
+                let combined = 'Kombinované postižení šlach RM: ' + cuffArr.map(item => item.conc).join(', ') + '.';
+                concMain.push({ type: 'frame', text: combined, tableId: 'shoulder_rm_main' });
+            }
             
             if (customDesc) {
                 let txt = customDesc.trim();
@@ -292,6 +372,7 @@ const RegionShoulder = {
             }
         }
 
+
         // Teres minor logic (ponecháno nezávisle na RM bloku)
         let tmText = '';
         let tmConc = '';
@@ -301,7 +382,7 @@ const RegionShoulder = {
             let parts = [];
             if (tmStav === 'tendinóza') parts.push('tendinóza šlachy');
             else if (tmStav === 'parc. ruptura') { parts.push('parciální ruptura šlachy'); tmConc = 'Parciální ruptura šlachy m. teres minor'; }
-            else if (tmStav === 'kompletní ruptura') { parts.push('kompletní ruptura šlachy'); tmConc = 'Kompletní ruptura šlachy m. teres minor'; }
+            else if (tmStav === 'kompletní') { parts.push('kompletní ruptura šlachy'); tmConc = 'Kompletní ruptura šlachy m. teres minor'; }
             
             if (tmGout && tmGout !== '0') {
                 parts.push(tmGout === '+' ? 'mírná svalová atrofie' : 'pokročilá tuková degenerace a atrofie');
@@ -318,45 +399,68 @@ const RegionShoulder = {
         // --- 4. BICEPS A BICEPSOVÁ KLADKA (LHB) ---
         const lhbStav = ctx.text('sh_lhb_stav');
         const lhbPoloha = ctx.text('sh_lhb_poloha');
-        const lhbPulley = ctx.text('sh_lhb_pulley');
         
-        let isLhbNormal = (!lhbStav || lhbStav === '0') && (!lhbPoloha || lhbPoloha === 'in situ') && (!lhbPulley || lhbPulley === '0');
+        let isLhbNormal = (!lhbStav || lhbStav === '0') && (!lhbPoloha || lhbPoloha === 'in situ');
 
         if (isLhbNormal) {
             reportOut.push({ type: 'frame', text: 'Šlacha LHB je in situ v sulku, normální šíře a signálu, bez tekutinového lemu.', tableId: 'shoulder_lhb_main', dimmed: true });
         } else {
-            let lhbParts = [];
-            let lhbConcs = [];
+            let repParts = [];
+            let concStavText = '';
+            let concPolohaText = '';
 
             if (lhbStav && lhbStav !== '0') {
-                if (lhbStav === 'tenosynovitida') { lhbParts.push('s tekutinovým lemem v pochvě (tenosynovitida)'); lhbConcs.push('Tenosynovitida LHB'); }
-                else if (lhbStav === 'tendinóza') { lhbParts.push('šlacha je ztluštělá a hyperintenzní'); lhbConcs.push('Tendinóza LHB'); }
-                else if (lhbStav === 'parc. ruptura') { lhbParts.push('parciální rozvláknění a defekt šlachy'); lhbConcs.push('Parciální ruptura šlachy LHB'); }
-                else if (lhbStav === 'kompletní ruptura') { lhbParts.push('šlacha v sulku chybí, úpon separován s retrakcí pahýlu'); lhbConcs.push('Kompletní ruptura LHB'); }
+                const repStavMap = {
+                    'tendinóza': 'šlacha je ztluštělá a hyperintenzní charakteru tendinózy',
+                    'gr. I': 'mírná parciální léze se zvýšenou SI',
+                    'gr. II': 'parciální léze a nehomogenita se zvýšenou SI',
+                    'gr. III': 'výrazná parciální léze s rozvlákněním a vysokou SI',
+                    'kompletní': 'kompletní ruptura s přerušením kontinuity vláken'
+                };
+                const concStavMap = {
+                    'tendinóza': 'tendinózou',
+                    'gr. I': 'low-grade (gr. I) parciální rupturou',
+                    'gr. II': 'parciální (gr. II) rupturou',
+                    'gr. III': 'high-grade (gr. III) parciální rupturou',
+                    'kompletní': 'kompletní rupturou'
+                };
+                repParts.push(repStavMap[lhbStav]);
+                concStavText = concStavMap[lhbStav];
+            } else {
+                repParts.push('šlacha je zachované kontinuity');
             }
 
-            if (lhbPoloha && lhbPoloha !== 'in situ' && lhbStav !== 'kompletní ruptura') {
-                if (lhbPoloha === 'subluxace') { lhbParts.push('subluxace šlachy nad mediální hranu sulku'); lhbConcs.push('Subluxace šlachy LHB'); }
-                else if (lhbPoloha === 'luxace') { lhbParts.push('luxace šlachy LHB mediálně ze sulku'); lhbConcs.push('Luxace šlachy LHB'); }
-                else if (lhbPoloha === 'prázdný sulkus') { lhbParts.push('šlacha není v sulku zastižena'); }
+            if (lhbPoloha && lhbPoloha !== 'in situ') {
+                const repPolohaMap = {
+                    'pulley': 'se mediálním posunem při pravděpod. lézi aparátu kladky',
+                    'subluxace': 'je subluxována nad mediální hranu bicepsového sulku',
+                    'luxace': 'je kompletně luxována mediálně mimo bicepsový sulkus',
+                    'retrakce': 'je retrahována intraartikulárně či distálně'
+                };
+                const concPolohaMap = {
+                    'pulley': 'lézí bicepsové kladky (pulley lesion)',
+                    'subluxace': 'subluxací ze sulku',
+                    'luxace': 'luxací mediálně',
+                    'retrakce': 'retrakcí pahýlu'
+                };
+                repParts.push(repPolohaMap[lhbPoloha]);
+                concPolohaText = concPolohaMap[lhbPoloha];
+            } else if (lhbStav && lhbStav !== '0') {
+                repParts.push('lokalizace v bicepsovém sulku');
             }
 
-            if (lhbPulley && lhbPulley !== '0') {
-                lhbParts.push('léze stabilizačního aparátu bicepsové kladky (SGHL/CHL kompexu)');
-                lhbConcs.push('Léze bicepsové kladky (pulley lesion)');
-            }
-
-            let lhbRepText = 'Šlacha dlouhé hlavy bicepsu (LHB): ';
-            if (lhbStav === 'kompletní ruptura') lhbRepText += lhbParts[0] + '.';
-            else {
-                let statusRep = (lhbStav === '0' || !lhbStav) ? 'šlacha je zachované kontinuity' : lhbParts.shift();
-                lhbRepText += statusRep;
-                if (lhbParts.length > 0) lhbRepText += ', ' + lhbParts.join(', ');
-                lhbRepText += '.';
-            }
-
+            let lhbRepText = 'Šlacha dlouhé hlavy bicepsu (LHB): ' + repParts.join(', ') + '.';
             reportOut.push({ type: 'frame', text: lhbRepText, tableId: 'shoulder_lhb_main' });
-            lhbConcs.forEach(c => concMain.push({ type: 'frame', text: c + '.', tableId: 'shoulder_lhb_main' }));
+
+            let polohaPrep = (lhbPoloha === 'subluxace') ? 'se' : 's';
+
+            if (concStavText && concPolohaText) {
+                concMain.push({ type: 'frame', text: `LHBT s ${concStavText} a ${polohaPrep} ${concPolohaText}.`, tableId: 'shoulder_lhb_main' });
+            } else if (concStavText) {
+                concMain.push({ type: 'frame', text: `LHBT s ${concStavText}.`, tableId: 'shoulder_lhb_main' });
+            } else if (concPolohaText) {
+                concMain.push({ type: 'frame', text: `LHBT ${polohaPrep} ${concPolohaText}.`, tableId: 'shoulder_lhb_main' });
+            }
         }
 
         // --- 5. LABRUM A LIGAMENTA ---
@@ -375,10 +479,18 @@ const RegionShoulder = {
             let labconc = [];
 
             if (labSup && labSup !== '0') {
-                if (labSup === 'degenerace') { labrep.push('vysoký intrasubstanciální signál horního labra bez volné tekutiny v defektu'); labconc.push('Degenerace horního labra'); }
-                else if (labSup.includes('SLAP')) { 
-                    labrep.push(`tekutinou vyplněný defekt při horním labru odpovídající ${labSup} lézi`); 
-                    labconc.push(`${labSup} léze horního labra`); 
+                if (labSup === 'degenerace') {
+                    labrep.push('intrasubstanciální hyperintenzita a nehomogenita horního labra bez zřetelné trhliny');
+                    labconc.push('Degenerace horního labra');
+                } else if (labSup === 'SLAP I') {
+                    labrep.push('povrchové roztřepení a nepravidelnost volného okraje horního labra bez jeho odtržení (SLAP I)');
+                    labconc.push('SLAP I léze horního labra');
+                } else if (labSup === 'SLAP II') {
+                    labrep.push('tekutinou vyplněná lineární trhlina oddělující horní labrum a bicepsový úpon od glenoidu (SLAP II)');
+                    labconc.push('SLAP II léze horního labra');
+                } else if (labSup === 'komplexní SLAP') {
+                    labrep.push('extenzivní defekt horního labra s dislokací fragmentu či propagací do LHB (komplexní SLAP léze)');
+                    labconc.push('Komplexní SLAP léze horního labra');
                 }
             }
 
