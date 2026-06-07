@@ -1160,3 +1160,11 @@ const RegionBrain = {
         return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
     }
 }
+
+window.HOVER_IMAGES = window.HOVER_IMAGES || {};
+Object.assign(window.HOVER_IMAGES, {
+    'br_mta': 'picothers/Brain_MTA.jpg',
+    'br_koedam': 'picothers/Brain_Koedam.jpg',
+    'br_gca': 'picothers/Brain_GCA.jpg',
+   
+});

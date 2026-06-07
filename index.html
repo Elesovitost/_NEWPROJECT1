@@ -209,10 +209,17 @@
                 <span class="slider"></span>
             </label>
         </div>
-        <div class="row">
+        <div class="row" style="margin-bottom: 8px;">
             <span class="label" title="Před zkopírováním otevře okno pro úpravu textu.">Náhled zprávy:</span>
             <label class="switch">
                 <input type="checkbox" id="setting-preview" data-action="update-setting" data-setting="previewReport">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="row">
+            <span class="label" title="Zobrazovat obrázkové nápovědy při najetí myší na vybraná tlačítka.">Zobrazovat tooltips:</span>
+            <label class="switch">
+                <input type="checkbox" id="setting-show-tooltips" data-action="update-setting" data-setting="showTooltips">
                 <span class="slider"></span>
             </label>
         </div>
@@ -247,6 +254,10 @@
     <textarea id="preview-textarea" style="width: 100%; flex: 1; background: #000; color: #d1d5db; border: 1px solid var(--border); border-radius: 4px; padding: 15px; font-family: Consolas, monospace; font-size: 14px; line-height: 1.5; resize: none; outline: none; box-sizing: border-box; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);"></textarea>
 </div>
 
+<div id="image-tooltip" style="position: fixed; display: none; z-index: 1500; pointer-events: none; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.8); border-radius: 6px; background: var(--bg); padding: 5px;">
+    <img id="image-tooltip-img" src="" style="max-width: 500px; max-height: 500px; display: block; border-radius: 4px; object-fit: contain;">
+</div>
+
 <script src="Region_brain.js"></script>
 <script src="Region_br_angiography.js"></script>
 <script src="Region_neck.js"></script>
@@ -268,7 +279,8 @@ const APP_SETTINGS = {
     grammarMerging: savedConfig.grammarMerging !== undefined ? savedConfig.grammarMerging : true,
     suvWord: savedConfig.suvWord || false,
     hidePredefined: savedConfig.hidePredefined || false,
-    previewReport: savedConfig.previewReport || false
+    previewReport: savedConfig.previewReport || false,
+    showTooltips: savedConfig.showTooltips !== undefined ? savedConfig.showTooltips : true
 };
 
 function saveSettings() {
@@ -276,7 +288,8 @@ function saveSettings() {
         grammarMerging: APP_SETTINGS.grammarMerging,
         suvWord: APP_SETTINGS.suvWord, 
         hidePredefined: APP_SETTINGS.hidePredefined,
-        previewReport: APP_SETTINGS.previewReport
+        previewReport: APP_SETTINGS.previewReport,
+        showTooltips: APP_SETTINGS.showTooltips
     }));
     document.body.classList.toggle('hide-predefined', APP_SETTINGS.hidePredefined);
     UI.renderReport();
@@ -1123,6 +1136,9 @@ const SLICE_VIEWERS = {
     'thorax_lesion_main': { folder: 'picchestseg', prefix: 'chestseg', ext: 'png', max: 21, title: 'Segmentace plic (Ref.)', width: '500px' },
     'thorax_lymphnode_main': { folder: 'picmednod', prefix: 'mednod', ext: 'png', max: 24, title: 'Mediastinální uzliny (Ref.)', width: '450px' }
 };
+
+// Globální registr pro obrázky mapované k ID tlačítek. Plní ho jednotlivé moduly.
+window.HOVER_IMAGES = window.HOVER_IMAGES || {};
 
 /* ═══════════════════════════════════════════════
    DOM HELPERS
@@ -3191,10 +3207,49 @@ document.addEventListener('mouseover', e => {
     if (e.target.closest && e.target.closest('[data-action="copy-all"]')) {
         document.querySelectorAll('h2[data-action="copy-text"]').forEach(el => el.classList.add('highlight-force'));
     }
+
+    if (!APP_SETTINGS.showTooltips) return;
+
+    const btn = e.target.closest('.btn');
+    if (btn && btn.dataset.id) {
+        let imgUrl = null;
+        for (const key in window.HOVER_IMAGES) {
+            if (btn.dataset.id.endsWith(`_${key}`) || btn.dataset.id === key) {
+                imgUrl = window.HOVER_IMAGES[key];
+                break;
+            }
+        }
+
+        if (imgUrl) {
+            const tooltip = document.getElementById('image-tooltip');
+            const img = document.getElementById('image-tooltip-img');
+            if (tooltip && img) {
+                img.src = imgUrl;
+                tooltip.style.display = 'block';
+                
+                const rect = btn.getBoundingClientRect();
+                let leftPos = rect.right + 10;
+                let topPos = rect.top;
+                
+                if (leftPos + 500 > window.innerWidth) leftPos = rect.left - 510;
+                if (topPos + 500 > window.innerHeight) topPos = window.innerHeight - 510;
+                
+                tooltip.style.left = `${leftPos}px`;
+                tooltip.style.top = `${topPos}px`;
+            }
+        }
+    }
 });
+
 document.addEventListener('mouseout', e => {
     if (e.target.closest && e.target.closest('[data-action="copy-all"]')) {
         document.querySelectorAll('h2[data-action="copy-text"]').forEach(el => el.classList.remove('highlight-force'));
+    }
+
+    const btn = e.target.closest('.btn');
+    if (btn && btn.dataset.id) {
+        const tooltip = document.getElementById('image-tooltip');
+        if (tooltip) tooltip.style.display = 'none';
     }
 });
 
@@ -3233,6 +3288,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const previewCheckbox = document.getElementById('setting-preview');
     if (previewCheckbox) previewCheckbox.checked = APP_SETTINGS.previewReport;
+    
+    const tooltipsCheckbox = document.getElementById('setting-show-tooltips');
+    if (tooltipsCheckbox) tooltipsCheckbox.checked = APP_SETTINGS.showTooltips;
     
     document.body.classList.toggle('hide-predefined', APP_SETTINGS.hidePredefined);
     
