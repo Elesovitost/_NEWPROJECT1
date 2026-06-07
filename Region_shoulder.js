@@ -28,23 +28,20 @@ const RegionShoulder = {
 
             // --- ROTÁTOROVÁ MANŽETA ---
             helpers.TableMain('shoulder_rm_main', 'Rotátorová manžeta', [
-                helpers.Table2colNormal('sh_ssp_table', 'Supraspinatus (SSP)', [
-                    [ 'Léze:', { btn: 'sh_ssp_stav', states: ['0', 'tendinóza', 'gr. I', 'gr. II', 'gr. III', 'kompletní'] } ],
-                    [ '', { btn: 'sh_ssp_rozmer', states: ['Rozměr...', 'do 1 cm', '1-3 cm', 'nad 3 cm'] } ],
-                    [ '', [ { btn: 'sh_ssp_retr', states: ['Retrakce...', '+', '++', '+++'] }, { btn: 'sh_ssp_atrofie', states: ['Atrofie...', '+', '++'] } ] ],
-                    [ 'Kalcifikace:', { btn: 'sh_ssp_kalcif', states: ['0', 'HADD', 'dystrofická'] } ]
+                helpers.TableGrid('sh_ssp_table', 'Supraspinatus (SSP)', [
+                    [ ['Léze:', { btn: 'sh_ssp_stav', states: ['0', 'tendinóza', 'gr. I', 'gr. II', 'gr. III', 'kompletní'] }], { btn: 'sh_ssp_plocha', states: ['plocha...', 'A', 'B'] }, { btn: 'sh_ssp_rozmer', states: ['rozměr...', '< 1 cm', '1-3 cm', '> 3 cm'] } ],
+                    [ '', { btn: 'sh_ssp_retr', states: ['retrakce?', '+', '++', '+++'] }, { btn: 'sh_ssp_atrofie', states: ['atrofie?', '+', '++'] } ],
+                    [ ['Kalcif.:', { btn: 'sh_ssp_kalcif', states: ['0', 'HADD', 'dystrof.'] }], '', '' ]
                 ]),
-                helpers.Table2colNormal('sh_isp_table', 'Infraspinatus (ISP)', [
-                    [ 'Léze:', { btn: 'sh_isp_stav', states: ['0', 'tendinóza', 'gr. I', 'gr. II', 'gr. III', 'kompletní'] } ],
-                    [ '', { btn: 'sh_isp_rozmer', states: ['Rozměr...', 'do 1 cm', '1-3 cm', 'nad 3 cm'] } ],
-                    [ '', [ { btn: 'sh_isp_retr', states: ['Retrakce...', '+', '++', '+++'] }, { btn: 'sh_isp_atrofie', states: ['Atrofie...', '+', '++'] } ] ],
-                    [ 'Kalcifikace:', { btn: 'sh_isp_kalcif', states: ['0', 'HADD', 'dystrofická'] } ]
+                helpers.TableGrid('sh_isp_table', 'Infraspinatus (ISP)', [
+                    [ ['Léze:', { btn: 'sh_isp_stav', states: ['0', 'tendinóza', 'gr. I', 'gr. II', 'gr. III', 'kompletní'] }], { btn: 'sh_isp_plocha', states: ['plocha...', 'A', 'B'] }, { btn: 'sh_isp_rozmer', states: ['rozměr...', '< 1 cm', '1-3 cm', '> 3 cm'] } ],
+                    [ '', { btn: 'sh_isp_retr', states: ['retrakce?', '+', '++', '+++'] }, { btn: 'sh_isp_atrofie', states: ['atrofie?', '+', '++'] } ],
+                    [ ['Kalcif.:', { btn: 'sh_isp_kalcif', states: ['0', 'HADD', 'dystrof.'] }], '', '' ]
                 ]),
-                helpers.Table2colNormal('sh_ssc_table', 'Subscapularis (SSC)', [
-                    [ 'Léze:', { btn: 'sh_ssc_stav', states: ['0', 'tendinóza', 'gr. I', 'gr. II', 'gr. III', 'kompletní'] } ],
-                    [ '', { btn: 'sh_ssc_rozmer', states: ['Rozměr...', 'do 1 cm', '1-3 cm', 'nad 3 cm'] } ],
-                    [ '', [ { btn: 'sh_ssc_retr', states: ['Retrakce...', '+', '++', '+++'] }, { btn: 'sh_ssc_atrofie', states: ['Atrofie...', '+', '++'] } ] ],
-                    [ 'Kalcifikace:', { btn: 'sh_ssc_kalcif', states: ['0', 'HADD', 'dystrofická'] } ]
+                helpers.TableGrid('sh_ssc_table', 'Subscapularis (SSC)', [
+                    [ ['Léze:', { btn: 'sh_ssc_stav', states: ['0', 'tendinóza', 'gr. I', 'gr. II', 'gr. III', 'kompletní'] }], { btn: 'sh_ssc_plocha', states: ['plocha...', 'A', 'B'] }, { btn: 'sh_ssc_rozmer', states: ['rozměr...', '< 1 cm', '1-3 cm', '> 3 cm'] } ],
+                    [ '', { btn: 'sh_ssc_retr', states: ['retrakce?', '+', '++', '+++'] }, { btn: 'sh_ssc_atrofie', states: ['atrofie?', '+', '++'] } ],
+                    [ ['Kalcif.:', { btn: 'sh_ssc_kalcif', states: ['0', 'HADD', 'dystrof.'] }], '', '' ]
                 ]),
                 helpers.Table1col('sh_rm_vlastni_table', [
                     { field: 'text', id: 'sh_rm_custom_desc', placeholder: 'vlastní popis...' },
@@ -229,6 +226,7 @@ const RegionShoulder = {
         // --- 3. ROTÁTOROVÁ MANŽETA ---
         const parseTendon = (prefix, nameTitle) => {
             const stav = ctx.text(`${prefix}_stav`);
+            const plocha = ctx.text(`${prefix}_plocha`);
             const rozmer = ctx.text(`${prefix}_rozmer`);
             const retr = ctx.text(`${prefix}_retr`);
             const atrofie = ctx.text(`${prefix}_atrofie`);
@@ -262,6 +260,17 @@ const RegionShoulder = {
                 
                 let rText = repStav[stav];
                 let cText = concStav[stav];
+
+                if (isPartial && plocha && plocha !== 'plocha...') {
+                    if (plocha === 'A') {
+                        rText = rText.replace('zasahující', 'zasahující z artikulárního povrchu');
+                        if (prefix === 'sh_ssp') {
+                            cText += ' (PASTA léze)';
+                        }
+                    } else if (plocha === 'B') {
+                        rText = rText.replace('zasahující', 'zasahující z burzálního povrchu');
+                    }
+                }
 
                 if (isPartial && rozmer && !rozmer.includes('Rozměr')) {
                     rText += ` v AP rozsahu ${rozmer}`;
@@ -312,7 +321,7 @@ const RegionShoulder = {
                     } else {
                         concParts.push('kalcifikací (HADD)');
                     }
-                } else if (kalcif === 'dystrofická') {
+                } else if (kalcif === 'dystrof.') {
                     repParts.push('drobné nepravidelné signálové ztráty charakteru dystrofických kalcifikací');
                     if (concParts.length === 0) {
                         concParts.push('dystrofickými kalcifikacemi');
