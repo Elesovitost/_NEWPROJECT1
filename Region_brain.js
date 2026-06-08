@@ -179,7 +179,7 @@ const RegionBrain = {
             helpers.TableMain('brain_cpa_main', 'Mostomozečkový kout', [
                 helpers.Table3colRL('br_cpa_table', 'Expanze a konflikty', [
                     [ { btn: 'br_cpa_exp_r', states: ['0', 'schwanom', 'meningeom', 'cysta'] }, 'Expanze', { btn: 'br_cpa_exp_l', states: ['0', 'schwanom', 'meningeom', 'cysta'] } ],
-                    [ { btn: 'br_cpa_kon_r', states: ['0', 'I', 'II', 'III'] }, 'NV konflikt VII.', { btn: 'br_cpa_kon_l', states: ['0', 'I', 'II', 'III'] } ],
+                    [ { btn: 'br_cpa_kon_r', states: ['0', 'I', 'II', 'III'] }, 'NV konflikt VIII.', { btn: 'br_cpa_kon_l', states: ['0', 'I', 'II', 'III'] } ],
                     [ { btn: 'br_cpa_kon5_r', states: ['0', '+', '++'] }, 'NV konflikt V.', { btn: 'br_cpa_kon5_l', states: ['0', '+', '++'] } ]
                 ]),
                 helpers.Table1col('br_cpa_ost_add', [ 
@@ -762,12 +762,12 @@ const RegionBrain = {
 
             let kon = ctx.text(`br_cpa_kon_${side}`);
             if (kon && kon !== '0') {
-                const konMap = { 'I': 'kontakt cévy s nervem VII. (Grade I)', 'II': 'dislokace nervu VII. cévní kličkou (Grade II)', 'III': 'imprese nervu VII. cévní kličkou (Grade III)' };
+                const konMap = { 'I': 'kontakt cévy s nervem VIII. (Grade I)', 'II': 'dislokace nervu VIII. cévní kličkou (Grade II)', 'III': 'imprese nervu VIII. cévní kličkou (Grade III)' };
                 cpaRep.push(`${konMap[kon]} v CPA ${sSuffix}`);
                 if (kon === 'I') {
-                    concInc.push({ type: 'frame', text: `Neurovaskulární kontakt s n. VII. v CPA ${sLat} bez známek imprese.`, tableId: 'brain_cpa_main' });
+                    concInc.push({ type: 'frame', text: `Neurovaskulární kontakt s n. VIII. v CPA ${sLat} bez známek imprese.`, tableId: 'brain_cpa_main' });
                 } else {
-                    concMain.push({ type: 'frame', text: `Neurovaskulární konflikt n. VII. v CPA ${sLat} s ${kon === 'II' ? 'dislokací' : 'impresí'} nervu.`, tableId: 'brain_cpa_main' });
+                    concMain.push({ type: 'frame', text: `Neurovaskulární konflikt n. VIII. v CPA ${sLat} s ${kon === 'II' ? 'dislokací' : 'impresí'} nervu.`, tableId: 'brain_cpa_main' });
                 }
             }
 
