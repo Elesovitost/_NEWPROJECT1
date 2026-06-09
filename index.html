@@ -578,7 +578,13 @@ const ORGAN_MAP = {
     "Biceps": { name: "Šlacha LHB", table: "shoulder_lhb_main", regions: ['shoulder'] },
 
     "vL5": { name: "L5", table: "L5/S1_main", regions: ['ls_spine'] },
-    "dL5/S1": { name: "L5/S1", table: "L5/S1_main", regions: ['ls_spine'] }
+    "dL5/S1": { name: "L5/S1", table: "L5/S1_main", regions: ['ls_spine'] },
+
+    "Prostate_urinary": { name: "Močový měchýř", table: "prostate_urinary_main", regions: ['prostate'] },
+    "Prostate_prostate": { name: "Prostata", table: "prostate_prostata_main", regions: ['prostate'] },
+    "Prostate_seminal": { name: "Semenné váčky", table: "prostate_seminal_main", regions: ['prostate'] },
+    "Prostate_lymphnode": { name: "Lymfatické uzliny", table: "prostate_lymphnode_main", regions: ['prostate'] },
+    "Prostate_lesion": { name: "Léze (Prostata)", table: "prostate_lesion_main", regions: ['prostate'] }
 };
 
 
@@ -594,6 +600,7 @@ const EXAMS = {
     ],
     "PET / MR": [
         { id: 'petmr_fdg_trup', title: 'FDG-PET / MR trupu', regs: ['neck','thorax','abdomen','skeleton'] },
+        { id: 'petmr_psma_prostata', title: 'PSMA-PET / MR prostaty', regs: ['prostate'] },
         { id: 'petmr_fdg_mozek', title: 'FDG-PET / MR mozku', regs: ['brain'] },
         { id: 'petmr_dopa_mozek', title: 'DOPA-PET / MR mozku', regs: ['brain'] },
         { id: 'petmr_fdg_orl', title: 'FDG-PET / MR ORL', regs: ['neck'] }
@@ -1134,6 +1141,88 @@ const LESIONS_DEFINITION = {
 /* ═══════════════════════════════════════════════
    MODULAR REGIONS DEFINITION
 ═══════════════════════════════════════════════ */
+
+const RegionProstate = {
+    title: 'Prostata a okolí',
+    reportLayout: 'block',
+    layout: (helpers) => {
+        let layoutNodes = [];
+
+        // Prostata obecně
+        layoutNodes.push(
+            helpers.TableMain('prostate_prostata_main', 'Prostata obecně', [
+                helpers.Table2colNormal('pr_pro_table', '', [
+                    [ 'Velikost:', { field: 'size', id: 'pr_size', placeholder: 'mm' } ],
+                    [ 'Krvácení:', { btn: 'pr_hem', states: ['0', '+', '++'] } ]
+                ]),
+                helpers.Table1col('pr_pro_add', [
+                    { field: 'text', id: 'pr_custom_desc', placeholder: 'vlastní popis...' }
+                ])
+            ])
+        );
+
+        // Semenné váčky
+        layoutNodes.push(
+            helpers.TableMain('prostate_seminal_main', 'Semenné váčky', [
+                helpers.Table2colNormal('pr_sem_table', '', [
+                    [ 'Náplň:', { btn: 'pr_sem_fill', states: ['normální', 'snížená', 'není'] } ]
+                ])
+            ])
+        );
+
+        return layoutNodes;
+    },
+    compile: (ctx) => {
+        let reportOut = [{ type: 'heading', text: 'Prostata a okolí:', action: 'open-region', regionId: 'prostate' }];
+        let concMain = [];
+        let concInc = [];
+
+        // 1. Prostata - Velikost, Krvácení, Vlastní popis
+        let prostataText = [];
+        let prSize = ctx.field('pr_size');
+        
+        if (prSize) {
+            let volStr = '';
+            let dims = prSize.split('x').map(d => parseInt(d, 10));
+            // Výpočet objemu: (A * B * C) / 2 v mm3 = / 2000 v ml
+            if (dims.length === 3 && !dims.some(isNaN)) {
+                let vol = Math.round((dims[0] * dims[1] * dims[2]) / 2000);
+                volStr = `, což je orientačně ${vol} ml`;
+            }
+            prostataText.push(`Prostata velikosti cca ${prSize} mm${volStr}.`);
+        } else {
+            prostataText.push(`Prostata nezvětšena.`);
+        }
+
+        let prHem = ctx.text('pr_hem');
+        if (prHem === '+') prostataText.push('Obsahuje okrsek T1+ po zakrvácení (biopsii).');
+        else if (prHem === '++') prostataText.push('Obsahuje okrsky T1+ po zakrvácení (biopsii).');
+
+        let prDesc = ctx.field('pr_custom_desc');
+        if (prDesc) prostataText.push(prDesc);
+
+        reportOut.push({ type: 'frame', text: prostataText.join(' '), tableId: 'prostate_prostata_main', dimmed: !prSize && !prHem && !prDesc });
+
+        // Léze - statický placeholder
+        reportOut.push({ type: 'frame', text: 'Bez patrných ložisek abnormálního SI.', tableId: 'prostate_prostata_main', dimmed: true });
+
+        // 2. Semenné váčky
+        let semFill = ctx.text('pr_sem_fill');
+        if (semFill === 'snížená') {
+            reportOut.push({ type: 'frame', text: 'Chabá náplň semenných váčků, jejich hodnotitelnost je limitována.', tableId: 'prostate_seminal_main' });
+        } else if (semFill === 'není') {
+            reportOut.push({ type: 'frame', text: 'Není náplň semenných váčků, nejsou hodnotitelné.', tableId: 'prostate_seminal_main' });
+        } else {
+            reportOut.push({ type: 'frame', text: 'Normální náplň semenných váčků.', tableId: 'prostate_seminal_main', dimmed: true });
+        }
+
+        // 3. Uzliny - statický placeholder
+        reportOut.push({ type: 'frame', text: 'Nejsou zřetelné patologické regionální či non-regionální lymfatické uzliny.', tableId: 'abdomen_lymphnode_main', dimmed: true });
+
+        return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
+    }
+};
+
 const REGIONS = {
     brain: RegionBrain,
     br_angiography: RegionBrAngiography,
@@ -1143,7 +1232,8 @@ const REGIONS = {
     skeleton: RegionSkeleton,
     shoulder: RegionShoulder,
     knee: RegionKnee,
-    ls_spine: RegionLSp
+    ls_spine: RegionLSp,
+    prostate: RegionProstate
 
 }; // <-- Tohle už je uzavření celého REGIONS objektu
         
@@ -2094,6 +2184,7 @@ const UI = {
         const isKnee = activeRegions.includes('knee');
         const isShoulder = activeRegions.includes('shoulder');
         const isLsSpine = activeRegions.includes('ls_spine');
+        const isProstate = activeRegions.includes('prostate');
         const kneeSide = Store.fields['knee_side'];
         const shoulderSide = Store.fields['shoulder_side'];
 
@@ -2121,12 +2212,13 @@ const UI = {
 
             content.appendChild(wrapper);
 
-            const svgFiles = isKnee ? ['Organs_knee_cor.svg'] : (isLsSpine ? ['Organs_LS_sag.svg'] : (activeRegions.includes('shoulder') ? ['Organs_shoulder_cor.svg'] : ['Organs_schematic_WB.svg']));
+            const svgFiles = isKnee ? ['Organs_knee_cor.svg'] : (isLsSpine ? ['Organs_LS_sag.svg'] : (isShoulder ? ['Organs_shoulder_cor.svg'] : (isProstate ? ['Organs_prostate.svg'] : ['Organs_schematic_WB.svg'])));
             
             const svgHeights = {
                 'Organs_knee_cor.svg': '35vh',
                 'Organs_shoulder_cor.svg': '35vh',
                 'Organs_LS_sag.svg': '60vh',
+                'Organs_prostate.svg': '30vh',
                 'Organs_schematic_WB.svg': '70vh'
             };
 
