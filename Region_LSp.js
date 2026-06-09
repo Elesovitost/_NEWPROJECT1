@@ -446,11 +446,6 @@ const RegionLSp = {
                 causesGen.push(eTxt.replace('cysta', 'cysty').replace('intradurální ložisko', 'intradurálního ložiska').replace('ložisko', 'ložiska'));
             }
 
-            if (sentences.length > 0) {
-                hasSegmentPathology = true;
-                segmentBlocks.push({ type: 'frame', text: `${seg.label}: ${sentences.join(' ')}` });
-            }
-
             if (valC && valC !== '0' && valC !== 'C') hasSpinalStenosis = true;
             if (valPR && valPR !== '0' && valPR !== 'P' && valPR !== 'F') hasSpinalStenosis = true;
             if (valPL && valPL !== '0' && valPL !== 'P' && valPL !== 'F') hasSpinalStenosis = true;
@@ -480,12 +475,12 @@ const RegionLSp = {
                     else if (val === 'S') { nom = `stenóza laterálního recesu ${side}`; dat = `stenóze laterálního recesu ${side}`; }
                     else if (val === 'F') { 
                         fibrosisArr.push(`epidurální fibróza ${side}`);
-                        sentences.push(formatSentence(`epidurální fibróza ${side}`));
+                        sentences.push(formatSentence(`okrsek nízké SI epidurálně ${side}`));
                         return null; 
                     }
                     else if (val === 'A') {
                         adhesionArr.push(`vzájemná adheze kořenů ${seg.vLabel} a ${seg.root} ${side} v laterálním recesu nejasného klinického významu`);
-                        sentences.push(formatSentence(`vzájemná adheze kořenů ${seg.vLabel} a ${seg.root} ${side} v laterálním recesu nejasného klinického významu`));
+                        sentences.push(formatSentence(`adheze kořenů ${seg.vLabel} a ${seg.root} ${side} s vzájemným přitažením v laterálním recesu`));
                         return null;
                     }
                 } else if (type === 'C') {
@@ -516,12 +511,12 @@ const RegionLSp = {
                     else if (val === 'S') { nom = `stenóza laterálních recesů bilat.`; dat = `stenóze laterálních recesů bilat.`; }
                     else if (val === 'F') { 
                         fibrosisArr.push(`epidurální fibróza bilat.`);
-                        sentences.push(formatSentence(`epidurální fibróza bilat.`));
+                        sentences.push(formatSentence(`okrsky nízké SI epidurálně bilat.`));
                         return null; 
                     }
                     else if (val === 'A') {
                         adhesionArr.push(`vzájemná adheze kořenů ${seg.vLabel} a ${seg.root} bilat. v laterálních recesech nejasného klinického významu`);
-                        sentences.push(formatSentence(`vzájemná adheze kořenů ${seg.vLabel} a ${seg.root} bilat. v laterálních recesech nejasného klinického významu`));
+                        sentences.push(formatSentence(`těsné nasedání kořenů ${seg.vLabel} a ${seg.root} bilat. v laterálních recesech`));
                         return null;
                     }
                 }
@@ -560,6 +555,11 @@ const RegionLSp = {
                 effectsNom.push(eff.nom);
                 effectsDat.push(eff.dat);
             });
+
+            if (sentences.length > 0) {
+                hasSegmentPathology = true;
+                segmentBlocks.push({ type: 'frame', text: `${seg.label}: ${sentences.join(' ')}` });
+            }
 
             let concLine = "";
             const isStenosisFirst = Store.fields['ls_spine_conc_mode'] === 'stenosis';
