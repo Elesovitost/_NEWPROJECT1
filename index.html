@@ -719,13 +719,11 @@ const LESIONS_DEFINITION = {
         let isZeroOldSize = false;
         if (sizeOld) {
             isZeroOldSize = parseFloat(sizeOld) === 0;
-            if (isZeroOldSize) {
-                pastArr.push(`nově`);
-            } else {
+            if (!isZeroOldSize) {
                 if (size && size.trim() === sizeOld.trim()) {
-                    pastArr.push(`minule shodného rozměru`);
+                    pastArr.push(`shodného rozměru`);
                 } else {
-                    pastArr.push(`minule ${sizeOld} mm`);
+                    pastArr.push(`${sizeOld} mm`);
                 }
             }
         }
@@ -733,12 +731,20 @@ const LESIONS_DEFINITION = {
             if (APP_SETTINGS.suvWord && suv) {
                 const cLiv = parseFloat((Store.fields['suv_jater'] || '3.0').replace(',', '.'));
                 const mLiv = parseFloat((Store.fields['suv_jater_minule'] || '3.0').replace(',', '.'));
-                pastArr.push(`oproti minule ${MetricsEngine.getSuvDynamicsWord(suv, suvOld, cLiv, mLiv)}`);
+                pastArr.push(MetricsEngine.getSuvDynamicsWord(suv, suvOld, cLiv, mLiv));
             } else {
-                pastArr.push(sizeOld ? `SUVmax ${suvOld}` : `minule SUVmax ${suvOld}`);
+                pastArr.push(`SUVmax ${suvOld}`);
             }
         }
-        let pastStr = (pastArr.length > 0 && Store.pastDate) ? ` (${pastArr.join(', ')})` : '';
+        
+        let pastStr = '';
+        if (Store.pastDate) {
+            if (isZeroOldSize) {
+                pastStr = ' (nově)';
+            } else if (pastArr.length > 0) {
+                pastStr = ` (minule ${pastArr.join(', ')})`;
+            }
+        }
 
         let suvText = suv ? MetricsEngine.getSuvText(suv) : '';
         let metrikyStr = '';
@@ -887,13 +893,11 @@ const LESIONS_DEFINITION = {
         let isZeroOldSize = false;
         if (sizeOld) {
             isZeroOldSize = parseFloat(sizeOld) === 0;
-            if (isZeroOldSize) {
-                pastArr.push(`nově`);
-            } else {
+            if (!isZeroOldSize) {
                 if (size && size.trim() === sizeOld.trim()) {
-                    pastArr.push(`minule shodného rozměru`);
+                    pastArr.push(`shodného rozměru`);
                 } else {
-                    pastArr.push(`minule ${sizeOld} mm`);
+                    pastArr.push(`${sizeOld} mm`);
                 }
             }
         }
@@ -901,12 +905,20 @@ const LESIONS_DEFINITION = {
             if (APP_SETTINGS.suvWord && suv) {
                 const cLiv = parseFloat((Store.fields['suv_jater'] || '3.0').replace(',', '.'));
                 const mLiv = parseFloat((Store.fields['suv_jater_minule'] || '3.0').replace(',', '.'));
-                pastArr.push(`oproti minule ${MetricsEngine.getSuvDynamicsWord(suv, suvOld, cLiv, mLiv)}`);
+                pastArr.push(MetricsEngine.getSuvDynamicsWord(suv, suvOld, cLiv, mLiv));
             } else {
-                pastArr.push(sizeOld ? `SUVmax ${suvOld}` : `minule SUVmax ${suvOld}`);
+                pastArr.push(`SUVmax ${suvOld}`);
             }
         }
-        let pastStr = (pastArr.length > 0 && Store.pastDate) ? ` (${pastArr.join(', ')})` : '';
+        
+        let pastStr = '';
+        if (Store.pastDate) {
+            if (isZeroOldSize) {
+                pastStr = ' (nově)';
+            } else if (pastArr.length > 0) {
+                pastStr = ` (minule ${pastArr.join(', ')})`;
+            }
+        }
 
         let suvText = suv ? MetricsEngine.getSuvText(suv) : '';
         let metrikyStr = '';
@@ -1417,13 +1429,13 @@ const MetricsEngine = {
         if (isNaN(cSuv) || isNaN(mSuv) || mSuv <= 0) return "nelze srovnat";
         
         const pct = this.getPctChange(this.getNormalizedSuv(cSuv, cLiv), this.getNormalizedSuv(mSuv, mLiv));
-        if (pct === null) return "obdobná";
+        if (pct === null) return "akumulace byla obdobná";
         
         const absPct = Math.abs(pct);
-        if (absPct < 20) return "obdobná akumulace";
+        if (absPct < 20) return "akumulace byla obdobná";
         
-        const mod = absPct < 50 ? "mírný " : (absPct < 75 ? "" : "výrazný ");
-        return pct > 0 ? `${mod}vzestup akumulace`.trim() : `${mod}pokles akumulace`.trim();
+        const mod = absPct < 50 ? "mírně " : (absPct < 75 ? "" : "výrazně ");
+        return pct > 0 ? `akumulace byla ${mod}nižší` : `akumulace byla ${mod}vyšší`;
     },
 
     calculateDynamics: function(currSize, minSize, currSuv, minSuv, cLiv, mLiv, isRecistActive) {
