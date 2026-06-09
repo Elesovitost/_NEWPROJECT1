@@ -179,7 +179,7 @@ const RegionBrain = {
             helpers.TableMain('brain_cpa_main', 'Mostomozečkový kout', [
                 helpers.Table3colRL('br_cpa_table', 'Expanze a konflikty', [
                     [ { btn: 'br_cpa_exp_r', states: ['0', 'schwanom', 'meningeom', 'cysta'] }, 'Expanze', { btn: 'br_cpa_exp_l', states: ['0', 'schwanom', 'meningeom', 'cysta'] } ],
-                    [ { btn: 'br_cpa_kon_r', states: ['0', 'I', 'II', 'III'] }, 'NV konflikt VIII.', { btn: 'br_cpa_kon_l', states: ['0', 'I', 'II', 'III'] } ],
+                    [ { btn: 'br_cpa_kon_r', states: ['0', 'I', 'II', 'III'] }, 'NV konflikt wI.', { btn: 'br_cpa_kon_l', states: ['0', 'I', 'II', 'III'] } ],
                     [ { btn: 'br_cpa_kon5_r', states: ['0', '+', '++'] }, 'NV konflikt V.', { btn: 'br_cpa_kon5_l', states: ['0', '+', '++'] } ]
                 ]),
                 helpers.Table1col('br_cpa_ost_add', [ 

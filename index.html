@@ -722,7 +722,11 @@ const LESIONS_DEFINITION = {
             if (isZeroOldSize) {
                 pastArr.push(`nově`);
             } else {
-                pastArr.push(`minule ${sizeOld} mm`);
+                if (size && size.trim() === sizeOld.trim()) {
+                    pastArr.push(`minule shodného rozměru`);
+                } else {
+                    pastArr.push(`minule ${sizeOld} mm`);
+                }
             }
         }
         if (suvOld && !isZeroOldSize) {
@@ -886,7 +890,11 @@ const LESIONS_DEFINITION = {
             if (isZeroOldSize) {
                 pastArr.push(`nově`);
             } else {
-                pastArr.push(`minule ${sizeOld} mm`);
+                if (size && size.trim() === sizeOld.trim()) {
+                    pastArr.push(`minule shodného rozměru`);
+                } else {
+                    pastArr.push(`minule ${sizeOld} mm`);
+                }
             }
         }
         if (suvOld && !isZeroOldSize) {
@@ -1325,16 +1333,9 @@ const MetricsEngine = {
         } else {
             const pctLiv = suv / refLiv;
             if (pctLiv <= 0.2) return "bez patrné akumulace RF";
-            if (pctLiv < 0.8) {
-                const diff = Math.round((1 - pctLiv) * 10) * 10;
-                return `s akumulací RF o ${diff} % nižší než ref. játra`;
-            }
-            if (pctLiv <= 1.2) return "s akumulací RF obdobnou jako ref. játra";
-            if (pctLiv < 1.9) {
-                const diff = Math.round((pctLiv - 1) * 10) * 10;
-                return `s akumulací RF o ${diff} % vyšší než ref. játra`;
-            }
-            return `s akumulací  ${Math.round(pctLiv)}x vyšší než ref. játra`;
+            if (pctLiv >= 0.8 && pctLiv <= 1.2) return "s akumulací RF obdobnou jako ref. játra";
+            const multiplier = (Math.round(pctLiv * 10) / 10).toString().replace('.', ',');
+            return `s akumulací RF ${multiplier}násobku ref. jaterního parenchymu`;
         }
     },
 
