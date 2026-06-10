@@ -146,6 +146,8 @@
         #spine_lumbar_main.tbl-center td { text-align: left; }
         #spine_lumbar_main.tbl-center td .row { justify-content: flex-start; }
         #spine_lumbar_main > tbody > tr:nth-child(even) > td:first-child span { color: var(--accent-hi); }
+        .report-frame.frame-lesion { color: #e891af; }
+        .report-frame.frame-lymphnode { color: #e0c068; }
     </style>
 </head>
 <body>
@@ -1207,12 +1209,24 @@ const RegionProstate = {
                         const currentState = Store.buttonStates[stateId];
                         const nextState = !currentState;
                         Store.buttonStates[stateId] = nextState;
+                        const orderKey = `${examId}_prostate_${p}_loc_order`;
+                        let order = Store.customTexts[orderKey] ? JSON.parse(Store.customTexts[orderKey]) : [];
+                        if (nextState) {
+                            if (!order.includes(path.id)) order.push(path.id);
+                        } else {
+                            order = order.filter(id => id !== path.id);
+                        }
+                        Store.customTexts[orderKey] = JSON.stringify(order);
                         e.target.style.fill = nextState ? 'rgba(139, 0, 0, 0.8)' : 'transparent';
                         UI.renderReport();
                     });
                     path.addEventListener('contextmenu', (e) => {
                         e.preventDefault();
                         Store.buttonStates[stateId] = false;
+                        const orderKey = `${examId}_prostate_${p}_loc_order`;
+                        let order = Store.customTexts[orderKey] ? JSON.parse(Store.customTexts[orderKey]) : [];
+                        order = order.filter(id => id !== path.id);
+                        Store.customTexts[orderKey] = JSON.stringify(order);
                         e.target.style.fill = 'transparent';
                         UI.renderReport();
                     });
@@ -1263,8 +1277,8 @@ const RegionProstate = {
                     helpers.Table1col(`${p}_r2_excl`, [ [ 'Druh:', { btn: `${p}_k_loz`, type: 'basic', text: 'ložisko'}, { btn: `${p}_k_nod`, type: 'basic', text: 'nodul' }, { btn: `${p}_k_inf`, type: 'basic', text: 'infiltrace' }, { btn: `${p}_k_cust`, states: ['vlastní', 'custom'] } ] ], 'prostate'),
                     locContainer,
                     helpers.Table1col(`${p}_r4`, [ [ 'Vzhled MR:', 
-                        { btn: `${p}_t2`, states: ['T2', 'T2 score 1', 'T2 score 2', 'T2 score 3', 'T2 score 4', 'T2 score 5'] }, 
-                        { btn: `${p}_dwi`, states: ['DWI', 'DWI score 1', 'DWI score 2', 'DWI score 3', 'DWI score 4', 'DWI score 5'] }, 
+                        { btn: `${p}_t2`, states: ['T2', 'T2 score 1', 'T2 score 2', 'T2 score 3', 'T2 score 4'] }, 
+                        { btn: `${p}_dwi`, states: ['DWI', 'DWI score 1', 'DWI score 2', 'DWI score 3', 'DWI score 4'] }, 
                         { btn: `${p}_ce`, states: ['kontrast', 'kontrast -', 'kontrast +'] }, 
                         { btn: `${p}_inv`, states: ['invaze', 'kapsula', 'váčky', 'orgán'] } 
                     ] ], 'prostate'),
@@ -1276,8 +1290,10 @@ const RegionProstate = {
 
         // --- 2. Prostata obecně ---
         layoutNodes.push(
-            helpers.TableMain('abdomen_prostata_main', 'Prostata obecně', [
+            helpers.TableMain('prostate_prostata_main', 'Prostata obecně', [
                 helpers.Table2colNormal('pr_pro_table', '', [
+                    [ 'Operace:', { btn: 'pr_op', states: ['0', 'RAPE', 'TURP'] } ],
+                    [ 'Recidiva:', { btn: 'pr_rec', states: ['0', 'sycení', 'akumulace', 'oboje'] } ],
                     [ 'Velikost:', { field: 'size', id: 'pr_size', placeholder: 'mm' } ],
                     [ 'Krvácení:', { btn: 'pr_hem', states: ['0', '+', '++'] } ]
                 ], 'prostate'),
@@ -1289,7 +1305,7 @@ const RegionProstate = {
 
         // --- 3. Semenné váčky ---
         layoutNodes.push(
-            helpers.TableMain('abdomen_seminal_main', 'Semenné váčky', [
+            helpers.TableMain('prostate_seminal_main', 'Semenné váčky', [
                 helpers.Table2colNormal('pr_sem_table', '', [
                     [ 'Náplň:', { btn: 'pr_sem_fill', states: ['normální', 'snížená', 'není'] } ]
                 ], 'prostate')
@@ -1470,21 +1486,25 @@ const RegionProstate = {
 
                 if (t2 && t2.includes('score')) {
                     t2Score = parseInt(t2.replace('T2 score ', ''));
-                    if (t2Score === 2) vzhledy.push('dobře ohraničené homogenně nízké SI v T2');
-                    if (t2Score === 3) vzhledy.push('hůře ohraničené nehomogenně nízké SI v T2');
-                    if (t2Score >= 4) vzhledy.push('neohraničené nehomogenně nízké SI v T2');
+                    if (t2Score === 1) vzhledy.push('kulaté, ohraničené a homogenní v T2W');
+                    if (t2Score === 2) vzhledy.push('dobře ohraničené homogenně nízké SI v T2W');
+                    if (t2Score === 3) vzhledy.push('hůře ohraničené a heterogenní SI v T2W');
+                    if (t2Score >= 4) vzhledy.push('neohraničené nehomogenně nízké SI v T2W');
                 }
                 
                 if (dwi && dwi.includes('score')) {
                     dwiScore = parseInt(dwi.replace('DWI score ', ''));
-                    if (dwiScore === 2) vzhledy.push('lehce vyšší SI na DWI a nižší na ADC');
-                    if (dwiScore === 3) vzhledy.push('vyšší SI na DWI nebo nižší na ADC');
-                    if (dwiScore >= 4) vzhledy.push('vysoké SI na DWI a nízké na ADC');
+                    if (dwiScore === 1) vzhledy.push('bez zvýšené SI na DWI a bez snížení SI na ADC');
+                    if (dwiScore === 2) vzhledy.push('liniární / klínovité lehce vyšší SI na DWI a nižší na ADC');
+                    if (dwiScore === 3) vzhledy.push('fokálně vyšší SI na DWI nebo nižší na ADC');
+                    if (dwiScore >= 4) vzhledy.push('fokálně vysoké SI na DWI a nízké na ADC');
                 }
                 
                 if (ce === 'kontrast +') {
                     cePos = true;
                     vzhledy.push('s časným postkontrastním sycením');
+                } else if (ce === 'kontrast -') {
+                    vzhledy.push('bez časného postkontrastního sycení');
                 }
 
                 let invTextRep = '';
@@ -1530,26 +1550,36 @@ const RegionProstate = {
                     actStrConc = actStrRep;
                 }
 
-                let zone = isPZ ? 'PZ' : (isTZ ? 'TZ' : (isCZ ? 'CZ' : 'unknown'));
+                const orderKey = `${examId}_prostate_${p}_loc_order`;
+                let zone = 'unknown';
+                let order = Store.customTexts[orderKey] ? JSON.parse(Store.customTexts[orderKey]) : [];
+                order = order.filter(id => locs.includes(id));
+                if (order.length > 0) {
+                    const firstLoc = order[0];
+                    if (firstLoc.includes('PZ')) zone = 'PZ';
+                    else if (firstLoc.includes('TZ')) zone = 'TZ';
+                    else if (firstLoc.includes('AFS') || firstLoc.includes('CZ')) zone = 'CZ';
+                } else {
+                    zone = isPZ ? 'PZ' : (isTZ ? 'TZ' : (isCZ ? 'CZ' : 'unknown'));
+                }
                 let big = (sizeMm >= 15) || hasECE;
                 let pi = 0;
 
-                if (zone === 'PZ' && dwiScore > 0) {
-                    if (dwiScore <= 1) pi = 1;
-                    else if (dwiScore === 2) pi = 2;
-                    else if (dwiScore === 3) pi = cePos ? 4 : 3;
-                    else if (dwiScore === 4) pi = big ? 5 : 4;
-                    else if (dwiScore >= 5) pi = 5;
-                } else if (zone === 'TZ' && t2Score > 0) {
-                    if (t2Score <= 1) pi = 1;
-                    else if (t2Score === 2) pi = (dwiScore >= 4) ? 3 : 2;
-                    else if (t2Score === 3) pi = (dwiScore === 5) ? 4 : 3;
-                    else if (t2Score === 4) pi = big ? 5 : 4;
-                    else if (t2Score >= 5) pi = 5;
-                } else if (isCZ && Math.max(t2Score, dwiScore) > 0) {
-                    let base = Math.max(t2Score, dwiScore);
-                    if (base === 4 && big) pi = 5;
-                    else pi = Math.min(Math.max(base, 1), 5);
+                let effDwi = (dwiScore === 4 && big) ? 5 : dwiScore;
+                let effT2 = (t2Score === 4 && big) ? 5 : t2Score;
+
+                if (zone === 'PZ' && effDwi > 0) {
+                    if (effDwi <= 1) pi = 1;
+                    else if (effDwi === 2) pi = 2;
+                    else if (effDwi === 3) pi = cePos ? 4 : 3;
+                    else pi = effDwi;
+                } else if (zone === 'TZ' && effT2 > 0) {
+                    if (effT2 <= 1) pi = 1;
+                    else if (effT2 === 2) pi = (effDwi >= 4) ? 3 : 2;
+                    else if (effT2 === 3) pi = (effDwi >= 4) ? 4 : 3;
+                    else pi = effT2;
+                } else if (isCZ && Math.max(effT2, effDwi) > 0) {
+                    pi = Math.max(effT2, effDwi);
                 }
 
                 const globalBtnId = `${examId}_prostate_${p}_pirads`;
@@ -1605,28 +1635,54 @@ const RegionProstate = {
 
         // --- 2. Prostata obecně ---
         let prostataText = [];
+        let prOp = ctx.text('pr_op');
+        let prRec = ctx.text('pr_rec');
         let prSize = ctx.field('pr_size');
-        
-        if (prSize) {
-            let volStr = '';
-            let dims = prSize.split('x').map(d => parseInt(d, 10));
-            if (dims.length === 3 && !dims.some(isNaN)) {
-                let vol = Math.round((dims[0] * dims[1] * dims[2]) / 2000);
-                volStr = `, což je orientačně ${vol} ml`;
-            }
-            prostataText.push(`Prostata velikosti cca ${prSize} mm${volStr}.`);
-        } else {
-            prostataText.push(`Prostata nezvětšena.`);
-        }
-
         let prHem = ctx.text('pr_hem');
-        if (prHem === '+') prostataText.push('Obsahuje okrsek T1+ po zakrvácení (biopsii).');
-        else if (prHem === '++') prostataText.push('Obsahuje okrsky T1+ po zakrvácení (biopsii).');
-
         let prDesc = ctx.field('pr_custom_desc');
-        if (prDesc) prostataText.push(prDesc);
 
-        reportOut.push({ type: 'frame', text: prostataText.join(' '), tableId: 'abdomen_prostata_main', dimmed: !prSize && !prHem && !prDesc });
+        if (prOp === 'RAPE') {
+            prostataText.push('St.p. RAPE.');
+            if (prRec === 'sycení') {
+                prostataText.push('V lůžku prostaty ložisko s časným sycením.');
+                concMain.push({ type: 'frame', text: 'St.p. RAPE. v.s. recidiva v lůžku prostaty.', tableId: 'prostate_prostata_main' });
+            } else if (prRec === 'akumulace') {
+                prostataText.push('V lůžku prostaty ložisko se zvýšenou akumulací RF.');
+                concMain.push({ type: 'frame', text: 'St.p. RAPE. v.s. recidiva v lůžku prostaty.', tableId: 'prostate_prostata_main' });
+            } else if (prRec === 'oboje') {
+                prostataText.push('V lůžku prostaty ložisko s časným sycením a zvýšenou akumulací RF.');
+                concMain.push({ type: 'frame', text: 'St.p. RAPE. v.s. recidiva v lůžku prostaty.', tableId: 'prostate_prostata_main' });
+            } else {
+                prostataText.push('Bez recidivy v lůžku.');
+                concMain.push({ type: 'frame', text: 'St.p. RAPE. Bez známek recidivy v lůžku prostaty.', tableId: 'prostate_prostata_main' });
+            }
+            if (prDesc) prostataText.push(prDesc);
+            
+            reportOut.push({ type: 'frame', text: prostataText.join(' '), tableId: 'prostate_prostata_main', dimmed: (!prRec || prRec === '0') && !prDesc });
+        } else {
+            if (prOp === 'TURP') {
+                prostataText.push('St.p. TURP.');
+            }
+            
+            if (prSize) {
+                let volStr = '';
+                let dims = prSize.split('x').map(d => parseInt(d, 10));
+                if (dims.length === 3 && !dims.some(isNaN)) {
+                    let vol = Math.round((dims[0] * dims[1] * dims[2]) / 2000);
+                    volStr = `, což je orientačně ${vol} ml`;
+                }
+                prostataText.push(`Prostata velikosti cca ${prSize} mm${volStr}.`);
+            } else {
+                if (!prOp || prOp === '0') prostataText.push(`Prostata nezvětšena.`);
+            }
+
+            if (prHem === '+') prostataText.push('Obsahuje okrsek T1+ po zakrvácení (biopsii).');
+            else if (prHem === '++') prostataText.push('Obsahuje okrsky T1+ po zakrvácení (biopsii).');
+
+            if (prDesc) prostataText.push(prDesc);
+
+            reportOut.push({ type: 'frame', text: prostataText.join(' '), tableId: 'prostate_prostata_main', dimmed: !prSize && !prHem && !prDesc && (!prOp || prOp === '0') });
+        }
 
         // --- 3. Semenné váčky ---
         let semFill = ctx.text('pr_sem_fill');
@@ -3094,6 +3150,8 @@ const UI = {
                     const classes = ['report-frame'];
                     if (b.dimmed) classes.push('text-dim');
                     if (b.hidden) classes.push('report-frame-hidden');
+                    if (b.tableId && (b.tableId.includes('lesion') || b.tableId.includes('hemo'))) classes.push('frame-lesion');
+                    if (b.tableId && b.tableId.includes('lymphnode')) classes.push('frame-lymphnode');
 
                     const node = el('div', { className: classes.join(' '), textContent: cleanText });
                     if (b.tableId) {
