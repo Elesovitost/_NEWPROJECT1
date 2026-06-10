@@ -1125,6 +1125,22 @@ const LESIONS_DEFINITION = {
             let actLevel = term.adj[act] || act;
             let prep = actLevel.match(/^[szšž]/i) ? 'se' : 's';
             actStr = ` ${prep} ${actLevel} ${term.with}`;
+
+            if ((examId || '').toLowerCase().includes('psma')) {
+                let suvRaw = ctx.field(`${metPfx}_suv`);
+                if (suvRaw) {
+                    let suvVal = parseFloat(suvRaw.replace(',', '.'));
+                    let refLiv = parseFloat((Store.fields['suv_jater'] || '3.0').replace(',', '.'));
+                    let refPar = parseFloat((Store.fields['suv_parotid'] || '20.0').replace(',', '.'));
+                    if (!isNaN(suvVal) && !isNaN(refLiv) && !isNaN(refPar)) {
+                        let grade = '';
+                        if (suvVal < refLiv) grade = 'grade 1';
+                        else if (suvVal < refPar) grade = 'grade 2';
+                        else grade = 'grade 3';
+                        actStr += ` (${grade})`;
+                    }
+                }
+            }
         } else if (act === 'není') {
             actStr = ` bez ${term.without}`;
         }
@@ -1166,57 +1182,69 @@ const RegionProstate = {
             svgWrapper.style.minHeight = '150px';
             svgWrapper.style.position = 'relative';
 
-            // Asynchronní injekce SVG a napojení logiky
-            setTimeout(() => {
-                const wrap = document.getElementById(svgId);
-                if (wrap && !wrap.hasChildNodes()) {
-                    const style = document.createElement('style');
-                    style.innerHTML = `
-                        #${svgId} svg path[id] { cursor: pointer; transition: fill 0.2s; }
-                        #${svgId} svg path[id]:hover { fill: #58a6ff !important; opacity: 0.8; }
-                    `;
-                    wrap.appendChild(style);
+            const style = document.createElement('style');
+            style.innerHTML = `
+                #${svgId} svg path[id] { cursor: pointer; transition: fill 0.2s; fill: transparent; }
+                #${svgId} svg path[id]:hover { fill: rgba(255, 0, 0, 0.5) !important; }
+            `;
+            svgWrapper.appendChild(style);
 
-                    window.PROSTATE_SVG_CACHE.then(txt => {
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = txt;
-                        const svgEl = tempDiv.querySelector('svg');
-                        
-                        if (svgEl) {
-                            svgEl.style.maxHeight = '300px';
-                            svgEl.style.width = 'auto';
-                            
-                            svgEl.querySelectorAll('path[id]').forEach(path => {
-                                const examId = Store.activeTab || 'default';
-                                const stateId = `${examId}_prostate_${p}_loc_${path.id}`;
-                                
-                                if (Store.buttonStates[stateId]) {
-                                    path.style.fill = '#d4af37';
-                                }
-                                
-                                path.addEventListener('click', (e) => {
-                                    const currentState = Store.buttonStates[stateId];
-                                    const nextState = !currentState;
-                                    
-                                    // TICHÁ AKTUALIZACE: Neměníme celou referenci Store.buttonStates, 
-                                    // abychom zamezili Proxy triggeru a překreslení celé tabulky.
-                                    Store.buttonStates[stateId] = nextState;
-                                    e.target.style.fill = nextState ? '#d4af37' : '';
-                                    
-                                    // Vyvoláme pouze aktualizaci textového reportu
-                                    UI.renderReport();
-                                });
-                            });
-                            wrap.appendChild(svgEl);
-                        }
-                    }).catch(() => {
-                        const err = document.createElement('span');
-                        err.className = 'label';
-                        err.textContent = 'SVG Organs_prostate_lesion.svg nelze načíst.';
-                        wrap.appendChild(err);
+            const setupSvgListeners = (svgEl) => {
+                svgEl.style.maxHeight = '400px';
+                svgEl.style.width = 'auto';
+                
+                svgEl.querySelectorAll('path[id]').forEach(path => {
+                    const examId = Store.activeTab || 'default';
+                    const stateId = `${examId}_prostate_${p}_loc_${path.id}`;
+                    
+                    if (Store.buttonStates[stateId]) {
+                        path.style.fill = 'rgba(139, 0, 0, 0.8)';
+                    } else {
+                        path.style.fill = 'transparent';
+                    }
+                    
+                    path.addEventListener('click', (e) => {
+                        const currentState = Store.buttonStates[stateId];
+                        const nextState = !currentState;
+                        Store.buttonStates[stateId] = nextState;
+                        e.target.style.fill = nextState ? 'rgba(139, 0, 0, 0.8)' : 'transparent';
+                        UI.renderReport();
                     });
-                }
-            }, 0);
+                    path.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        Store.buttonStates[stateId] = false;
+                        e.target.style.fill = 'transparent';
+                        UI.renderReport();
+                    });
+                });
+                return svgEl;
+            };
+
+            if (window.PROSTATE_SVG_PARSED) {
+                const clonedSvg = window.PROSTATE_SVG_PARSED.cloneNode(true);
+                svgWrapper.appendChild(setupSvgListeners(clonedSvg));
+            } else {
+                setTimeout(() => {
+                    const wrap = document.getElementById(svgId);
+                    if (wrap && wrap.children.length <= 1) { // 1 = vložený style element
+                        window.PROSTATE_SVG_CACHE.then(txt => {
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = txt;
+                            const svgEl = tempDiv.querySelector('svg');
+                            
+                            if (svgEl) {
+                                window.PROSTATE_SVG_PARSED = svgEl.cloneNode(true);
+                                wrap.appendChild(setupSvgListeners(svgEl));
+                            }
+                        }).catch(() => {
+                            const err = document.createElement('span');
+                            err.className = 'label';
+                            err.textContent = 'SVG Organs_prostate_lesion.svg nelze načíst.';
+                            wrap.appendChild(err);
+                        });
+                    }
+                }, 0);
+            }
 
             const locContainer = document.createElement('div');
             locContainer.className = 'table-wrapper';
@@ -1300,7 +1328,95 @@ const RegionProstate = {
                     }
                 });
 
-                let locText = locs.length > 0 ? `v segmentech ${locs.join(', ')}` : '';
+                let locText = '';
+                if (locs.length > 0) {
+                    let parsedLocs = locs.map(loc => {
+                        const parts = loc.split(/[-_]/);
+                        if (parts.length >= 3) return { raw: loc, level: parts[0], side: parts[1], zone: parts.slice(2).join('-') };
+                        if (parts.length === 2) return { raw: loc, level: parts[0], side: '', zone: parts[1] };
+                        return { raw: loc, level: '', side: '', zone: loc };
+                    });
+
+                    let validFormat = true;
+                    let levelData = new Map();
+
+                    parsedLocs.forEach(p => {
+                        let l = p.level.toUpperCase();
+                        let lName = '';
+                        if (l === 'BASE') lName = 'baze';
+                        else if (l === 'MID') lName = 'střední etáže';
+                        else if (l === 'APEX' || l === 'AP') lName = 'apexu';
+                        else validFormat = false;
+
+                        if (lName) {
+                            if (!levelData.has(lName)) {
+                                levelData.set(lName, { R: new Set(), L: new Set(), none: new Set(), sideOrder: [] });
+                            }
+                            let s = p.side.toUpperCase();
+                            if (s === 'R') {
+                                levelData.get(lName).R.add(p.zone);
+                                if (!levelData.get(lName).sideOrder.includes('R')) levelData.get(lName).sideOrder.push('R');
+                            } else if (s === 'L') {
+                                levelData.get(lName).L.add(p.zone);
+                                if (!levelData.get(lName).sideOrder.includes('L')) levelData.get(lName).sideOrder.push('L');
+                            } else {
+                                levelData.get(lName).none.add(p.zone);
+                            }
+                        }
+                    });
+
+                    if (validFormat && levelData.size > 0) {
+                        let descGroups = new Map();
+
+                        levelData.forEach((sides, lName) => {
+                            let rArrRaw = Array.from(sides.R);
+                            let lArrRaw = Array.from(sides.L);
+                            let nArr = Array.from(sides.none);
+                            
+                            let rSorted = [...rArrRaw].sort().join(',');
+                            let lSorted = [...lArrRaw].sort().join(',');
+                            let isIdenticalBilateral = rSorted && lSorted && rSorted === lSorted;
+                            
+                            let rStr = rArrRaw.join(', ');
+                            let lStr = lArrRaw.join(', ');
+                            
+                            let descParts = [];
+                            
+                            if (isIdenticalBilateral) {
+                                let primaryStr = sides.sideOrder[0] === 'R' ? rStr : lStr;
+                                descParts.push(`bilat. (${primaryStr})`);
+                            } else {
+                                sides.sideOrder.forEach(sName => {
+                                    if (sName === 'R' && rStr) descParts.push(`vpravo (${rStr})`);
+                                    if (sName === 'L' && lStr) descParts.push(`vlevo (${lStr})`);
+                                });
+                            }
+                            
+                            if (nArr.length > 0) {
+                                descParts.push(`(${nArr.join(', ')})`);
+                            }
+                            
+                            let levelDesc = descParts.join(' a ');
+
+                            if (!descGroups.has(levelDesc)) descGroups.set(levelDesc, []);
+                            descGroups.get(levelDesc).push(lName);
+                        });
+
+                        let finalParts = [];
+                        descGroups.forEach((levelsArr, desc) => {
+                            let levelStr = "";
+                            if (levelsArr.length === 1) levelStr = `v úrovni ${levelsArr[0]}`;
+                            else if (levelsArr.length === 2) levelStr = `v úrovni ${levelsArr[0]} a ${levelsArr[1]}`;
+                            else if (levelsArr.length > 2) levelStr = `v úrovni ${levelsArr.slice(0, -1).join(', ')} a ${levelsArr[levelsArr.length - 1]}`;
+                            
+                            finalParts.push(`${levelStr} ${desc}`);
+                        });
+
+                        locText = finalParts.join(', ');
+                    } else {
+                        locText = `v segmentech ${locs.join(', ')}`;
+                    }
+                }
 
                 const pocetIds = [`${p}_c_soli`, `${p}_c_dve`, `${p}_c_vice`, `${p}_c_mnoho`];
                 let pocetRawId = pocetIds.find(id => ctx.isActive(id));
@@ -1361,7 +1477,38 @@ const RegionProstate = {
                 let sizeMm = sizeRaw ? parseFloat(sizeRaw.split('x')[0]) : 0;
                 let sizeStr = sizeRaw ? `diametru cca ${sizeRaw} mm` : '';
 
-                // Automatika PI-RADS v2.1
+                let suvRaw = ctx.field(`${p}_met_suv`);
+                let act = ctx.text(`${p}_met_act`, true);
+                let actStrRep = '';
+                let actStrConc = '';
+
+                if (act && act !== '0' && act !== 'není') {
+                    const isPSMA = examId.toLowerCase().includes('psma');
+                    const term = isPSMA ? { with: 'PSMA expresí', without: 'PSMA exprese' } : { with: 'metabolickou aktivitou', without: 'metabolické aktivity' };
+                    const adj = { 'nízká': 'nízkou', 'intermediární': 'intermediární', 'zvýšená': 'zvýšenou', 'vysoká': 'vysokou' }[act] || act;
+                    let prep = adj.match(/^[szšž]/i) ? 'se' : 's';
+                    
+                    actStrRep = `${prep} ${adj} ${term.with}`;
+                    actStrConc = actStrRep;
+                    
+                    if (isPSMA && suvRaw) {
+                        let suvVal = parseFloat(suvRaw.replace(',', '.'));
+                        let refLiv = parseFloat((Store.fields['suv_jater'] || '3.0').replace(',', '.'));
+                        let refPar = parseFloat((Store.fields['suv_parotid'] || '20.0').replace(',', '.'));
+                        if (!isNaN(suvVal) && !isNaN(refLiv) && !isNaN(refPar)) {
+                            let grade = '';
+                            if (suvVal < refLiv) grade = 'grade 1';
+                            else if (suvVal < refPar) grade = 'grade 2';
+                            else grade = 'grade 3';
+                            actStrConc += ` (${grade})`;
+                        }
+                    }
+                } else if (act === 'není') {
+                    const isPSMA = examId.toLowerCase().includes('psma');
+                    actStrRep = isPSMA ? 'bez PSMA exprese' : 'bez metabolické aktivity';
+                    actStrConc = actStrRep;
+                }
+
                 let zone = isPZ ? 'PZ' : (isTZ ? 'TZ' : (isCZ ? 'CZ' : 'unknown'));
                 let big = (sizeMm >= 15) || hasECE;
                 let pi = 0;
@@ -1386,16 +1533,21 @@ const RegionProstate = {
 
                 const globalBtnId = `${examId}_prostate_${p}_pirads`;
                 
-                // TICHÁ AKTUALIZACE TLAČÍTKA PI-RADS (Zamezí překreslení tabulky a blikání)
-                if (pi > 0 && Store.buttonStates[globalBtnId] !== pi) {
-                    Store.buttonStates[globalBtnId] = pi;
-                    setTimeout(() => {
-                        const btn = document.querySelector(`button[data-id="${globalBtnId}"]`);
-                        if (btn && ButtonConfigs[globalBtnId]?.states) {
-                            btn.querySelector('span').textContent = ButtonConfigs[globalBtnId].states[pi];
-                            btn.classList.add('modified');
-                        }
-                    }, 0);
+                if (Store.buttonStates[globalBtnId] !== pi) {
+                    if (pi > 0 || zone !== 'unknown') {
+                        Store.buttonStates[globalBtnId] = pi;
+                        setTimeout(() => {
+                            const btn = document.querySelector(`button[data-id="${globalBtnId}"]`);
+                            if (btn && ButtonConfigs[globalBtnId]?.states) {
+                                btn.querySelector('span').textContent = ButtonConfigs[globalBtnId].states[pi];
+                                if (pi > 0) {
+                                    btn.classList.add('modified');
+                                } else {
+                                    btn.classList.remove('modified');
+                                }
+                            }
+                        }, 0);
+                    }
                 }
 
                 let finalPirads = Store.buttonStates[globalBtnId] || pi;
@@ -1404,6 +1556,7 @@ const RegionProstate = {
                 let partsRep = [];
                 if (locText) partsRep.push(locText);
                 if (sizeStr) partsRep.push(sizeStr);
+                if (actStrRep) partsRep.push(actStrRep);
                 if (vzhledy.length > 0) partsRep.push(vzhledy.join(', '));
                 if (invTextRep) partsRep.push(invTextRep);
 
@@ -1412,6 +1565,7 @@ const RegionProstate = {
                 let partsConc = [];
                 if (piradsText) partsConc.push(piradsText);
                 if (locText) partsConc.push(`- ${locText}`);
+                if (actStrConc) partsConc.push(actStrConc);
                 if (invTextConc) partsConc.push(invTextConc);
                 let concT = `${baseText} ${partsConc.join(' ')}.`.replace(/\s+/g, ' ');
 
@@ -2329,9 +2483,7 @@ const UI = {
             this.renderExams();
             this.renderDetails();
         } else if (prop === 'buttonStates' || prop === 'expandedNotes') {
-            const activeExam = getExamById(Store.activeTab);
-            const usesSvg = activeExam && (activeExam.id.includes('trup') || activeExam.id.includes('krk'));
-            if (usesSvg) {
+            if (document.getElementById('organ-svg-container')) {
                 this.renderActiveTable();
             } else {
                 this.renderDetails();
