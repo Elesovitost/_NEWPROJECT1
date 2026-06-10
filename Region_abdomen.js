@@ -168,8 +168,7 @@ const RegionAbdomen = {
                 helpers.Table3colRL('na_table', [
                     [ { btn: 'na_akt_r', states: ['0', '+'] }, 'RF+', { btn: 'na_akt_l', states: ['0', '+'] } ],
                     [ { btn: 'na_hyp_r', states: ['0', '+'] }, 'Hyperplázie', { btn: 'na_hyp_l', states: ['0', '+'] } ],
-                    [ { btn: 'na_inc_r', states: ['0', '+'] }, 'Incidentalom', { btn: 'na_inc_l', states: ['0', '+'] } ],
-                    [ { btn: 'na_ade_r', states: ['0', '+'] }, 'Adenom', { btn: 'na_ade_l', states: ['0', '+'] } ],
+                    [ { btn: 'na_inc_r', states: ['0', 'B', 'I', 'M'] }, 'Incidentalom', { btn: 'na_inc_l', states: ['0', 'B', 'I', 'M'] } ],
                     [ { btn: 'na_mye_r', states: ['0', '+'] }, 'Myelolipom', { btn: 'na_mye_l', states: ['0', '+'] } ],
                     [ { btn: 'na_adr_r', states: ['0', '+'] }, 'Adrenalektomie', { btn: 'na_adr_l', states: ['0', '+'] } ]
                 ]),
@@ -545,7 +544,7 @@ const RegionAbdomen = {
             let zlChod = ctx.text('zl_chod'); if (zlChod && zlChod !== '0') { zlRep.push(`${zlChod} dilatace d. choledochus`); concInc.push({ type: 'frame', text: `${cap(zlChod)} dilatace d. choledochus.`, tableId: 'abdomen_zlucnik_main' }); }
             if (ctx.isActive('zl_chce')) zlRep.push("stav po cholecystektomii");
             let zlDesc = ctx.field('zl_custom_desc'); if (zlDesc) zlRep.push(zlDesc);
-            if (zlRep.length > 0) reportOut.push({ type: 'frame', text: `- Žlučník a žlučové cesty: ${formatList(zlRep)}.`, tableId: 'abdomen_zlucnik_main' });
+            if (zlRep.length > 0) reportOut.push({ type: 'frame', text: `- Žlučník: ${formatList(zlRep)}.`, tableId: 'abdomen_zlucnik_main' });
             let zlConc = ctx.field('zl_custom_conc'); if (zlConc) concInc.push({ type: 'frame', text: zlConc, tableId: 'abdomen_zlucnik_main' });
 
             // 5. Slezina
@@ -624,13 +623,65 @@ const RegionAbdomen = {
 
             // 10. Nadledviny
             let naRep = [];
-            ['akt', 'hyp', 'inc', 'ade', 'mye', 'adr'].forEach(type => {
+            
+            ['akt', 'hyp', 'mye', 'adr'].forEach(type => {
                 let s = checkSide(`na_${type}`); if (!s) return;
-                const m = { akt: { t: 'zvýšená akumulace RF (funkčně)', c: '' }, hyp: { t: 'zvětšení (hyperplázie)', c: 'Hyperplázie' }, inc: { t: 'ložisko bez zvýšené akumulace RF (incidentalom)', p: 'ložiska (incidentalomy)', c: 'Incidentalom' }, ade: { t: 'drobné ložisko (adenom)', p: 'drobná ložiska (adenomy)', c: 'Adenom' }, mye: { t: 'ložisko tukové denzity (myelolipom)', p: 'ložiska tukové denzity (myelolipomy)', c: 'Myelolipom' }, adr: { t: 'stav po odstranění', c: '' } };
+                const m = { 
+                    akt: { t: 'zvýšená akumulace RF (funkčně)', c: '' }, 
+                    hyp: { t: 'zvětšení (hyperplázie)', c: 'Hyperplázie' }, 
+                    mye: { t: 'ložisko tukové denzity (myelolipom)', p: 'ložiska tukové denzity (myelolipomy)', c: 'Myelolipom' }, 
+                    adr: { t: 'stav po odstranění', c: '' } 
+                };
                 let item = m[type]; let txt = s.isPlural && item.p ? item.p : item.t;
                 naRep.push(`${txt} ${s.sideText}`);
                 if (item.c) { let l = s.sideText === 'bilat.' ? 'nadledvin bilat.' : s.sideText === 'vpravo' ? 'pravé nadledviny' : 'levé nadledviny'; concInc.push({ type: 'frame', text: `${s.isPlural && type !== 'hyp' ? item.c + 'y' : item.c} ${l}.`, tableId: 'abdomen_nadledviny_main' }); }
             });
+
+            let incR = ctx.text('na_inc_r');
+            let incL = ctx.text('na_inc_l');
+            
+            const incMap = {
+                'B': {
+                    r: 'ložisko (incidentalom) benigního charakteru',
+                    p: 'ložiska (incidentalomy) benigního charakteru',
+                    c: null
+                },
+                'I': {
+                    r: 'ložisko (incidentalom) s nedefiničním vzhledem',
+                    p: 'ložiska (incidentalomy) s nedefiničním vzhledem',
+                    c: 'Incidentalom {loc}, pravděpodobně benigní, ke kontrole stacionarity za 6-12 měsíců.'
+                },
+                'M': {
+                    r: 'větší ložisko (incidentalom) bez prokazatelných benigních charakteristik',
+                    p: 'větší ložiska (incidentalomy) bez prokazatelných benigních charakteristik',
+                    c: 'Větší incidentalom {loc} k dovyšetření.'
+                }
+            };
+
+            if ((incR && incR !== '0') || (incL && incL !== '0')) {
+                let isR = incR && incR !== '0';
+                let isL = incL && incL !== '0';
+                
+                if (isR && isL && incR === incL) {
+                    let data = incMap[incR];
+                    naRep.push(`${data.p} bilat.`);
+                    if (data.c) {
+                        concInc.push({ type: 'frame', text: data.c.replace('{loc}', 'nadledvin bilat.'), tableId: 'abdomen_nadledviny_main' });
+                    }
+                } else {
+                    if (isR) {
+                        let data = incMap[incR];
+                        naRep.push(`${data.r} vpravo`);
+                        if (data.c) concInc.push({ type: 'frame', text: data.c.replace('{loc}', 'pravé nadledviny'), tableId: 'abdomen_nadledviny_main' });
+                    }
+                    if (isL) {
+                        let data = incMap[incL];
+                        naRep.push(`${data.r} vlevo`);
+                        if (data.c) concInc.push({ type: 'frame', text: data.c.replace('{loc}', 'levé nadledviny'), tableId: 'abdomen_nadledviny_main' });
+                    }
+                }
+            }
+
             let naDesc = ctx.field('na_custom_desc'); if (naDesc) naRep.push(naDesc);
             if (naRep.length > 0) reportOut.push({ type: 'frame', text: `- Nadledviny: ${formatList(naRep)}.`, tableId: 'abdomen_nadledviny_main' });
             let naConc = ctx.field('na_custom_conc'); if (naConc) concInc.push({ type: 'frame', text: naConc, tableId: 'abdomen_nadledviny_main' });
