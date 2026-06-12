@@ -1305,7 +1305,8 @@ const RegionProstate = {
                     [ 'Krvácení:', { btn: 'pr_hem', states: ['0', '+', '++'] } ]
                 ], 'prostate'),
                 helpers.Table1col('pr_pro_add', [
-                    { field: 'text', id: 'pr_custom_desc', placeholder: 'vlastní popis...' }
+                    { field: 'text', id: 'pr_custom_desc', placeholder: 'vlastní popis...' },
+                    { field: 'text', id: 'pr_custom_conc', placeholder: 'vlastní závěr...' }
                 ], 'prostate')
             ])
         );
@@ -1647,6 +1648,7 @@ const RegionProstate = {
         let prSize = ctx.field('pr_size');
         let prHem = ctx.text('pr_hem');
         let prDesc = ctx.field('pr_custom_desc');
+        let prConcRaw = ctx.field('pr_custom_conc');
 
         if (prOp === 'RAPE') {
             prostataText.push('St.p. RAPE.');
@@ -1689,6 +1691,17 @@ const RegionProstate = {
             if (prDesc) prostataText.push(prDesc);
 
             reportOut.push({ type: 'frame', text: prostataText.join(' '), tableId: 'prostate_prostata_main', dimmed: !prSize && !prHem && !prDesc && (!prOp || prOp === '0') });
+        }
+
+        if (prConcRaw) {
+            let prConcClean = prConcRaw.replace(/\u200B/g, '').trim();
+            if (prConcClean) {
+                let formattedConc = prConcClean.charAt(0).toUpperCase() + prConcClean.slice(1);
+                if (!formattedConc.endsWith('.')) {
+                    formattedConc += '.';
+                }
+                concMain.push({ type: 'frame', text: formattedConc, tableId: 'prostate_prostata_main' });
+            }
         }
 
         // --- 3. Semenné váčky ---
@@ -2765,7 +2778,7 @@ const UI = {
                 'Organs_shoulder_cor.svg': '35vh',
                 'Organs_LS_sag.svg': '60vh',
                 'Organs_prostate.svg': '30vh',
-                'Organs_rectum.svg': '45vh',
+                'Organs_rectum.svg': '30vh',
                 'Organs_schematic_WB.svg': '70vh'
             };
 
@@ -3306,7 +3319,7 @@ function createNewInstance(baseTableId) {
     if (isHemo) {
         pfx = 'bh';
     } else {
-        const prefixMap = { brain: 'bl', thorax: isLN ? 'tln' : 'tl', abdomen: isLN ? 'aln' : 'al', neck: isLN ? 'ln' : 'l', skeleton: 'l', prostate: isLN ? 'prln' : 'pl' };
+        const prefixMap = { brain: 'bl', thorax: isLN ? 'tln' : 'tl', abdomen: isLN ? 'aln' : 'al', neck: isLN ? 'ln' : 'l', skeleton: 'l', prostate: isLN ? 'prln' : 'pl', rectum: isLN ? 'rtln' : 'rt' };
         pfx = prefixMap[regionId] || (isLN ? 'ln' : 'l');
     }
     

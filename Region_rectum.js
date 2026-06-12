@@ -4,19 +4,23 @@ const RegionRectum = {
     layout: (helpers) => {
         let layoutNodes = [];
 
-        // --- 1. PRIMÁRNÍ TUMOR (LÉZE) ---
         const lesInsts = Store.instances?.['rectum_lesion_main'] || [];
         lesInsts.forEach((instId, idx) => {
             const p = `rt_${instId}`;
             
             const locRows = [
-                helpers.Table1col(`${p}_loc1`, [['Od AR úhlu:', { field: 'mm', id: `${p}_dist`, placeholder: 'cm' }, 'Délka:', { field: 'mm', id: `${p}_len`, placeholder: 'cm' }, 'Rozsah:', { field: 'mm', id: `${p}_c_od`, placeholder: 'od' }, { field: 'mm', id: `${p}_c_do`, placeholder: 'do' }]], 'rectum'),
-                helpers.Table1col(`${p}_loc2`, [['Invaze:', { btn: `${p}_inv`, states: ['0', '< 1 mm', '1-5 mm', '5-15 mm', '> 15 mm', 'perit. recesu', 'orgánu'] }, 'Kde:', { field: 'text', id: `${p}_inv_kde`, placeholder: 'upřesnění...' }]], 'rectum'),
-                helpers.Table1col(`${p}_loc3`, [['Invaze MRF:', { btn: `${p}_mrf`, states: ['0', '+'] }, 'EMVI:', { btn: `${p}_emvi`, states: ['0', '+'] }, 'Tumor depozita:', { btn: `${p}_td`, states: ['0', '+', '++'] }]], 'rectum'),
-                helpers.Table1col(`${p}_loc4`, [['Invaze dna:', { btn: `${p}_dno`, states: ['0', '+'] }, 'Invaze sfinkteru:', { btn: `${p}_sfinkter`, states: ['0', 'interní', 'intersfinkter.', 'externí'] }]], 'rectum'),
+                el('div', { className: 'sub-table-title', textContent: 'Lokalizace', style: 'text-align: left; padding-left: 8px; margin-top: 4px;' }),
+                el('div', { style: 'text-align: left;' }, [
+                    helpers.Table1col(`${p}_loc1`, [['Od AR úhlu:', { field: 'mm', id: `${p}_dist`, placeholder: 'cm' }, 'Délka:', { field: 'mm', id: `${p}_len`, placeholder: 'cm' }, 'Rozsah:', { field: 'mm', id: `${p}_c_od`, placeholder: 'od' }, { field: 'mm', id: `${p}_c_do`, placeholder: 'do' }]], 'rectum'),
+                    helpers.Table1col(`${p}_loc2`, [['Invaze:', { btn: `${p}_inv`, states: ['0', '< 1 mm', '1-5 mm', '5-15 mm', '> 15 mm', 'perit. recesu', 'orgánu'] }, 'Kde:', { field: 'text', id: `${p}_inv_kde`, placeholder: 'upřesnění...' }]], 'rectum'),
+                    helpers.Table1col(`${p}_loc3`, [['Invaze MRF:', { btn: `${p}_mrf`, states: ['0', '+'] }, 'EMVI:', { btn: `${p}_emvi`, states: ['0', '+'] }, 'Tumor depozita:', { btn: `${p}_td`, states: ['0', '+', '++'] }]], 'rectum'),
+                    helpers.Table1col(`${p}_loc4`, [['Invaze dna:', { btn: `${p}_dno`, states: ['0', '+'] }, 'Invaze sfinkteru:', { btn: `${p}_sfinkter`, states: ['0', 'interní', 'intersfinkter.', 'externí'] }]], 'rectum')
+                ]),
                 el('div', { style: 'height: 12px;' }),
                 el('div', { className: 'sub-table-title', textContent: 'Po terapii', style: 'text-align: left; padding-left: 8px;' }),
-                helpers.Table1col(`${p}_loc5`, [['Response:', { btn: `${p}_terapie`, states: ['0', '(near) complete', 'malé reziduum', 'velké reziduum'] }]], 'rectum')
+                el('div', { style: 'text-align: left;' }, [
+                    helpers.Table1col(`${p}_loc5`, [['Response:', { btn: `${p}_terapie`, states: ['0', '(near) complete', 'malé reziduum', 'velké reziduum'] }]], 'rectum')
+                ])
             ];
 
             layoutNodes.push(
@@ -28,24 +32,25 @@ const RegionRectum = {
             );
         });
 
-        // --- 2. UZLINY ---
         const lnInsts = Store.instances?.['rectum_lymphnode_main'] || [];
         lnInsts.forEach((instId, idx) => {
             const p = `rtln_${instId}`;
             layoutNodes.push(
                 helpers.LesionMain(`rectum_lymphnode_main__${instId}`, `Lymfadenopatie (${idx + 1})`, [
                     ...LESIONS_DEFINITION.getLymphNodeRowsPre(helpers, p),
-                    helpers.Table3colRCL(`${p}_loc1`, 'Lokalizace', [
-                        [ '', { btn: `${p}_p_ima_c`, type: 'basic', text: 'IMA + RS' }, '' ],
-                        [ '', [ { btn: `${p}_p_par_r`, type: 'basic', text: 'para-Ao' }, { btn: `${p}_p_par_l`, type: 'basic', text: 'para-Ao' } ], '' ],
-                        [ { btn: `${p}_p_cia_r`, type: 'basic', text: 'CIA' }, '', { btn: `${p}_p_cia_l`, type: 'basic', text: 'CIA' } ],
-                        [ { btn: `${p}_p_eia_r`, type: 'basic', text: 'EIA' }, '', { btn: `${p}_p_eia_l`, type: 'basic', text: 'EIA' } ],
-                        [ { btn: `${p}_p_iia_r`, type: 'basic', text: 'IIA' }, '', { btn: `${p}_p_iia_l`, type: 'basic', text: 'IIA' } ],
-                        [ { btn: `${p}_p_obt_r`, type: 'basic', text: 'obturátor' }, '', { btn: `${p}_p_obt_l`, type: 'basic', text: 'obturátor' } ],
-                        [ '', [ { btn: `${p}_p_pre_r`, type: 'basic', text: 'presakr.' }, { btn: `${p}_p_pre_l`, type: 'basic', text: 'presakr.' } ], '' ],
-                        [ '', [ { btn: `${p}_p_mez_r`, type: 'basic', text: 'mezorekt.' }, { btn: `${p}_p_mez_l`, type: 'basic', text: 'mezorekt.' } ], '' ],
-                        [ { btn: `${p}_p_ing_r`, type: 'basic', text: 'inguinálně' }, '', { btn: `${p}_p_ing_l`, type: 'basic', text: 'inguinálně' } ]
-                    ], 'rectum'),
+                    el('div', { style: 'text-align: left;' }, [
+                        helpers.Table3colRCL(`${p}_loc1`, 'Lokalizace', [
+                            [ '', { btn: `${p}_p_ima_c`, type: 'basic', text: 'IMA + RS' }, '' ],
+                            [ '', [ { btn: `${p}_p_par_r`, type: 'basic', text: 'para-Ao' }, { btn: `${p}_p_par_l`, type: 'basic', text: 'para-Ao' } ], '' ],
+                            [ { btn: `${p}_p_cia_r`, type: 'basic', text: 'CIA' }, '', { btn: `${p}_p_cia_l`, type: 'basic', text: 'CIA' } ],
+                            [ { btn: `${p}_p_eia_r`, type: 'basic', text: 'EIA' }, '', { btn: `${p}_p_eia_l`, type: 'basic', text: 'EIA' } ],
+                            [ { btn: `${p}_p_iia_r`, type: 'basic', text: 'IIA' }, '', { btn: `${p}_p_iia_l`, type: 'basic', text: 'IIA' } ],
+                            [ { btn: `${p}_p_obt_r`, type: 'basic', text: 'obturátor' }, '', { btn: `${p}_p_obt_l`, type: 'basic', text: 'obturátor' } ],
+                            [ '', [ { btn: `${p}_p_pre_r`, type: 'basic', text: 'presakr.' }, { btn: `${p}_p_pre_l`, type: 'basic', text: 'presakr.' } ], '' ],
+                            [ '', [ { btn: `${p}_p_mez_r`, type: 'basic', text: 'mezorekt.' }, { btn: `${p}_p_mez_l`, type: 'basic', text: 'mezorekt.' } ], '' ],
+                            [ { btn: `${p}_p_ing_r`, type: 'basic', text: 'inguinálně' }, '', { btn: `${p}_p_ing_l`, type: 'basic', text: 'inguinálně' } ]
+                        ], 'rectum')
+                    ]),
                     ...LESIONS_DEFINITION.getLymphNodeRowsPost(helpers, p, `${p}_met`, `${p}_e`)
                 ])
             );
@@ -60,11 +65,10 @@ const RegionRectum = {
         
         const isPet = ctx.examId.toLowerCase().includes('pet');
 
-        // --- 1. PRIMÁRNÍ TUMOR (LÉZE) ---
         const lesInsts = Store.instances?.['rectum_lesion_main'] || [];
         
         if (lesInsts.length === 0) {
-            reportOut.push({ type: 'frame', text: 'Stěna rekta je bez zjevného patologického ztluštění, mezorektum čisté.', tableId: 'rectum_lesion_main', dimmed: true });
+            reportOut.push({ type: 'frame', text: 'Stěna rekta je bez zjevného patologického / ložiskového zesílení, mezorektum bez patrné infiltrace.', tableId: 'rectum_lesion_main', dimmed: true });
         } else {
             lesInsts.forEach((instId) => {
                 const p = `rt_${instId}`;
@@ -78,7 +82,7 @@ const RegionRectum = {
                 let locParts = [];
                 if (dist) locParts.push(`ve vzdálenosti cca ${dist} cm od AR úhlu`);
                 if (len) locParts.push(`v délce ${len} cm`);
-                if (cOd && cDo) locParts.push(`cirkumferenčně v rozsahu od ${cOd} do ${cDo} č.`);
+                if (cOd && cDo) locParts.push(`cirkumferenčně od č. ${cOd} do ${cDo}`);
                 let locStr = locParts.length > 0 ? ` ${locParts.join(', ')}` : '';
 
                 let inv = ctx.text(`${p}_inv`);
@@ -88,12 +92,13 @@ const RegionRectum = {
                 let kdeSuffix = invKde ? `, lokalizace: ${invKde}` : "";
 
                 if (inv) {
-                    if (inv === '< 1 mm') { stageStr = "T3a"; stageDesc = `Extramurální hloubka invaze do 1 mm (odpovídá stadiu v.s. T3a)${kdeSuffix}.`; }
-                    else if (inv === '1-5 mm') { stageStr = "T3b"; stageDesc = `Extramurální hloubka invaze 1-5 mm (odpovídá stadiu v.s. T3b)${kdeSuffix}.`; }
-                    else if (inv === '5-15 mm') { stageStr = "T3c"; stageDesc = `Extramurální hloubka invaze 5-15 mm (odpovídá stadiu v.s. T3c)${kdeSuffix}.`; }
-                    else if (inv === '> 15 mm') { stageStr = "T3d"; stageDesc = `Extramurální hloubka invaze nad 15 mm (odpovídá stadiu v.s. T3d)${kdeSuffix}.`; }
-                    else if (inv === 'perit. recesu') { stageStr = "T4a"; stageDesc = `Infiltrace peritoneální reflexe (odpovídá stadiu v.s. T4a)${kdeSuffix}.`; }
-                    else if (inv === 'orgánu') { stageStr = "T4b"; stageDesc = `Infiltrace okolních orgánů (odpovídá stadiu v.s. T4b)${kdeSuffix}.`; }
+                    if (inv === '0') { stageStr = "T1/T2"; stageDesc = `Bez známek šíření mimo stěnu rekta ${kdeSuffix}.`; }
+                    else if (inv === '< 1 mm') { stageStr = "T3a"; stageDesc = `Extramurální hloubka invaze do 1 mm ${kdeSuffix}.`; }
+                    else if (inv === '1-5 mm') { stageStr = "T3b"; stageDesc = `Extramurální hloubka invaze 1-5 mm ${kdeSuffix}.`; }
+                    else if (inv === '5-15 mm') { stageStr = "T3c"; stageDesc = `Extramurální hloubka invaze 5-15 mm ${kdeSuffix}.`; }
+                    else if (inv === '> 15 mm') { stageStr = "T3d"; stageDesc = `Extramurální hloubka invaze nad 15 mm ${kdeSuffix}.`; }
+                    else if (inv === 'perit. recesu') { stageStr = "T4a"; stageDesc = `Infiltrace peritoneální reflexe ${kdeSuffix}.`; }
+                    else if (inv === 'orgánu') { stageStr = "T4b"; stageDesc = `Infiltrace okolních orgánů ${kdeSuffix}.`; }
                 }
 
                 let riskParts = [];
@@ -128,23 +133,31 @@ const RegionRectum = {
                     if (terapie === 'velké reziduum') terStr = "Dle MR stacionární nález, trvá velké tumorózní reziduum.";
                 }
 
-                // Sestavení Reportu
                 let repBase = `${dL.baseText}${locStr}${dL.vzhledText}${dL.metrikyStr}${dL.actStr}${dL.dynStr}${dL.doplneniStr}.`.replace(/\s+/g, ' ').replace(' .', '.');
-                let repDetails = [stageDesc, mrfDesc, emviDesc, tdDesc, dnoDesc, sfinDesc, terStr].filter(Boolean).join(' ');
+                let repDetails = [stageDesc, mrfDesc, emviDesc, tdDesc, dnoDesc, sfinDesc].filter(Boolean).join(' ');
                 if (dL.etioStr) repDetails += ` ${dL.etioStr}.`;
                 
                 reportOut.push({ type: 'frame', text: `${repBase} ${repDetails}`.trim(), tableId: `rectum_lesion_main__${instId}` });
 
-                // Sestavení Závěru
                 let stageArr = [stageStr, mrfStr, emviStr].filter(Boolean).join(', ');
                 let extRisk = riskParts.length > 0 ? ` (${riskParts.join(', ')})` : "";
                 let dnoSfin = (dno === '+' || (sfinkter && sfinkter !== '0')) ? "s invazí dna/sfinkteru" : "";
                 
                 let isTumor = repBase.toLowerCase().includes('tumor') || repBase.toLowerCase().includes('karcinom') || repBase.toLowerCase().includes('maligní');
-                let baseLabel = isTumor ? "Karcinom rekta" : dL.baseText;
+                let baseLabel = isTumor ? "Karcinom" : dL.baseText.replace(/ rekta/gi, '');
+
+                let distNum = parseFloat((dist || '').replace(',', '.'));
+                let lenNum = parseFloat((len || '').replace(',', '.'));
+                let locSuffix = "rekta";
+
+                if (dist === '0' || distNum === 0) {
+                    locSuffix = len ? `anorekta (délky cca ${len} cm)` : `anorekta`;
+                } else if (dist) {
+                    locSuffix = len ? `rekta (cca ${dist}-${(distNum + lenNum).toFixed(1).replace('.0', '')} cm od AR úhlu)` : `rekta (cca ${dist} cm od AR úhlu)`;
+                }
 
                 let cParts = [];
-                cParts.push(`${baseLabel} ${dist ? '('+dist+' cm od AR úhlu)' : ''}`);
+                cParts.push(`${baseLabel} ${locSuffix}`.trim());
                 if (dnoSfin) cParts.push(dnoSfin);
                 cParts.push(`- lokální staging v.s. ${stageArr}${extRisk}.`);
                 if (terStr) cParts.push(terStr);
@@ -153,7 +166,6 @@ const RegionRectum = {
             });
         }
 
-        // --- 2. UZLINY ---
         const lnInsts = Store.instances?.['rectum_lymphnode_main'] || [];
         if (lnInsts.length === 0) {
             reportOut.push({ type: 'frame', text: isPet ? 'Bez patrné hyperakumulující lymfadenopatie.' : 'Bez zjevné patologické regionální či non-regionální lymfadenopatie.', tableId: 'rectum_lymphnode_main', dimmed: true });
