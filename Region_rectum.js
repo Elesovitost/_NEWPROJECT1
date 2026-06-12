@@ -263,7 +263,7 @@ const RegionRectum = {
                 let cParts = [];
                 cParts.push(`${baseLabel} ${locSuffix}`.trim());
                 if (dnoSfin) cParts.push(dnoSfin);
-                cParts.push(`- lokální staging v.s. ${stageArr}${extRisk}.`);
+                cParts.push(`- lokální staging: ${stageArr}${extRisk}.`);
                 if (terStr) cParts.push(terStr);
 
                 concMain.push({ type: 'frame', text: cParts.join(' ').replace('  ', ' ').trim(), tableId: `rectum_lesion_main__${instId}` });
@@ -317,13 +317,23 @@ const RegionRectum = {
                     let repSentence = `${dLN.baseText} ${lokTextLN}${dLN.vzhledText}${dLN.metrikyStr}${dLN.doplneniStr}.`.replace(/\s+/g, ' ').replace(' .', '.');
                     reportOut.push({ type: 'frame', text: repSentence, tableId: `rectum_lymphnode_main__${instId}` });
                     
+                    // Detekce N-stagingu z tlačítek etiologie
+                    let nStage = "cN0";
+                    ['m', 'meta'].forEach(btn => {
+                        if (ctx.isActive(`${p}_e_${btn}`)) {
+                            let val = ctx.text(`${p}_e_${btn}`);
+                            if (val.endsWith('!') || val.endsWith('+')) nStage = "cN+";
+                            else if (val.endsWith('?') && nStage !== "cN+") nStage = "susp. cN+";
+                        }
+                    });
+
                     let concSentence = `${dLN.baseText} ${lokTextLN}${dLN.actStr}${dLN.dynStr}`;
-                    if (dLN.etioStr) concSentence += `, ${dLN.etioStr}.`;
-                    else concSentence += `.`;
+                    if (dLN.etioStr) concSentence += `, ${dLN.etioStr}`;
                     
-                    concSentence = concSentence.replace(/\s+/g, ' ').replace(' ,', ',').replace(' .', '.');
+                    // Připojení N-stagingu na úplný konec před tečku
+                    concSentence = `${concSentence.trim()} (${nStage}).`.replace(/\s+/g, ' ').replace(' ,', ',');
                     
-                    let isSus = concSentence.toLowerCase().includes('meta') || concSentence.toLowerCase().includes('maligní') || concSentence.toLowerCase().includes('susp');
+                    let isSus = concSentence.toLowerCase().includes('meta') || concSentence.toLowerCase().includes('maligní') || concSentence.toLowerCase().includes('susp') || nStage.includes('N+');
                     if (isSus) {
                         concMain.push({ type: 'frame', text: concSentence, tableId: `rectum_lymphnode_main__${instId}` });
                     } else {
