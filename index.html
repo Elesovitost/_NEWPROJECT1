@@ -270,6 +270,7 @@
 <script src="Region_LSp.js"></script>
 <script src="Region_shoulder.js"></script>
 <script src="Region_knee.js"></script>
+<script src="Region_rectum.js"></script>
 
 <script>
 
@@ -587,6 +588,11 @@ const ORGAN_MAP = {
     "Prostate_seminal": { name: "Semenné váčky", table: "prostate_seminal_main", regions: ['prostate'] },
     "Prostate_lymphnode": { name: "Lymfatické uzliny", table: "prostate_lymphnode_main", regions: ['prostate'] },
     "Prostate_lesion": { name: "Léze (Prostata)", table: "prostate_lesion_main", regions: ['prostate'] },
+
+    "Rectum_rectum": { name: "Rektum", table: "rectum_lesion_main", regions: ['rectum'] },
+    "Rectum_mesorectalfat": { name: "Mezorektum", table: "rectum_lesion_main", regions: ['rectum'] },
+    "Rectum_lesion": { name: "Léze (Rektum)", table: "rectum_lesion_main", regions: ['rectum'] },
+    "Rectum_lymphnode": { name: "Lymfatické uzliny", table: "rectum_lymphnode_main", regions: ['rectum'] }
 };
 
 
@@ -605,7 +611,8 @@ const EXAMS = {
         { id: 'petmr_psma_prostata', title: 'PSMA-PET / MR prostaty', regs: ['prostate'] },
         { id: 'petmr_fdg_mozek', title: 'FDG-PET / MR mozku', regs: ['brain'] },
         { id: 'petmr_dopa_mozek', title: 'DOPA-PET / MR mozku', regs: ['brain'] },
-        { id: 'petmr_fdg_orl', title: 'FDG-PET / MR ORL', regs: ['neck'] }
+        { id: 'petmr_fdg_orl', title: 'FDG-PET / MR ORL', regs: ['neck'] },
+        { id: 'petmr_fdg_rekta', title: 'FDG-PET / MR rekta', regs: ['rectum'] }
     ],
     CT: [
         { id: 'ct_mozek', title: 'CT mozku', regs: ['brain'] },
@@ -1772,7 +1779,8 @@ const REGIONS = {
     shoulder: RegionShoulder,
     knee: RegionKnee,
     ls_spine: RegionLSp,
-    prostate: RegionProstate
+    prostate: RegionProstate,
+    rectum: RegionRectum
 
 }; // <-- Tohle už je uzavření celého REGIONS objektu
         
@@ -2722,6 +2730,7 @@ const UI = {
         const isShoulder = activeRegions.includes('shoulder');
         const isLsSpine = activeRegions.includes('ls_spine');
         const isProstate = activeRegions.includes('prostate');
+        const isRectum = activeRegions.includes('rectum');
         const kneeSide = Store.fields['knee_side'];
         const shoulderSide = Store.fields['shoulder_side'];
 
@@ -2749,13 +2758,14 @@ const UI = {
 
             content.appendChild(wrapper);
 
-            const svgFiles = isKnee ? ['Organs_knee_cor.svg'] : (isLsSpine ? ['Organs_LS_sag.svg'] : (isShoulder ? ['Organs_shoulder_cor.svg'] : (isProstate ? ['Organs_prostate.svg'] : ['Organs_schematic_WB.svg'])));
+            const svgFiles = isKnee ? ['Organs_knee_cor.svg'] : (isLsSpine ? ['Organs_LS_sag.svg'] : (isShoulder ? ['Organs_shoulder_cor.svg'] : (isProstate ? ['Organs_prostate.svg'] : (isRectum ? ['Organs_rectum.svg'] : ['Organs_schematic_WB.svg']))));
             
             const svgHeights = {
                 'Organs_knee_cor.svg': '35vh',
                 'Organs_shoulder_cor.svg': '35vh',
                 'Organs_LS_sag.svg': '60vh',
                 'Organs_prostate.svg': '30vh',
+                'Organs_rectum.svg': '45vh',
                 'Organs_schematic_WB.svg': '70vh'
             };
 
