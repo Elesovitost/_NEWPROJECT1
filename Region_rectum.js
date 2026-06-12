@@ -4,6 +4,24 @@ const RegionRectum = {
     layout: (helpers) => {
         let layoutNodes = [];
 
+        // Přidání celkové tabulky pro rektum (včetně pooperačních stavů)
+        layoutNodes.push(
+            helpers.TableMain('rectum_rectum_main', 'Rektum obecně / Po operaci', [
+                helpers.Table2colNormal('rt_obecne_table', '', [
+                    [ 'Operace:', { btn: 'rt_op', states: ['0', 'resekce', 'amputace'] } ],
+                    [ 'Anastomóza:', { btn: 'rt_ana', states: ['0', 'kolekce', 'absces'] } ],
+                    [ 'Radiace:', { btn: 'rt_rad', states: ['0', '+'] } ],
+                    [ 'Presakr. infiltr.:', { btn: 'rt_inf', states: ['0', '+', '++'] } ],
+                    [ 'Presakr. kolekce:', { btn: 'rt_kol', states: ['0', 'chronická'] } ],
+                    [ 'Recidiva:', { btn: 'rt_rec', states: ['0', 'ne', 'ano'] } ]
+                ], 'rectum'),
+                helpers.Table1col('rt_obecne_add', [
+                    { field: 'text', id: 'rt_custom_desc', placeholder: 'vlastní popis...' },
+                    { field: 'text', id: 'rt_custom_conc', placeholder: 'vlastní závěr...' }
+                ], 'rectum')
+            ])
+        );
+
         const lesInsts = Store.instances?.['rectum_lesion_main'] || [];
         lesInsts.forEach((instId, idx) => {
             const p = `rt_${instId}`;
@@ -27,7 +45,7 @@ const RegionRectum = {
                 helpers.LesionMain(`rectum_lesion_main__${instId}`, `Léze rekta (${idx + 1})`, [
                     ...LESIONS_DEFINITION.getLesionRowsPre(helpers, p),
                     ...locRows,
-                    ...LESIONS_DEFINITION.getLesionRowsPost(helpers, p, `${p}_met`, `${p}_e`)
+                    ...LESIONS_DEFINITION.getLesionRowsPost(helpers, p, `${p}_met`, `${p}_e`).slice(0, -2)
                 ])
             );
         });
@@ -65,10 +83,96 @@ const RegionRectum = {
         
         const isPet = ctx.examId.toLowerCase().includes('pet');
 
+        // Zpracování celkového stavu a pooperačních změn
+        let rtOp = ctx.text('rt_op');
+        let rtAna = ctx.text('rt_ana');
+        let rtRad = ctx.text('rt_rad');
+        let rtInf = ctx.text('rt_inf');
+        let rtKol = ctx.text('rt_kol');
+        let rtRec = ctx.text('rt_rec');
+        let rtDesc = ctx.field('rt_custom_desc');
+        let rtConcRaw = ctx.field('rt_custom_conc');
+
+        let repGeneral = [];
+        let concGeneral = [];
+        let isOperated = false;
+
+        if (rtOp === 'resekce') {
+            isOperated = true;
+            let radRep = rtRad === '+' ? ' a po radioterapii' : '';
+            let radConc = rtRad === '+' ? ' s poradiačními změnami' : '';
+            repGeneral.push(`Rektum po resekci${radRep}.`);
+            
+            let concBase = `St.p. resekci rekta${radConc}`;
+            
+            if (rtAna === 'kolekce') {
+                repGeneral.push('Anastomóza je porušena, v jejím bezprostředním okolí je patrná ohraničená kolekce tekutiny v T2W.');
+                concGeneral.push(`${concBase}, dehiscence anastomózy s ohraničenou kolekcí tekutiny.`);
+            } else if (rtAna === 'absces') {
+                repGeneral.push('Anastomóza je porušena, přítomna kolekce tekutiny s plynem a okolními zánětlivými změnami v T2W.');
+                concGeneral.push(`${concBase}, selhání anastomózy s abscesem.`);
+            } else {
+                concGeneral.push(`${concBase}.`);
+            }
+        } else if (rtOp === 'amputace') {
+            isOperated = true;
+            let radRep = rtRad === '+' ? ' s postradiačními změnami v pánvi' : '';
+            let radConc = rtRad === '+' ? ' s poradiačními změnami' : '';
+            repGeneral.push(`Stav po amputaci rekta${radRep}.`);
+            
+            let concBase = `St.p. amputaci rekta${radConc}`;
+            let hasComplication = false;
+
+            if (rtInf === '+') {
+                repGeneral.push('V presakrálním prostoru jsou patrné pruhovité fibrotické T2W hyposignální změny.');
+                concGeneral.push(`${concBase}. Změny v presakrálním prostoru charakteru fibrózy.`);
+                hasComplication = true;
+            } else if (rtInf === '++') {
+                repGeneral.push('V presakrálním prostoru je přítomna uzlovitá infiltrace s vyšším SI v T2W.');
+                concGeneral.push(`${concBase}. Uzlovitá infiltrace presakrálního prostoru, suspektní z rezidua/recidivy.`);
+                hasComplication = true;
+            }
+
+            if (rtKol === 'chronická') {
+                repGeneral.push('V presakrálním prostoru je patrná ohraničená tekutinová kolekce bez okolní zánětlivé reakce.');
+                concGeneral.push(hasComplication ? 'Přítomna chronická presakrální tekutinová kolekce.' : `${concBase}. Chronická presakrální tekutinová kolekce.`);
+                hasComplication = true;
+            }
+
+            if (!hasComplication) {
+                concGeneral.push(`${concBase}.`);
+            }
+        }
+
+        if (isOperated) {
+            if (rtRec === 'ne') {
+                repGeneral.push('Bez patrné ložiskové recidivy.');
+                concGeneral.push('Bez známek lokální recidivy.');
+            } else if (rtRec === 'ano') {
+                repGeneral.push('V oblasti lůžka je přítomno ložisko s vyšším SI v T2W a restrikcí difuze.');
+                concGeneral.push('Patrna lokální recidiva v lůžku.');
+            }
+            if (rtDesc) repGeneral.push(rtDesc.replace(/\u200B/g, '').trim());
+            
+            reportOut.push({ type: 'frame', text: repGeneral.join(' '), tableId: 'rectum_obecne_main' });
+            concGeneral.forEach(c => concMain.push({ type: 'frame', text: c, tableId: 'rectum_obecne_main' }));
+        }
+
+        if (rtConcRaw) {
+            let rtConcClean = rtConcRaw.replace(/\u200B/g, '').trim();
+            if (rtConcClean) {
+                let formattedConc = rtConcClean.charAt(0).toUpperCase() + rtConcClean.slice(1);
+                if (!formattedConc.endsWith('.')) formattedConc += '.';
+                concMain.push({ type: 'frame', text: formattedConc, tableId: 'rectum_obecne_main' });
+            }
+        }
+
         const lesInsts = Store.instances?.['rectum_lesion_main'] || [];
         
         if (lesInsts.length === 0) {
-            reportOut.push({ type: 'frame', text: 'Stěna rekta je bez zjevného patologického / ložiskového zesílení, mezorektum bez patrné infiltrace.', tableId: 'rectum_lesion_main', dimmed: true });
+            if (!isOperated && !rtDesc) {
+                reportOut.push({ type: 'frame', text: 'Stěna rekta je bez zjevného patologického / ložiskového zesílení, mezorektum bez patrné infiltrace.', tableId: 'rectum_lesion_main', dimmed: true });
+            }
         } else {
             lesInsts.forEach((instId) => {
                 const p = `rt_${instId}`;
@@ -92,13 +196,13 @@ const RegionRectum = {
                 let kdeSuffix = invKde ? `, lokalizace: ${invKde}` : "";
 
                 if (inv) {
-                    if (inv === '0') { stageStr = "T1/T2"; stageDesc = `Bez známek šíření mimo stěnu rekta ${kdeSuffix}.`; }
-                    else if (inv === '< 1 mm') { stageStr = "T3a"; stageDesc = `Extramurální hloubka invaze do 1 mm ${kdeSuffix}.`; }
-                    else if (inv === '1-5 mm') { stageStr = "T3b"; stageDesc = `Extramurální hloubka invaze 1-5 mm ${kdeSuffix}.`; }
-                    else if (inv === '5-15 mm') { stageStr = "T3c"; stageDesc = `Extramurální hloubka invaze 5-15 mm ${kdeSuffix}.`; }
-                    else if (inv === '> 15 mm') { stageStr = "T3d"; stageDesc = `Extramurální hloubka invaze nad 15 mm ${kdeSuffix}.`; }
-                    else if (inv === 'perit. recesu') { stageStr = "T4a"; stageDesc = `Infiltrace peritoneální reflexe ${kdeSuffix}.`; }
-                    else if (inv === 'orgánu') { stageStr = "T4b"; stageDesc = `Infiltrace okolních orgánů ${kdeSuffix}.`; }
+                    if (inv === '0') { stageStr = "T1/T2"; stageDesc = `Bez známek šíření mimo stěnu rekta${kdeSuffix}.`; }
+                    else if (inv === '< 1 mm') { stageStr = "T3a"; stageDesc = `Extramurální hloubka invaze do 1 mm${kdeSuffix}.`; }
+                    else if (inv === '1-5 mm') { stageStr = "T3b"; stageDesc = `Extramurální hloubka invaze 1-5 mm${kdeSuffix}.`; }
+                    else if (inv === '5-15 mm') { stageStr = "T3c"; stageDesc = `Extramurální hloubka invaze 5-15 mm${kdeSuffix}.`; }
+                    else if (inv === '> 15 mm') { stageStr = "T3d"; stageDesc = `Extramurální hloubka invaze nad 15 mm${kdeSuffix}.`; }
+                    else if (inv === 'perit. recesu') { stageStr = "T4a"; stageDesc = `Infiltrace peritoneální reflexe${kdeSuffix}.`; }
+                    else if (inv === 'orgánu') { stageStr = "T4b"; stageDesc = `Infiltrace okolních orgánů${kdeSuffix}.`; }
                 }
 
                 let riskParts = [];
