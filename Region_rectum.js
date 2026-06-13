@@ -45,7 +45,7 @@ const RegionRectum = {
                 helpers.LesionMain(`rectum_lesion_main__${instId}`, `Léze rekta (${idx + 1})`, [
                     ...LESIONS_DEFINITION.getLesionRowsPre(helpers, p),
                     ...locRows,
-                    ...LESIONS_DEFINITION.getLesionRowsPost(helpers, p, `${p}_met`, `${p}_e`).slice(0, -2)
+                    ...LESIONS_DEFINITION.getLesionRowsPost(helpers, p, `${p}_met`, `${p}_e`)
                 ])
             );
         });
@@ -239,7 +239,6 @@ const RegionRectum = {
 
                 let repBase = `${dL.baseText}${locStr}${dL.vzhledText}${dL.metrikyStr}${dL.actStr}${dL.dynStr}${dL.doplneniStr}.`.replace(/\s+/g, ' ').replace(' .', '.');
                 let repDetails = [stageDesc, mrfDesc, emviDesc, tdDesc, dnoDesc, sfinDesc].filter(Boolean).join(' ');
-                if (dL.etioStr) repDetails += ` ${dL.etioStr}.`;
                 
                 reportOut.push({ type: 'frame', text: `${repBase} ${repDetails}`.trim(), tableId: `rectum_lesion_main__${instId}` });
 
@@ -247,21 +246,46 @@ const RegionRectum = {
                 let extRisk = riskParts.length > 0 ? ` (${riskParts.join(', ')})` : "";
                 let dnoSfin = (dno === '+' || (sfinkter && sfinkter !== '0')) ? "s invazí dna/sfinkteru" : "";
                 
-                let isTumor = repBase.toLowerCase().includes('tumor') || repBase.toLowerCase().includes('karcinom') || repBase.toLowerCase().includes('maligní');
-                let baseLabel = isTumor ? "Karcinom" : dL.baseText.replace(/ rekta/gi, '');
+                let etioLower = (dL.etioStr || '').toLowerCase();
+                let isKarcinom = etioLower.includes('karcinom') || etioLower.includes('maligní');
+                let isTumor = etioLower.includes('tumor');
+
+                let baseLabel = dL.baseText.replace(/ rekta/gi, '');
+                if (isKarcinom) {
+                    baseLabel = "Karcinom";
+                } else if (isTumor) {
+                    baseLabel = "Tumorózní ložisko";
+                }
 
                 let distNum = parseFloat((dist || '').replace(',', '.'));
                 let lenNum = parseFloat((len || '').replace(',', '.'));
-                let locSuffix = "rekta";
-
+                
+                let orgWord = (sfinkter && sfinkter !== '0') ? "rektoanu" : "rekta";
                 if (dist === '0' || distNum === 0) {
-                    locSuffix = len ? `anorekta (délky cca ${len} cm)` : `anorekta`;
+                    orgWord = "anorekta";
+                }
+                
+                let locSuffix = orgWord;
+                if (dist === '0' || distNum === 0) {
+                    locSuffix = len ? `${orgWord} (délky cca ${len} cm)` : `${orgWord}`;
                 } else if (dist) {
-                    locSuffix = len ? `rekta (cca ${dist}-${(distNum + lenNum).toFixed(1).replace('.0', '')} cm od AR úhlu)` : `rekta (cca ${dist} cm od AR úhlu)`;
+                    locSuffix = len ? `${orgWord} (cca ${dist}-${(distNum + lenNum).toFixed(1).replace('.0', '')} cm od AR úhlu)` : `${orgWord} (cca ${dist} cm od AR úhlu)`;
                 }
 
                 let cParts = [];
-                cParts.push(`${baseLabel} ${locSuffix}`.trim());
+                let titlePart = `${baseLabel} ${locSuffix}`.trim();
+                
+                if (dL.etioStr) {
+                    let isRedundant = false;
+                    if (isKarcinom && (etioLower.includes('maligní') || etioLower.includes('karcinom'))) isRedundant = true;
+                    if (isTumor && etioLower.includes('tumor')) isRedundant = true;
+                    
+                    if (!isRedundant) {
+                        titlePart += `, ${dL.etioStr}`;
+                    }
+                }
+                
+                cParts.push(titlePart);
                 if (dnoSfin) cParts.push(dnoSfin);
                 cParts.push(`- lokální staging: ${stageArr}${extRisk}.`);
                 if (terStr) cParts.push(terStr);
