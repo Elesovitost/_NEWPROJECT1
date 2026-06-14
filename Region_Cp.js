@@ -19,7 +19,6 @@
         code = code
             .replace(/Zadní stabilizace/g, 'Přední stabilizace')
             .replace(/agregací kaudy/g, 'útlakem míchy')
-            .replace(/durální vak šíře/g, 'mícha šíře')
             .replace(/facetových artróz/g, 'facetových a unkovertebrálních artróz');
 
         // 4. Přesměrování foraminálních kořenů na novou proměnnou fRoot

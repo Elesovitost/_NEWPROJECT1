@@ -184,7 +184,8 @@
             <input class="input field_suv" data-action="update-field" data-id="suv_striata" value="2.0">
         </div>
         <div class="row sep push">
-            <button class="btn" data-action="toggle-recist" style="min-width: 100px;">RECIST</button>
+            <button class="btn" data-action="toggle-recist" style="min-width: 100px; margin-right: 5px;">RECIST</button>
+            <button class="btn" data-action="toggle-tnm" style="min-width: 100px;">TNM</button>
         </div>
     </div>
     <!-- Settings Modal -->
@@ -450,6 +451,7 @@ const Store = new Proxy(
         activeSlice: 1,
         activeViewerKey: null,
         recist: false,
+        tnm: false,
         instances: {},
         expandedNotes: {}
     },
@@ -3624,6 +3626,11 @@ const ActionHandlers = {
     'toggle-recist': (target) => {
         target.classList.toggle('selected');
         Store.recist = target.classList.contains('selected');
+        UI.renderReport();
+    },
+    'toggle-tnm': (target) => {
+        target.classList.toggle('selected');
+        Store.tnm = target.classList.contains('selected');
         UI.renderReport();
     },
     'cycle-state': (target, dataset) => cycleState(dataset.id, 1),
