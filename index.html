@@ -1352,9 +1352,9 @@ const RegionProstate = {
 
         const examId = ctx.examId || 'default';
 
-        // --- 1. LÉZE PROSTATY ---
         const lesInsts = Store.instances?.['prostate_lesion_main'] || [];
         let parsedLesions = [];
+        let maxTLevel = 0;
 
         if (lesInsts.length > 0) {
             lesInsts.forEach((instId) => {
@@ -1490,6 +1490,11 @@ const RegionProstate = {
                 let dwi = ctx.text(`${p}_dwi`);
                 let ce = ctx.text(`${p}_ce`);
                 let inv = ctx.text(`${p}_inv`);
+
+                if (inv === 'orgán') maxTLevel = Math.max(maxTLevel, 5);
+                else if (inv === 'váčky') maxTLevel = Math.max(maxTLevel, 4);
+                else if (inv === 'kapsula') maxTLevel = Math.max(maxTLevel, 3);
+                else maxTLevel = Math.max(maxTLevel, 2);
 
                 let vzhledy = [];
                 let t2Score = 0, dwiScore = 0, cePos = false;
@@ -1643,7 +1648,6 @@ const RegionProstate = {
             });
         }
 
-        // --- 2. Prostata obecně ---
         let prostataText = [];
         let prOp = ctx.text('pr_op');
         let prRec = ctx.text('pr_rec');
@@ -1706,7 +1710,6 @@ const RegionProstate = {
             }
         }
 
-        // --- 3. Semenné váčky ---
         let semFill = ctx.text('pr_sem_fill');
         if (semFill === 'snížená') {
             reportOut.push({ type: 'frame', text: 'Chabá náplň semenných váčků, jejich hodnotitelnost je limitována.', tableId: 'abdomen_seminal_main' });
@@ -1716,14 +1719,25 @@ const RegionProstate = {
             reportOut.push({ type: 'frame', text: 'Normální náplň semenných váčků.', tableId: 'abdomen_seminal_main', dimmed: true });
         }
 
-        // --- 4. Lymfatické uzliny ---
         const isPETExam = examId.toLowerCase().includes('pet');
         const lnInsts = Store.instances?.['prostate_lymphnode_main'] || [];
+        let regionalPositive = false;
+        let nonRegionalPositive = false;
+
         if (lnInsts.length === 0) {
             reportOut.push({ type: 'frame', text: isPETExam ? 'Bez patrné hyperakumulující lymfadenopatie.' : 'Nejsou zřetelné patologické regionální či non-regionální lymfatické uzliny.', tableId: 'prostate_lymphnode_main', dimmed: true });
         } else {
             lnInsts.forEach(instId => {
                 const p = `prln_${instId}`;
+
+                let isThisNodePositive = false;
+                ['m', 'meta'].forEach(btn => {
+                    if (ctx.isActive(`${p}_e_${btn}`)) {
+                        let val = ctx.text(`${p}_e_${btn}`);
+                        if (val.endsWith('!') || val.endsWith('+') || val.endsWith('?')) isThisNodePositive = true;
+                    }
+                });
+
                 let lokaceLN = [];
                 
                 if (ctx.isActive(`${p}_p_hil_c`)) lokaceLN.push('v jaterním hilu');
@@ -1763,6 +1777,17 @@ const RegionProstate = {
                     else if (l) lokaceLN.push(`${reg.name} vlevo`);
                 });
 
+                if (isThisNodePositive) {
+                    const m1aIds = ['hil_c', 'por_c', 'cel_c', 'per_c', 'ret_c', 'mes_r', 'mes_l', 'par_r', 'par_l', 'cia_r', 'cia_l', 'ing_r', 'ing_l'];
+                    const n1Ids = ['eia_r', 'eia_l', 'iia_r', 'iia_l', 'obt_r', 'obt_l', 'pre_r', 'pre_l', 'mez_r', 'mez_l'];
+                    
+                    let hasM1aLoc = m1aIds.some(loc => ctx.isActive(`${p}_p_${loc}`));
+                    let hasN1Loc = n1Ids.some(loc => ctx.isActive(`${p}_p_${loc}`));
+                    
+                    if (hasM1aLoc) nonRegionalPositive = true;
+                    if (hasN1Loc || (!hasM1aLoc && !hasN1Loc)) regionalPositive = true;
+                }
+
                 let lokTextLN = lokaceLN.length > 0 ? formatCzechList(lokaceLN) : '';
                 let dLN = LESIONS_DEFINITION.parseDetails(ctx, examId, 'prostate', p, `${p}_met`, `${p}_e`, true);
 
@@ -1778,6 +1803,22 @@ const RegionProstate = {
                     concMain.push({ type: 'frame', text: concSentence, tableId: `prostate_lymphnode_main__${instId}` });
                 }
             });
+        }
+
+        if (prOp !== 'RAPE' && lesInsts.length > 0) {
+            let tStageStr = 'Tx';
+            if (maxTLevel === 5) tStageStr = 'T4';
+            else if (maxTLevel === 4) tStageStr = 'T3b';
+            else if (maxTLevel === 3) tStageStr = 'T3a';
+            else if (maxTLevel === 2) tStageStr = 'T2';
+
+            let nStageStr = regionalPositive ? 'N1' : 'N0';
+            let tnmPrefix = examId.toLowerCase().includes('psma') ? 'mi' : 'c';
+
+            let tnmParts = [`${tnmPrefix}${tStageStr}`, `${tnmPrefix}${nStageStr}`];
+            if (nonRegionalPositive) tnmParts.push(`${tnmPrefix}M1a`);
+
+            concMain.push({ type: 'frame', text: `${tnmPrefix}TNM: ${tnmParts.join(', ')}.`, tableId: 'prostate_prostata_main' });
         }
 
         return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
