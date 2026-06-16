@@ -4,13 +4,13 @@ const RegionSkeleton = {
             let layoutNodes = [];
 
             const traumaRowsFn = (pfx) => [
-                [ '', { btn: `${pfx}_c_obr`, states: ['C obratel', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'custom'] }, '' ],
+                [ '', { btn: `${pfx}_c_obr`, states: ['C obratel', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'více', 'custom'] }, '' ],
                 [ { btn: `${pfx}_klav_r`, type: 'basic', text: 'Klavikula' }, { btn: `${pfx}_sternum`, type: 'basic', text: 'Sternum' }, { btn: `${pfx}_klav_l`, type: 'basic', text: 'Klavikula' } ],
                 [ { btn: `${pfx}_scap_r`, type: 'basic', text: 'Scapula' }, '', { btn: `${pfx}_scap_l`, type: 'basic', text: 'Scapula' } ],
                 [ { btn: `${pfx}_hum_r`, type: 'basic', text: 'Humerus' }, '', { btn: `${pfx}_hum_l`, type: 'basic', text: 'Humerus' } ],
-                [ '', { btn: `${pfx}_t_obr`, states: ['T obratel', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12', 'custom'] }, '' ],
-                [ { btn: `${pfx}_zeb_r`, states: ['žebro', '1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.', '11.', '12.', 'custom'] }, '', { btn: `${pfx}_zeb_l`, states: ['žebro', '1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.', '11.', '12.', 'custom'] } ],
-                [ '', { btn: `${pfx}_l_obr`, states: ['L obratel', 'L1', 'L2', 'L3', 'L4', 'L5', 'custom'] }, '' ],
+                [ '', { btn: `${pfx}_t_obr`, states: ['T obratel', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12', 'více', 'custom'] }, '' ],
+                [ { btn: `${pfx}_zeb_r`, states: ['žebro', '1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.', '11.', '12.', 'více', 'custom'] }, '', { btn: `${pfx}_zeb_l`, states: ['žebro', '1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.', '11.', '12.', 'více', 'custom'] } ],
+                [ '', { btn: `${pfx}_l_obr`, states: ['L obratel', 'L1', 'L2', 'L3', 'L4', 'L5', 'více', 'custom'] }, '' ],
                 [ '', { btn: `${pfx}_sakrum`, type: 'basic', text: 'Sakrum' }, '' ],
                 [ { btn: `${pfx}_kyc_r`, type: 'basic', text: 'Kyčelní k.' }, '', { btn: `${pfx}_kyc_l`, type: 'basic', text: 'Kyčelní k.' } ],
                 [ { btn: `${pfx}_sed_r`, type: 'basic', text: 'Sedací k.' }, '', { btn: `${pfx}_sed_l`, type: 'basic', text: 'Sedací k.' } ],
@@ -38,13 +38,13 @@ const RegionSkeleton = {
                         helpers.Table3colRCL(`${p}_loc_r3`, 'Lokalizace', [
                             [ '', { btn: `${p}_p_cely`, type: 'basic', text: 'Celý skelet' }, '' ],
                             [ '', { btn: `${p}_p_dren`, type: 'basic', text: 'Kostní dřeň' }, '' ],
-                            [ '', { btn: `${p}_p_c_obr`, states: ['C obratel', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'custom'] }, '' ],
+                            [ '', { btn: `${p}_p_c_obr`, states: ['C obratel', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'více', 'custom'] }, '' ],
                             [ { btn: `${p}_p_klav_r`, type: 'basic', text: 'Klavikula' }, { btn: `${p}_p_sternum`, type: 'basic', text: 'Sternum' }, { btn: `${p}_p_klav_l`, type: 'basic', text: 'Klavikula' } ],
                             [ { btn: `${p}_p_scap_r`, type: 'basic', text: 'Scapula' }, '', { btn: `${p}_p_scap_l`, type: 'basic', text: 'Scapula' } ],
                             [ { btn: `${p}_p_hum_r`, type: 'basic', text: 'Humerus' }, '', { btn: `${p}_p_hum_l`, type: 'basic', text: 'Humerus' } ],
-                            [ '', { btn: `${p}_p_t_obr`, states: ['T obratel', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12', 'custom'] }, '' ],
-                            [ { btn: `${p}_p_zeb_r`, states: ['žebro', '1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.', '11.', '12.', 'custom'] }, '', { btn: `${p}_p_zeb_l`, states: ['žebro', '1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.', '11.', '12.', 'custom'] } ],
-                            [ '', { btn: `${p}_p_l_obr`, states: ['L obratel', 'L1', 'L2', 'L3', 'L4', 'L5', 'custom'] }, '' ],
+                            [ '', { btn: `${p}_p_t_obr`, states: ['T obratel', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12', 'více', 'custom'] }, '' ],
+                            [ { btn: `${p}_p_zeb_r`, states: ['žebro', '1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.', '11.', '12.', 'více', 'custom'] }, '', { btn: `${p}_p_zeb_l`, states: ['žebro', '1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.', '11.', '12.', 'více', 'custom'] } ],
+                            [ '', { btn: `${p}_p_l_obr`, states: ['L obratel', 'L1', 'L2', 'L3', 'L4', 'L5', 'více', 'custom'] }, '' ],
                             [ '', { btn: `${p}_p_sakrum`, type: 'basic', text: 'Sakrum' }, '' ],
                             [ { btn: `${p}_p_kyc_r`, type: 'basic', text: 'Kyčelní k.' }, '', { btn: `${p}_p_kyc_l`, type: 'basic', text: 'Kyčelní k.' } ],
                             [ { btn: `${p}_p_sed_r`, type: 'basic', text: 'Sedací k.' }, '', { btn: `${p}_p_sed_l`, type: 'basic', text: 'Sedací k.' } ],
@@ -190,6 +190,10 @@ const RegionSkeleton = {
                         if (idx === 0) return null;
                         const txt = ctx.text(localId);
                         if (txt === 'custom') return Store.customTexts[`${examId}_skeleton_${localId}`];
+                        if (txt === 'více') {
+                            const part = suffix.includes('c_obr') ? 'C' : suffix.includes('t_obr') ? 'T' : 'L';
+                            return `ve vícečetných obratlích ${part} páteře`;
+                        }
                         return `v obratli ${txt}`;
                     };
 
@@ -218,13 +222,20 @@ const RegionSkeleton = {
                         const txt = ctx.text(localId);
                         const suffix = side === 'r' ? 'vpravo' : 'vlevo';
                         if (txt === 'custom') return Store.customTexts[`${examId}_skeleton_${localId}`];
+                        if (txt === 'více') return `ve vícečetných žebrech ${suffix}`;
                         return `v ${txt} žebru ${suffix}`;
                     };
 
                     let zR = parseZebro('r'), zL = parseZebro('l');
                     if (zR && zL && ctx.text(`${p}_p_zeb_r`) === ctx.text(`${p}_p_zeb_l`)) {
                         const val = ctx.text(`${p}_p_zeb_r`);
-                        lokace.push(val === 'custom' ? Store.customTexts[`${examId}_skeleton_${p}_p_zeb_r`] : `v ${val} žebru bilat.`);
+                        if (val === 'custom') {
+                            lokace.push(Store.customTexts[`${examId}_skeleton_${p}_p_zeb_r`]);
+                        } else if (val === 'více') {
+                            lokace.push(`ve vícečetných žebrech bilat.`);
+                        } else {
+                            lokace.push(`v ${val} žebru bilat.`);
+                        }
                     } else {
                         if (zR) lokace.push(zR);
                         if (zL) lokace.push(zL);
@@ -353,7 +364,14 @@ const RegionSkeleton = {
                 const parseVert = (vSuffix) => {
                     const txt = ctx.text(`${pfx}_${vSuffix}`);
                     if (txt && txt !== '0' && !txt.includes('obratel')) {
-                        locsVert.push(txt === 'custom' ? ctx.field(`${pfx}_${vSuffix}`) || 'vlastní' : txt);
+                        if (txt === 'custom') {
+                            locsVert.push(ctx.field(`${pfx}_${vSuffix}`) || 'vlastní');
+                        } else if (txt === 'více') {
+                            const part = vSuffix.includes('c') ? 'C' : vSuffix.includes('t') ? 'T' : 'L';
+                            locsVert.push(`vícečetných ${part} obratlů`);
+                        } else {
+                            locsVert.push(txt);
+                        }
                     }
                 };
                 parseVert('c_obr');
@@ -383,10 +401,18 @@ const RegionSkeleton = {
                 let lAct = zL && zL !== '0' && zL !== 'žebro';
                 
                 if (rAct && lAct && zR === zL) {
-                    locsOther.push(`${zR} žebra bilat.`);
+                    if (zR === 'více') {
+                        locsOther.push(`vícečetných žeber bilat.`);
+                    } else {
+                        locsOther.push(`${zR} žebra bilat.`);
+                    }
                 } else {
-                    if (rAct) locsOther.push(`${zR} žebra vpravo`);
-                    if (lAct) locsOther.push(`${zL} žebra vlevo`);
+                    if (rAct) {
+                        locsOther.push(zR === 'více' ? `vícečetných žeber vpravo` : `${zR} žebra vpravo`);
+                    }
+                    if (lAct) {
+                        locsOther.push(zL === 'více' ? `vícečetných žeber vlevo` : `${zL} žebra vlevo`);
+                    }
                 }
 
                 let repParts = [];
@@ -394,7 +420,7 @@ const RegionSkeleton = {
 
                 if (locsVert.length > 0) {
                     const vertStr = formatList(locsVert);
-                    const telWord = (locsVert.length > 1 || vertStr.includes(' a ') || vertStr.includes(',')) ? 'těl' : 'těla';
+                    const telWord = (locsVert.length > 1 || vertStr.includes(' a ') || vertStr.includes(',') || vertStr.includes('vícečetných')) ? 'těl' : 'těla';
                     if (isAcute) {
                         repParts.push(`klínovité snížení obratl. ${telWord} ${vertStr} se zvýšenou akumulací RF`);
                         conclParts.push(`Kompresivní fraktura obratl. ${telWord} ${vertStr} se zvýšenou akumulací RF (recentní).`);
