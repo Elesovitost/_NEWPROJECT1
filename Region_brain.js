@@ -605,7 +605,7 @@ const RegionBrain = {
             let gWord = gli === '+' ? 'ojedinělé' : (gli === '++' ? 'sporadické' : 'vícečetné');
             let gWordCap = gWord.charAt(0).toUpperCase() + gWord.slice(1);
             bilaHmotaRep.push(`${gWord} drobné T2W+ FLAIR+ léze v hlubší bílé hmotě${locStr}${latStr}`);
-            concInc.push({ type: 'frame', text: `${gWordCap} nespecifické drobné gliové léze${locStr}${latStr}.`, tableId: 'brain_wml_main' });
+            concInc.push({ type: 'frame', text: `${gWordCap} nespecifické drobné gliové léze v bílé hmotě${locStr}${latStr}.`, tableId: 'brain_wml_main' });
         }
 
         const demLocs = [
