@@ -607,7 +607,8 @@ const EXAMS = {
         { id: 'petct_fdg_trup',  title: 'FDG-PET / CT trupu',  regs: ['neck','thorax','abdomen','skeleton'] },
         { id: 'petct_psma_trup', title: 'PSMA-PET / CT trupu', regs: ['neck','thorax','abdomen','skeleton'] },
         { id: 'petct_dotatoc_trup', title: 'DOTATOC-PET / CT trupu', regs: ['neck','thorax','abdomen','skeleton'] },
-        { id: 'petct_dopa_mozek', title: 'DOPA-PET / CT mozku', regs: ['brain'] }
+        { id: 'petct_dopa_mozek', title: 'DOPA-PET / CT mozku', regs: ['brain'] },
+        { id: 'petct_dopa_trup', title: 'DOPA-PET / CT trupu', regs: ['neck','thorax','abdomen','skeleton'] }
     ],
     "PET / MR": [
         { id: 'petmr_fdg_trup', title: 'FDG-PET / MR trupu', regs: ['neck','thorax','abdomen','skeleton'] },
@@ -3928,27 +3929,34 @@ document.addEventListener('mouseover', e => {
 
     const btn = e.target.closest('.btn');
     if (btn && btn.dataset.id) {
-        let imgUrl = null;
+        let imgConfig = null;
         for (const key in window.HOVER_IMAGES) {
             if (btn.dataset.id.endsWith(`_${key}`) || btn.dataset.id === key) {
-                imgUrl = window.HOVER_IMAGES[key];
+                imgConfig = window.HOVER_IMAGES[key];
                 break;
             }
         }
 
-        if (imgUrl) {
+        if (imgConfig) {
             const tooltip = document.getElementById('image-tooltip');
             const img = document.getElementById('image-tooltip-img');
             if (tooltip && img) {
-                img.src = imgUrl;
+                const isObj = typeof imgConfig === 'object' && imgConfig !== null;
+                const url = isObj ? imgConfig.url : imgConfig;
+                const size = isObj && imgConfig.size ? imgConfig.size : '500px';
+                const numericSize = parseInt(size, 10) || 500;
+
+                img.src = url;
+                img.style.maxWidth = size;
+                img.style.maxHeight = size;
                 tooltip.style.display = 'block';
                 
                 const rect = btn.getBoundingClientRect();
                 let leftPos = rect.right + 10;
                 let topPos = rect.top;
                 
-                if (leftPos + 500 > window.innerWidth) leftPos = rect.left - 510;
-                if (topPos + 500 > window.innerHeight) topPos = window.innerHeight - 510;
+                if (leftPos + numericSize > window.innerWidth) leftPos = rect.left - (numericSize + 10);
+                if (topPos + numericSize > window.innerHeight) topPos = window.innerHeight - (numericSize + 10);
                 
                 tooltip.style.left = `${leftPos}px`;
                 tooltip.style.top = `${topPos}px`;

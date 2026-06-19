@@ -564,3 +564,9 @@ const RegionShoulder = {
         return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
     }
 };
+
+window.HOVER_IMAGES = window.HOVER_IMAGES || {};
+Object.assign(window.HOVER_IMAGES, {
+    'sh_lab_ant': { url: 'picothers/Shoulder_labrum.png', size: '400px' },
+    'sh_lab_pos': { url: 'picothers/Shoulder_labrum.png', size: '400px' }
+});
