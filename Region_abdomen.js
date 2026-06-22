@@ -698,7 +698,7 @@ const RegionAbdomen = {
             let lRes = checkSide('le_res'); if (lRes) { let gp = (v) => v === 'horní' ? 'horního' : v === 'střední' ? 'středního' : 'dolního'; let t = lRes.sideText === 'bilat.' && lRes.p === lRes.l ? `stav po parciální resekci ${gp(lRes.p)} pólu bilat.` : `${lRes.isP ? 'stav po parciální resekci ' + gp(lRes.p) + ' pólu vpravo' : ''}${lRes.isP && lRes.isL ? ' a ' : ''}${lRes.isL ? 'stav po parciální resekci ' + gp(lRes.l) + ' pólu vlevo' : ''}`; leRep.push(t); }
             let lNek = checkSide('le_nek'); if (lNek) leRep.push(`stav po nefrektomii ${lNek.sideText}`);
             let leDesc = ctx.field('le_custom_desc'); if (leDesc) leRep.push(leDesc);
-            if (leRep.length > 0) reportOut.push({ type: 'frame', text: `- Ledviny a vývodné cesty: ${formatList(leRep)}.`, tableId: 'abdomen_ledviny_main' });
+            if (leRep.length > 0) reportOut.push({ type: 'frame', text: `- Ledviny: ${formatList(leRep)}.`, tableId: 'abdomen_ledviny_main' });
             let leConc = ctx.field('le_custom_conc'); if (leConc) concInc.push({ type: 'frame', text: leConc, tableId: 'abdomen_ledviny_main' });
 
             // 12. Močový měchýř
@@ -885,7 +885,7 @@ const RegionAbdomen = {
             processHernia('aw_her_ing', 'inguinálně', 'Inguinální hernie');
 
             let awDesc = ctx.field('aw_custom_desc'); if (awDesc) awRep.push(awDesc);
-            if (awRep.length > 0) reportOut.push({ type: 'frame', text: `- Břišní stěna a podkoží: ${formatList(awRep)}.`, tableId: 'abdomen_wall_main' });
+            if (awRep.length > 0) reportOut.push({ type: 'frame', text: `- Břišní stěna: ${formatList(awRep)}.`, tableId: 'abdomen_wall_main' });
             let awConc = ctx.field('aw_custom_conc'); if (awConc) concInc.push({ type: 'frame', text: awConc, tableId: 'abdomen_wall_main' });
 
             let finalAscCurr = ctx.text('pe_asc');
