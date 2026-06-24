@@ -3500,8 +3500,8 @@ function validateTextForSingleWords(text) {
             // Oříznutí hlavičky sekce, aby první věta (např. "HRUDNÍK: Ložisko") nezklamala validaci
             let cleanSentence = sentence.replace(/^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ ]+:\s*/, '').trim();
             
-            // Pokud věta tvoří pouze jediné slovo složené z písmen
-            if (/^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽa-záčďéěíňóřšťúůýž]+$/.test(cleanSentence)) {
+            // Nová podmínka: 1 velké písmeno a alespoň 3 další písmena (celkem min. 4 znaky)
+            if (/^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽa-záčďéěíňóřšťúůýž]{3,}$/.test(cleanSentence)) {
                 warnings.push({ word: cleanSentence + '.', section: currentSection });
             }
         }
@@ -3510,8 +3510,18 @@ function validateTextForSingleWords(text) {
 }
 
 function executeCopyFlow(textToCopy, target, isAll) {
-    const warnings = validateTextForSingleWords(textToCopy);
+    let warningMessages = validateTextForSingleWords(textToCopy).map(w => `Pozor, překontroluj ${w.word} v sekci ${w.section}, pravděpodobně nedostatečně určeno.`);
     
+    if (Store.pastDate) {
+        const pastDate = new Date(Store.pastDate);
+        const today = new Date();
+        const diffTime = Math.abs(today - pastDate);
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        if (diffDays <= 7) {
+            warningMessages.push("Pozor, datum současné.");
+        }
+    }
+
     const finalizeCopy = () => {
         if (APP_SETTINGS.previewReport) {
             UI.openPreview(textToCopy, target, isAll);
@@ -3532,7 +3542,7 @@ function executeCopyFlow(textToCopy, target, isAll) {
         }
     };
 
-    if (warnings.length > 0) {
+    if (warningMessages.length > 0) {
         const overlay = document.createElement('div');
         Object.assign(overlay.style, {
             position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
@@ -3543,7 +3553,7 @@ function executeCopyFlow(textToCopy, target, isAll) {
         });
         
         const textContainer = document.createElement('div');
-        textContainer.innerHTML = warnings.map(w => `Pozor, překontroluj ${w.word} v sekci ${w.section}, pravděpodobně nedostatečně určeno.`).join('<br><br>');
+        textContainer.innerHTML = warningMessages.join('<br><br>');
         overlay.appendChild(textContainer);
 
         const okBtn = document.createElement('button');
@@ -3720,7 +3730,15 @@ const ActionHandlers = {
         
         Store.buttonStates = filterExamData(Store.buttonStates);
         Store.customTexts = filterExamData(Store.customTexts);
-        Store.fields = filterExamData(Store.fields);
+        
+        let newFields = filterExamData(Store.fields);
+        if (examId.toLowerCase().includes('pet') || next.size === 0) {
+            ['suv_jater', 'suv_jater_minule', 'suv_parotid', 'suv_sleziny', 'suv_striata'].forEach(k => delete newFields[k]);
+            window._currentRadiofarm = null;
+            document.querySelectorAll('.ref-group input').forEach(inp => delete inp.dataset.edited);
+        }
+        Store.fields = newFields;
+        
         Store.expandedNotes = filterExamData(Store.expandedNotes);
         
         if (next.size === 0) {
