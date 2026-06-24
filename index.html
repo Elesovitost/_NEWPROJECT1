@@ -3475,6 +3475,95 @@ const ClipboardService = {
     }
 };
 
+function validateTextForSingleWords(text) {
+    let warnings = [];
+    let currentSection = "Neznámá sekce";
+    
+    const lines = text.split('\n');
+    for (let line of lines) {
+        line = line.trim();
+        if (!line) continue;
+        
+        // Detekce hlavičky na začátku řádku (např. "HRUDNÍK:" nebo "HRUDNÍK A BŘICHO:")
+        const headerMatch = line.match(/^([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ ]+):/);
+        if (headerMatch) {
+            currentSection = headerMatch[1].trim();
+        } else if (line === line.toUpperCase() && line.length > 2) {
+            // Alternativa: Celý řádek je velkými písmeny (samostatná hlavička bez dvojtečky)
+            currentSection = line.trim();
+        }
+        
+        // Rozdělení textu na věty podle ukončovací interpunkce
+        const sentences = line.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0);
+        
+        for (let sentence of sentences) {
+            // Oříznutí hlavičky sekce, aby první věta (např. "HRUDNÍK: Ložisko") nezklamala validaci
+            let cleanSentence = sentence.replace(/^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ ]+:\s*/, '').trim();
+            
+            // Pokud věta tvoří pouze jediné slovo složené z písmen
+            if (/^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽa-záčďéěíňóřšťúůýž]+$/.test(cleanSentence)) {
+                warnings.push({ word: cleanSentence + '.', section: currentSection });
+            }
+        }
+    }
+    return warnings;
+}
+
+function executeCopyFlow(textToCopy, target, isAll) {
+    const warnings = validateTextForSingleWords(textToCopy);
+    
+    const finalizeCopy = () => {
+        if (APP_SETTINGS.previewReport) {
+            UI.openPreview(textToCopy, target, isAll);
+        } else {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                if (isAll) {
+                    const h2s = document.querySelectorAll('h2[data-action="copy-text"]');
+                    const originals = Array.from(h2s).map(h2 => h2.textContent);
+                    h2s.forEach(h2 => { h2.textContent = 'Zkopírováno!'; h2.style.color = '#58a6ff'; });
+                    setTimeout(() => { h2s.forEach((h2, i) => { h2.textContent = originals[i]; h2.style.color = ''; }); }, 1200);
+                } else if (target) {
+                    const origText = target.textContent;
+                    target.textContent = 'Zkopírováno!';
+                    target.style.color = '#58a6ff';
+                    setTimeout(() => { target.textContent = origText; target.style.color = ''; }, 1200);
+                }
+            }).catch(err => console.error('Nelze kopírovat:', err));
+        }
+    };
+
+    if (warnings.length > 0) {
+        const overlay = document.createElement('div');
+        Object.assign(overlay.style, {
+            position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+            backgroundColor: 'rgba(220, 38, 38, 0.95)', color: '#fff', padding: '15px 25px',
+            borderRadius: '6px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)', zIndex: '9999',
+            fontSize: '14px', fontWeight: 'bold', textAlign: 'center', border: '1px solid #ff4444',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px'
+        });
+        
+        const textContainer = document.createElement('div');
+        textContainer.innerHTML = warnings.map(w => `Pozor, překontroluj ${w.word} v sekci ${w.section}, pravděpodobně nedostatečně určeno.`).join('<br><br>');
+        overlay.appendChild(textContainer);
+
+        const okBtn = document.createElement('button');
+        okBtn.textContent = 'OK';
+        Object.assign(okBtn.style, {
+            padding: '6px 20px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px',
+            backgroundColor: '#fff', color: '#dc2626', border: 'none', borderRadius: '4px'
+        });
+        okBtn.onclick = () => {
+            if (document.body.contains(overlay)) document.body.removeChild(overlay);
+            finalizeCopy();
+        };
+        overlay.appendChild(okBtn);
+
+        document.body.appendChild(overlay);
+    } else {
+        finalizeCopy();
+    }
+}
+
 const ActionHandlers = {
     'toggle-settings': () => {
         const modal = document.getElementById('settings-modal');
@@ -3483,12 +3572,7 @@ const ActionHandlers = {
     'copy-text': (target) => {
         const isReport = target.dataset.target === 'report-container';
         const textToCopy = isReport ? ClipboardService.formatReport() : ClipboardService.formatConclusion();
-        
-        if (APP_SETTINGS.previewReport) {
-            UI.openPreview(textToCopy, target, false);
-        } else {
-            ClipboardService.copyToClipboard(textToCopy, target, target.textContent);
-        }
+        executeCopyFlow(textToCopy, target, false);
     },
     'copy-all': () => {
         let title = "";
@@ -3525,17 +3609,7 @@ const ActionHandlers = {
         const incidental = incidentalMatch ? incidentalMatch[0].trim() : '';
 
         const combined = `${title}\n\n${report}\n\nZávěr:\n${mainConc}${incidental ? '\n\n' + incidental : ''}`.trim().replace(/\n{3,}/g, '\n\n');
-        
-        if (APP_SETTINGS.previewReport) {
-            UI.openPreview(combined, null, true);
-        } else {
-            navigator.clipboard.writeText(combined).then(() => {
-                const h2s = document.querySelectorAll('h2[data-action="copy-text"]');
-                const originals = Array.from(h2s).map(h2 => h2.textContent);
-                h2s.forEach(h2 => { h2.textContent = 'Zkopírováno!'; h2.style.color = '#58a6ff'; });
-                setTimeout(() => { h2s.forEach((h2, i) => { h2.textContent = originals[i]; h2.style.color = ''; }); }, 1200);
-            }).catch(err => console.error('Nelze kopírovat:', err));
-        }
+        executeCopyFlow(combined, null, true);
     },
     'preview-close': () => {
         document.getElementById('preview-modal').style.display = 'none';
@@ -3668,7 +3742,6 @@ const ActionHandlers = {
         
         UI.renderReport(); 
     },
-
     'toggle-recist': (target) => {
         target.classList.toggle('selected');
         Store.recist = target.classList.contains('selected');
