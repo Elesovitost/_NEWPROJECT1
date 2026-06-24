@@ -61,8 +61,8 @@ const RegionAbdomen = {
                             [ '', { btn: `${p}_p_hil_c`, type: 'basic', text: 'hilus' }, '' ], [ '', { btn: `${p}_p_por_c`, type: 'basic', text: 'portokaválně' }, '' ],
                             [ '', { btn: `${p}_p_cel_c`, type: 'basic', text: 'celiakálně' }, '' ], [ '', { btn: `${p}_p_per_c`, type: 'basic', text: 'perigastricky' }, '' ],
                             [ '', [ { btn: `${p}_p_mes_r`, type: 'basic', text: 'mesent.' }, { btn: `${p}_p_mes_l`, type: 'basic', text: 'mesent.' } ], '' ], [ '', { btn: `${p}_p_ret_c`, type: 'basic', text: 'retroperit.' }, '' ],
-                            [ '', [ { btn: `${p}_p_par_r`, type: 'basic', text: 'para-Ao' }, { btn: `${p}_p_par_l`, type: 'basic', text: 'para-Ao' } ], '' ], [ { btn: `${p}_p_cia_r`, type: 'basic', text: 'CIA' }, '', { btn: `${p}_p_cia_l`, type: 'basic', text: 'CIA' } ],
-                            [ { btn: `${p}_p_eia_r`, type: 'basic', text: 'EIA' }, '', { btn: `${p}_p_eia_l`, type: 'basic', text: 'EIA' } ], [ { btn: `${p}_p_iia_r`, type: 'basic', text: 'IIA' }, '', { btn: `${p}_p_iia_l`, type: 'basic', text: 'IIA' } ],
+                            [ '', [ { btn: `${p}_p_par_r`, type: 'basic', text: 'para-Ao' }, { btn: `${p}_p_par_l`, type: 'basic', text: 'para-Ao' } ], '' ], [ { btn: `${p}_p_cia_r`, type: 'basic', text: 'AIC' }, '', { btn: `${p}_p_cia_l`, type: 'basic', text: 'AIC' } ],
+                            [ { btn: `${p}_p_eia_r`, type: 'basic', text: 'AIE' }, '', { btn: `${p}_p_eia_l`, type: 'basic', text: 'AIE' } ], [ { btn: `${p}_p_iia_r`, type: 'basic', text: 'AII' }, '', { btn: `${p}_p_iia_l`, type: 'basic', text: 'AII' } ],
                             [ { btn: `${p}_p_obt_r`, type: 'basic', text: 'obturátor' }, '', { btn: `${p}_p_obt_l`, type: 'basic', text: 'obturátor' } ], [ '', [ { btn: `${p}_p_pre_r`, type: 'basic', text: 'presakr.' }, { btn: `${p}_p_pre_l`, type: 'basic', text: 'presakr.' } ], '' ],
                             [ '', [ { btn: `${p}_p_mez_r`, type: 'basic', text: 'mezorekt.' }, { btn: `${p}_p_mez_l`, type: 'basic', text: 'mezorekt.' } ], '' ], [ { btn: `${p}_p_ing_r`, type: 'basic', text: 'inguinálně' }, '', { btn: `${p}_p_ing_l`, type: 'basic', text: 'inguinálně' } ]
                         ]),
@@ -261,18 +261,18 @@ const RegionAbdomen = {
                     [ '', { btn: 'vc_sk_aorta', type: 'basic', text: 'Aorta' }, '' ],
                     [ '', { btn: 'vc_sk_tc', type: 'basic', text: 'TC' }, '' ],
                     [ '', { btn: 'vc_sk_ams', type: 'basic', text: 'AMS' }, '' ],
-                    [ { btn: 'vc_sk_cia_r', type: 'basic', text: 'CIA' }, '', { btn: 'vc_sk_cia_l', type: 'basic', text: 'CIA' } ],
-                    [ { btn: 'vc_sk_eia_r', type: 'basic', text: 'EIA' }, '', { btn: 'vc_sk_eia_l', type: 'basic', text: 'EIA' } ],
-                    [ { btn: 'vc_sk_iia_r', type: 'basic', text: 'IIA' }, '', { btn: 'vc_sk_iia_l', type: 'basic', text: 'IIA' } ],
+                    [ { btn: 'vc_sk_cia_r', type: 'basic', text: 'AIC' }, '', { btn: 'vc_sk_cia_l', type: 'basic', text: 'AIC' } ],
+                    [ { btn: 'vc_sk_eia_r', type: 'basic', text: 'AIE' }, '', { btn: 'vc_sk_eia_l', type: 'basic', text: 'AIE' } ],
+                    [ { btn: 'vc_sk_iia_r', type: 'basic', text: 'AII' }, '', { btn: 'vc_sk_iia_l', type: 'basic', text: 'AII' } ],
                     [ { btn: 'vc_sk_fa_r', type: 'basic', text: 'FA' }, '', { btn: 'vc_sk_fa_l', type: 'basic', text: 'FA' } ]
                 ]),
                 helpers.Table3colRCL('vc_stent_table', 'Stenty', [
                     [ '', { btn: 'vc_st_aorta', type: 'basic', text: 'Aorta' }, '' ],
                     [ '', { btn: 'vc_st_tc', type: 'basic', text: 'TC' }, '' ],
                     [ '', { btn: 'vc_st_ams', type: 'basic', text: 'AMS' }, '' ],
-                    [ { btn: 'vc_st_cia_r', type: 'basic', text: 'CIA' }, '', { btn: 'vc_st_cia_l', type: 'basic', text: 'CIA' } ],
-                    [ { btn: 'vc_st_eia_r', type: 'basic', text: 'EIA' }, '', { btn: 'vc_st_eia_l', type: 'basic', text: 'EIA' } ],
-                    [ { btn: 'vc_st_iia_r', type: 'basic', text: 'IIA' }, '', { btn: 'vc_st_iia_l', type: 'basic', text: 'IIA' } ],
+                    [ { btn: 'vc_st_cia_r', type: 'basic', text: 'AIC' }, '', { btn: 'vc_st_cia_l', type: 'basic', text: 'AIC' } ],
+                    [ { btn: 'vc_st_eia_r', type: 'basic', text: 'AIE' }, '', { btn: 'vc_st_eia_l', type: 'basic', text: 'AIE' } ],
+                    [ { btn: 'vc_st_iia_r', type: 'basic', text: 'AII' }, '', { btn: 'vc_st_iia_l', type: 'basic', text: 'AII' } ],
                     [ { btn: 'vc_st_fa_r', type: 'basic', text: 'FA' }, '', { btn: 'vc_st_fa_l', type: 'basic', text: 'FA' } ]
                 ]),
                 helpers.Table3colRL('vc_bypass_table', 'Bypassy', [
@@ -489,9 +489,9 @@ const RegionAbdomen = {
                     });
 
                     const bilatNodes = [
-                        { id: 'cia', name: 'podél CIA' },
-                        { id: 'eia', name: 'podél EIA' },
-                        { id: 'iia', name: 'podél IIA' },
+                        { id: 'cia', name: 'podél AIC' },
+                        { id: 'eia', name: 'podél AIE' },
+                        { id: 'iia', name: 'podél AII' },
                         { id: 'obt', name: 'v obturátorové jámě' },
                         { id: 'ing', name: 'inguinálně' }
                     ];

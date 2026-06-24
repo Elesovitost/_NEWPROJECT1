@@ -60,9 +60,9 @@ const RegionRectum = {
                         helpers.Table3colRCL(`${p}_loc1`, 'Lokalizace', [
                             [ '', { btn: `${p}_p_ima_c`, type: 'basic', text: 'IMA + RS' }, '' ],
                             [ '', [ { btn: `${p}_p_par_r`, type: 'basic', text: 'para-Ao' }, { btn: `${p}_p_par_l`, type: 'basic', text: 'para-Ao' } ], '' ],
-                            [ { btn: `${p}_p_cia_r`, type: 'basic', text: 'CIA' }, '', { btn: `${p}_p_cia_l`, type: 'basic', text: 'CIA' } ],
-                            [ { btn: `${p}_p_eia_r`, type: 'basic', text: 'EIA' }, '', { btn: `${p}_p_eia_l`, type: 'basic', text: 'EIA' } ],
-                            [ { btn: `${p}_p_iia_r`, type: 'basic', text: 'IIA' }, '', { btn: `${p}_p_iia_l`, type: 'basic', text: 'IIA' } ],
+                            [ { btn: `${p}_p_cia_r`, type: 'basic', text: 'AIC' }, '', { btn: `${p}_p_cia_l`, type: 'basic', text: 'AIC' } ],
+                            [ { btn: `${p}_p_eia_r`, type: 'basic', text: 'AIE' }, '', { btn: `${p}_p_eia_l`, type: 'basic', text: 'AIE' } ],
+                            [ { btn: `${p}_p_iia_r`, type: 'basic', text: 'AII' }, '', { btn: `${p}_p_iia_l`, type: 'basic', text: 'AII' } ],
                             [ { btn: `${p}_p_obt_r`, type: 'basic', text: 'obturátor' }, '', { btn: `${p}_p_obt_l`, type: 'basic', text: 'obturátor' } ],
                             [ '', [ { btn: `${p}_p_pre_r`, type: 'basic', text: 'presakr.' }, { btn: `${p}_p_pre_l`, type: 'basic', text: 'presakr.' } ], '' ],
                             [ '', [ { btn: `${p}_p_mez_r`, type: 'basic', text: 'mezorekt.' }, { btn: `${p}_p_mez_l`, type: 'basic', text: 'mezorekt.' } ], '' ],
@@ -319,9 +319,9 @@ const RegionRectum = {
                 });
 
                 const bilatNodes = [
-                    { id: 'cia', name: 'podél CIA' },
-                    { id: 'eia', name: 'podél EIA' },
-                    { id: 'iia', name: 'podél IIA' },
+                    { id: 'cia', name: 'podél AIC' },
+                    { id: 'eia', name: 'podél AIE' },
+                    { id: 'iia', name: 'podél AII' },
                     { id: 'obt', name: 'v obturátorové jámě' },
                     { id: 'ing', name: 'inguinálně' }
                 ];
