@@ -5,11 +5,11 @@ const RegionLSp = {
         axis: { states: ['přímá', '(', '((', '(((', ')', '))', ')))'] },
         lordosis: { states: ['přiměřená', 'mělká', 'vymizelá', 'kyfotizace'] },
         lstv: { states: ['není', 'L5', 'S1'] },
-        shape: { states: ['tělo', 'schmorl', 'H plotna', 'D plotna', 'klínovitá', 'výrazná', 'propagace'] },
+        shape: { states: ['obr. tělo', 'schmorl', 'H plotna', 'D plotna', 'klínovitá', 'výrazná', 'propagace'] },
         shift: { states: ['posun', 'ventr', 'ventr+lýza', 'dorz', 'dorz+lýza'] },
         lesion: { states: ['léze', 'hemangiom', 'atyp', 'maligní'] },
-        surgery: { states: ['operace tělo', 'stabilizace', 'náhrada'] },
-        degen: { states: ['DDD', 'mírná', 'střední', 'výrazná', 'náhrada'] },
+        surgery: { states: ['operace obr. tělo', 'stabilizace', 'náhrada'] },
+        degen: { states: ['disk', 'DDD I', 'DDD II', 'DDD III', 'náhrada'] },
         modic: { states: ['Modic', 'Modic I', 'Modic II', 'Modic III', 'destrukce'] },
         protrusion: { states: ['protruze', 'bulging', 'herniace', 'spondylofyty', 'kombinace'] },
         asym: { type: 'basic', text: 'asym' },
@@ -198,7 +198,7 @@ const RegionLSp = {
             let effectsDat = [];
 
             const shape = ctx.text(`${seg.vPfx}_shape`);
-            if (shape && shape !== 'tělo') {
+            if (shape && shape !== 'obr. tělo') {
                 if (shape === 'propagace') {
                     sentences.push(formatSentence('propagace zadní hrany obratl. těla dorzálně'));
                 }
@@ -230,16 +230,16 @@ const RegionLSp = {
             
             if (degen === 'náhrada') {
                 collDegenNahrada.push(seg.label);
-            } else if (degen && degen !== 'DDD') {
-                if (degen === 'mírná') { 
+            } else if (degen && degen !== 'disk') {
+                if (degen === 'DDD I') { 
                     degenModifier = 'mírně sníženého '; 
                     degenDesc = 'mírně snížený disk'; 
                 }
-                else if (degen === 'střední') { 
+                else if (degen === 'DDD II') { 
                     degenModifier = 'středně sníženého '; 
                     degenDesc = 'středně snížený disk'; 
                 }
-                else if (degen === 'výrazná') { 
+                else if (degen === 'DDD III') { 
                     degenModifier = 'výrazně sníženého '; 
                     degenDesc = 'výrazně snížený disk'; 
                 }
