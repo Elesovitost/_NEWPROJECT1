@@ -197,10 +197,10 @@ const RegionNeck = {
                     let dLN = LESIONS_DEFINITION.parseDetails(ctx, examId, 'neck', p, `${p}_met`, `${p}_e`, true);
 
                     if (dLN.hasAny || lokaceLN.length > 0) {
-                        let repSentence = `${dLN.baseText} ${lokTextLN}${dLN.vzhledText}${dLN.metrikyStr}${dLN.doplneniStr}.`.replace(/\s+/g, ' ').replace(' .', '.');
+                        let repSentence = `${dLN.baseText}${dLN.doplneniStr} ${lokTextLN}${dLN.vzhledText}${dLN.metrikyStr}.`.replace(/\s+/g, ' ').replace(' .', '.');
                         reportOut.push({ type: 'frame', text: repSentence, tableId: `neck_lymphnode_main__${instId}` });
 
-                        let concSentence = `${dLN.baseText} ${lokTextLN}${dLN.actStr}${dLN.dynStr}`;
+                        let concSentence = `${dLN.baseText}${dLN.doplneniStr} ${lokTextLN}${dLN.actStr}${dLN.dynStr}`;
                         if (dLN.etioStr) concSentence += `: ${dLN.etioStr}.`;
                         else concSentence += `.`;
                         
