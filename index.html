@@ -2024,6 +2024,7 @@ const MetricsEngine = {
         const refLiv = parseFloat((Store.fields['suv_jater'] || '3.0').replace(',', '.'));
         const refPar = parseFloat((Store.fields['suv_parotid'] || '20.0').replace(',', '.'));
         const refSle = parseFloat((Store.fields['suv_sleziny'] || '15.0').replace(',', '.'));
+        const refStr = parseFloat((Store.fields['suv_striata'] || '2.0').replace(',', '.'));
         const exam = (Store.activeTab || '').toLowerCase();
         
         if (exam.includes('psma')) {
@@ -2040,6 +2041,12 @@ const MetricsEngine = {
             if (pctLiv <= 1.1) return "s akumulací RF na úrovni ref. jater";
             if (suv < refSle) return "s akumulací RF nad úrovní ref. jater";
             return "s akumulací RF nad úrovní ref. sleziny";
+        } else if (exam.includes('dopa') && exam.includes('mozek')) {
+            const pctStr = suv / refStr;
+            if (pctStr <= 0.2) return "bez patrné akumulace RF";
+            if (pctStr >= 0.8 && pctStr <= 1.2) return "s akumulací RF obdobnou jako ref. striatum";
+            const multiplier = (Math.round(pctStr * 10) / 10).toString().replace('.', ',');
+            return `s akumulací RF ${multiplier}násobku ref. kontralaterálního striata`;
         } else {
             const pctLiv = suv / refLiv;
             if (pctLiv <= 0.2) return "bez patrné akumulace RF";
@@ -2049,7 +2056,7 @@ const MetricsEngine = {
         }
     },
 
-    getAutoActivityLevel: function(suvVal, refLiv, refPar, refSle, examId) {
+    getAutoActivityLevel: function(suvVal, refLiv, refPar, refSle, refStr, examId) {
         if (isNaN(suvVal) || suvVal < 0) return 0;
         const exam = examId.toLowerCase();
         if (exam.includes('psma')) {
@@ -2069,6 +2076,15 @@ const MetricsEngine = {
             if (suvVal <= refLiv * 1.1) return 3;
             if (suvVal < sle) return 4;
             return 5;
+        }
+        if (exam.includes('dopa') && exam.includes('mozek')) {
+            if (isNaN(refStr) || refStr <= 0) return 0;
+            const r = suvVal / refStr;
+            if (r < 0.2) return 1; 
+            if (r < 0.8) return 2; 
+            if (r <= 1.2) return 3; 
+            if (r <= 1.5) return 4; 
+            return 5; 
         }
         if (exam.includes('dopa')) {
             return 0;
@@ -2105,8 +2121,9 @@ const MetricsEngine = {
         const refLiv = parseFloat((Store.fields['suv_jater'] || '3.0').replace(',', '.'));
         const refPar = parseFloat((Store.fields['suv_parotid'] || '20.0').replace(',', '.'));
         const refSle = parseFloat((Store.fields['suv_sleziny'] || '15.0').replace(',', '.'));
+        const refStr = parseFloat((Store.fields['suv_striata'] || '2.0').replace(',', '.'));
         const examId = Store.activeTab || '';
-        const newActIndex = this.getAutoActivityLevel(suvVal, refLiv, refPar, refSle, examId);
+        const newActIndex = this.getAutoActivityLevel(suvVal, refLiv, refPar, refSle, refStr, examId);
         if (Store.buttonStates[actFieldId] !== newActIndex) {
            Store.buttonStates = { ...Store.buttonStates, [actFieldId]: newActIndex };
         }
