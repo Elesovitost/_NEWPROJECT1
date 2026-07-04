@@ -272,14 +272,14 @@ const RegionShoulder = {
                     }
                 }
 
-                if (isPartial && rozmer && !rozmer.includes('Rozměr')) {
+                if (isPartial && rozmer && !rozmer.includes('rozměr')) {
                     rText += ` v AP rozsahu ${rozmer}`;
                 }
 
                 if (isComplete) {
                     let cRetr = '', cAtr = '';
                     
-                    if (retr && !retr.includes('Retrakce')) {
+                    if (retr && !retr.includes('retrakce')) {
                         if (retr === '+') {
                             rText += `, pahýl šlachy je mírně retrahován`;
                             cRetr = `mírnou retrakcí`;
@@ -292,7 +292,7 @@ const RegionShoulder = {
                         }
                     }
                     
-                    if (atrofie && !atrofie.includes('Atrofie')) {
+                    if (atrofie && !atrofie.includes('atrofie')) {
                         if (atrofie === '+') {
                             rText += `, svalové bříško vykazuje mírnou tukovou atrofii`;
                             cAtr = `mírnou tukovou atrofií bříška`;
