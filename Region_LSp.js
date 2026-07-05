@@ -330,8 +330,10 @@ const RegionLSp = {
                 
                 if (protr === 'spondylofyty' && degenDesc) {
                     sentences.push(formatSentence(degenDesc));
-                    causesNom.push(degenDesc);
-                    causesGen.push(degenDesc.replace('mírná', 'mírné').replace('výrazná', 'výrazné'));
+                    if (degen === 'DDD III') {
+                        causesNom.push('pokročilá diskopatie');
+                        causesGen.push('pokročilé diskopatie');
+                    }
                 }
 
                 if (protrMm) baseProtr += ` o ${protrMm} mm`;
@@ -368,8 +370,10 @@ const RegionLSp = {
                 causesGen.push(pTxt.replace('bulging', 'bulgingu').replace('spondylofyty', 'spondylofytů'));
             } else if (degenDesc) {
                 sentences.push(formatSentence(degenDesc));
-                causesNom.push(degenDesc);
-                causesGen.push(degenDesc.replace('mírná', 'mírné').replace('výrazná', 'výrazné'));
+                if (degen === 'DDD III') {
+                    causesNom.push('pokročilá diskopatie');
+                    causesGen.push('pokročilé diskopatie');
+                }
             }
 
             const arthro = ctx.text(`${seg.sPfx}_arthro`);

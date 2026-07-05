@@ -178,7 +178,7 @@ const RegionShoulder = {
         }
 
         if (isAcNormal) {
-            reportOut.push({ type: 'frame', text: 'Akromion klidné, AC skloubení bez významných degenerativních změn, prostor pod klenbou prostorný.', tableId: 'shoulder_ac_main', dimmed: true });
+            reportOut.push({ type: 'frame', text: 'AC skloubení bez významných degenerativních změn, prostor pod klenbou bez výraznějšího zúžení.', tableId: 'shoulder_ac_main', dimmed: true });
         } else {
             let acText = 'AC kloub a akromion: ' + acParts.join(', ') + '.';
             reportOut.push({ type: 'frame', text: acText, tableId: 'shoulder_ac_main' });
@@ -216,7 +216,7 @@ const RegionShoulder = {
         }
 
         if (bursaParts.length === 0) {
-            reportOut.push({ type: 'frame', text: 'Kloubní dutina a burzy (SASD, subkorakoidní) bez patologické tekutinové náplně.', tableId: 'shoulder_bursa_main', dimmed: true });
+            reportOut.push({ type: 'frame', text: 'Kloubní dutina a burzy bez patologické tekutinové náplně.', tableId: 'shoulder_bursa_main', dimmed: true });
         } else {
             let bursaText = 'Tekutina a burzy: ' + bursaParts.join(', ') + '.';
             reportOut.push({ type: 'frame', text: bursaText, tableId: 'shoulder_bursa_main' });
@@ -334,7 +334,7 @@ const RegionShoulder = {
             return {
                 name: nameTitle,
                 text: `Šlacha m. ${nameTitle}: ${repParts.join(', ')}.`,
-                conc: `m. ${nameTitle} s ${concParts.join(' a ')}`
+                conc: `šlacha m. ${nameTitle} s ${concParts.join(' a ')}`
             };
         };
 
@@ -348,7 +348,7 @@ const RegionShoulder = {
         const customConc = ctx.field('sh_rm_custom_conc');
 
         if (cuffArr.length === 0 && !customDesc) {
-            reportOut.push({ type: 'frame', text: 'Rotátorová manžeta (SSP, ISP, SSC) přiměřeného průběhu, signálu i morfologie bez detekovatelné trhliny.', tableId: 'shoulder_rm_main', dimmed: true });
+            reportOut.push({ type: 'frame', text: 'Rotátorová manžeta přiměřeného průběhu, signálu i morfologie bez detekovatelné trhliny.', tableId: 'shoulder_rm_main', dimmed: true });
         } else {
             cuffArr.forEach(item => {
                 reportOut.push({ type: 'frame', text: item.text, tableId: 'shoulder_rm_main' });
@@ -412,7 +412,7 @@ const RegionShoulder = {
         let isLhbNormal = (!lhbStav || lhbStav === '0') && (!lhbPoloha || lhbPoloha === 'in situ');
 
         if (isLhbNormal) {
-            reportOut.push({ type: 'frame', text: 'Šlacha LHB je in situ v sulku, normální šíře a signálu, bez tekutinového lemu.', tableId: 'shoulder_lhb_main', dimmed: true });
+            reportOut.push({ type: 'frame', text: 'Šlacha dlouhé hlavy bicepsu je v sulku, přim. šíře a signálu, bez výraznějšího tekutinového lemu.', tableId: 'shoulder_lhb_main', dimmed: true });
         } else {
             let repParts = [];
             let concStavText = '';
@@ -482,7 +482,7 @@ const RegionShoulder = {
                           (!labPos || labPos === '0') && (!labCysta || labCysta === '0');
 
         if (isLabNormal) {
-            reportOut.push({ type: 'frame', text: 'Glenoidální labrum celistvé, bez známek separace či defektu.', tableId: 'shoulder_labrum_main', dimmed: true });
+            reportOut.push({ type: 'frame', text: 'Glenoidální labrum celistvé, bez zřetelné separace či defektu.', tableId: 'shoulder_labrum_main', dimmed: true });
         } else {
             let labrep = [];
             let labconc = [];

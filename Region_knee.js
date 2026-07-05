@@ -324,7 +324,7 @@ const RegionKnee = {
         }
 
         if (!hasPatellaPathology) {
-            reportOut.push({ type: 'frame', text: 'Patella normální konfigurace, FP chrupavky nesníženy bez patrné léze.', tableId: 'knee_patella_main', dimmed: true });
+            reportOut.push({ type: 'frame', text: 'Patella obvyklého vzhledu, FP chrupavky nesníženy bez výraznější léze.', tableId: 'knee_patella_main', dimmed: true });
         } else {
             let combinedReport = [];
             
@@ -578,7 +578,7 @@ const RegionKnee = {
             const isMNormal = (!mRupt || mRupt === '0') && (!mCyst || mCyst === 'cysta 0') && (!mExtr || mExtr === '0') && (!mOper || mOper === '0');
 
             if (isMNormal) {
-                reportOut.push({ type: 'frame', text: `${nameTitle} přiměřeného vzhledu a signálu bez patrné ruptury.`, tableId: tableId, dimmed: true });
+                reportOut.push({ type: 'frame', text: `${nameTitle} přiměřeného vzhledu bez patrné ruptury.`, tableId: tableId, dimmed: true });
             } else if (mOper === 'totální') {
                 reportOut.push({ type: 'frame', text: `Stav po totální resekci ${nameTitleGen}.`, tableId: tableId });
                 concMain.push({ type: 'frame', text: `${nameTitle} chybí susp. po totální menisektomii.`, tableId: tableId });
@@ -673,7 +673,7 @@ const RegionKnee = {
             const lLoc = ctx.text(`${prefix}_loc`);
 
             if (!lRupt || lRupt === '0') {
-                reportOut.push({ type: 'frame', text: `${nameTitle} přiměřeného vzhledu a signálu bez známek léze.`, tableId: tableId, dimmed: true });
+                reportOut.push({ type: 'frame', text: `${nameTitle} přiměřeného vzhledu bez známek léze.`, tableId: tableId, dimmed: true });
             } else {
                 // Medicínská korekce úponu: LCL = fibula, MCL = tibie
                 const distalRep = prefix === 'kn_lcl' ? 'při fibulárním úponu' : 'při tibiálním úponu';
@@ -719,7 +719,7 @@ const RegionKnee = {
             const isTibNormal = tib.dimmed;
 
             if (isFemNormal && isTibNormal) {
-                reportOut.push({ type: 'frame', text: `${compName} bez výraznější léze.`, tableId: tableId, dimmed: true });
+                reportOut.push({ type: 'frame', text: `${compName} bez výraznější léze chrupavek či skeletu.`, tableId: tableId, dimmed: true });
                 return;
             }
 
@@ -887,7 +887,7 @@ const RegionKnee = {
         } else {
             // --- LOGIKA: NATIVNÍ VAZ ---
             if (isNativNormal && (!aclBml || aclBml === 'skelet 0')) {
-                reportOut.push({ type: 'frame', text: 'Přední zkřížený vaz přiměřeného vzhledu a signálu.', tableId: 'knee_acl_main', dimmed: true });
+                reportOut.push({ type: 'frame', text: 'Přední zkřížený vaz přiměřeného vzhledu.', tableId: 'knee_acl_main', dimmed: true });
             } else {
                 let nRep = [];
                 let concParts = [];
@@ -981,7 +981,7 @@ const RegionKnee = {
         const isPclNormal = (!pclRupt || pclRupt === '0') && (!pclMorf || pclMorf === '0') && (!pclBml || pclBml === 'skelet 0');
 
         if (isPclNormal) {
-            reportOut.push({ type: 'frame', text: 'Zadní zkřížený vaz přiměřeného vzhledu a signálu.', tableId: 'knee_pcl_main', dimmed: true });
+            reportOut.push({ type: 'frame', text: 'Zadní zkřížený vaz přiměřeného vzhledu.', tableId: 'knee_pcl_main', dimmed: true });
         } else {
             let nRepPcl = [];
             let concPartsPcl = [];
