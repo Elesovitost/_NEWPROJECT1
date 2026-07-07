@@ -12,20 +12,24 @@
             .replace(/spine_lumbar/g, 'spine_cervical')
             .replace(/bederní/gi, 'krční');
 
-        // 2. Skrytí LSTV (robustní odstranění ze záhlaví osy včetně předcházející čárky)
+        // 2. Skrytí LSTV (robustní odstranění)
         code = code.replace(/,\s*'LSTV:',\s*\{\s*btn:\s*'lstv',\s*id:\s*'cp_lstv'\s*\}/, '');
 
         // 3. Textové a medicínské náhrady
         code = code
             .replace(/Zadní stabilizace/g, 'Přední stabilizace')
             .replace(/agregací kaudy/g, 'útlakem míchy')
-            .replace(/facetových artróz/g, 'facetových a unkovertebrálních artróz');
+            // Medicínská přesnost: přidání unkovertebrálního skloubení i pro pozitivní stavy
+            .replace(/facetových artróz/g, 'facetových a unkovertebrálních artróz')
+            .replace(/facetová artróza/g, 'facetová a unkovertebrální artróza')
+            .replace(/degenerace facetového skloubení/g, 'degenerace facetového a unkovertebrálního skloubení');
 
         // 4. Přesměrování foraminálních kořenů na novou proměnnou fRoot
         code = code
             .replace(/útlakem kořene \$\{seg\.vLabel\}/g, 'útlakem kořene ${seg.fRoot}')
             .replace(/útlakem kořenů \$\{seg\.vLabel\}/g, 'útlakem kořenů ${seg.fRoot}')
-            .replace(/adheze kořenů \$\{seg\.vLabel\}/g, 'adheze kořenů ${seg.fRoot}');
+            .replace(/adheze kořenů \$\{seg\.vLabel\}/g, 'adheze kořenů ${seg.fRoot}')
+            .replace(/nasedání kořenů \$\{seg\.vLabel\}/g, 'nasedání kořenů ${seg.fRoot}');
 
         // 5. Kompletní a klinicky přesný přepis anatomického pole segmentů
         const cervicalSegmentsBlock = `const segments = [
@@ -38,7 +42,9 @@
             { label: 'T1/2',  vPfx: 't1', sPfx: 't1_2',  vLabel: 'T1', fRoot: 'T1', root: 'T2' },
             { label: 'T2/3',  vPfx: 't2', sPfx: 't2_3',  vLabel: 'T2', fRoot: 'T2', root: 'T3' }
         ];`;
-        code = code.replace(/const segments\s*=\s*\[\s*[\s\S]*?\];/m, cervicalSegmentsBlock);
+        
+        // Robustnější match pro segmenty, i když chybí středník nebo se změnilo formátování
+        code = code.replace(/const segments\s*=\s*\[\s*\{[\s\S]*?\}\s*\];?/m, cervicalSegmentsBlock);
 
         // 6. Úprava etáží u expanzí a myelopatií přesně dle požadavků
         code = code.replace(/exp_segment:\s*\{\s*states:\s*\[[\s\S]*?\]\s*\}/, "exp_segment: { states: ['etáž', 'C2/3', 'C3/4', 'C4/5', 'C5/6', 'C6/7', 'C7/T1', 'T1/2'] }");
@@ -68,8 +74,8 @@
             code = code.replace(map.from, map.to);
         });
 
-        // 8. Skrytí těla C2 v renderu tabulky (robustní regex ignorující mezery a konce řádků)
-        code = code.replace(/\[\s*'C2',\s*\{\s*btn:\s*'shape',\s*id:\s*'c2_shape'[\s\S]*?\]\s*,/g, "// Řádek C2 vynechán");
+        // 8. Skrytí těla C2 v renderu tabulky (Ultra robustní match - smaže vše od začátku řádku C2 až po začátek řádku C2/3)
+        code = code.replace(/\[\s*'C2'\s*,[\s\S]*?(?=\[\s*'C2\/3')/g, "");
 
         // 9. Injektování do DOMu a registrace do globálního objektu REGIONS
         code += "\nif (typeof REGIONS !== 'undefined') { REGIONS['c_spine'] = RegionCp; if (typeof UI !== 'undefined' && Store.activeTab === 'mr_c_patere') { UI.renderDetails(); } }";
