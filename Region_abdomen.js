@@ -590,7 +590,7 @@ const RegionAbdomen = {
             let trZes = ctx.text('tr_zes'), trZesLoc = ctx.text('tr_zes_loc'); if (trZes && trZes !== '0') { let loc = trZesLoc !== '0' ? trZesLoc : 'střeva'; trRep.push(`${trZes} zesílení stěny v oblasti ${loc}`); if (trZes === 'výrazné') concInc.push({ type: 'frame', text: `Zesílení stěny v oblasti ${loc}.`, tableId: 'abdomen_tracnik_main' }); }
             let trDiv = ctx.text('tr_div'), trDivLoc = ctx.text('tr_div_loc'); if (trDiv && trDiv !== '0') { let loc = trDivLoc !== '0' ? ` v oblasti ${trDivLoc}` : ''; trRep.push(`divertikulóza${loc}${trDiv === 'divertikulitida' ? ' se známkami zánětlivé iritace okolí' : ''}`); if (trDiv === 'divertikulitida') concInc.push({ type: 'frame', text: `Známky divertikulitidy${loc}.`, tableId: 'abdomen_tracnik_main' }); }
             let trDesc = ctx.field('tr_custom_desc'); if (trDesc) trRep.push(trDesc);
-            if (trRep.length > 0) reportOut.push({ type: 'frame', text: `- Tračník a rektum: ${formatList(trRep)}.`, tableId: 'abdomen_tracnik_main' });
+            if (trRep.length > 0) reportOut.push({ type: 'frame', text: `- Tračník: ${formatList(trRep)}.`, tableId: 'abdomen_tracnik_main' });
             let trConc = ctx.field('tr_custom_conc'); if (trConc) concInc.push({ type: 'frame', text: trConc, tableId: 'abdomen_tracnik_main' });
 
             // 9. Peritoneum
