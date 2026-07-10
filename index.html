@@ -1309,9 +1309,10 @@ const RegionProstate = {
         layoutNodes.push(
             helpers.TableMain('prostate_prostata_main', 'Prostata obecně', [
                 helpers.Table2colNormal('pr_pro_table', '', [
+                    [ 'Velikost:', { field: 'size', id: 'pr_size', placeholder: 'mm' } ],
+                    [ 'Hyperplazie:', { btn: 'pr_hyp', states: ['0', 'mírná', 'střední', 'pokročilá'] } ],
                     [ 'Operace:', { btn: 'pr_op', states: ['0', 'RAPE', 'TURP'] } ],
                     [ 'Recidiva:', { btn: 'pr_rec', states: ['0', 'sycení', 'akumulace', 'oboje'] } ],
-                    [ 'Velikost:', { field: 'size', id: 'pr_size', placeholder: 'mm' } ],
                     [ 'Krvácení:', { btn: 'pr_hem', states: ['0', '+', '++'] } ]
                 ], 'prostate'),
                 helpers.Table1col('pr_pro_add', [
@@ -1660,6 +1661,7 @@ const RegionProstate = {
         let prOp = ctx.text('pr_op');
         let prRec = ctx.text('pr_rec');
         let prSize = ctx.field('pr_size');
+        let prHyp = ctx.text('pr_hyp');
         let prHem = ctx.text('pr_hem');
         let prDesc = ctx.field('pr_custom_desc');
         let prConcRaw = ctx.field('pr_custom_conc');
@@ -1699,12 +1701,21 @@ const RegionProstate = {
                 if (!prOp || prOp === '0') prostataText.push(`Prostata nezvětšena.`);
             }
 
+            if (prHyp === 'mírná') {
+                prostataText.push('Mírné zbytnění nodulárně prostavěné přechodové zóny.');
+            } else if (prHyp === 'střední') {
+                prostataText.push('Zbytnění nodulárně prostavěné přechodové zóny a mírný útlak periferní zóny.');
+            } else if (prHyp === 'pokročilá') {
+                prostataText.push('Pokročilé zbytnění nodulárně prostavěné přechodové zóny s útlakem periferní zóny.');
+                concMain.push({ type: 'frame', text: 'Pokročilá nodulární hyperplazie.', tableId: 'prostate_prostata_main' });
+            }
+
             if (prHem === '+') prostataText.push('Obsahuje okrsek T1+ po zakrvácení (biopsii).');
             else if (prHem === '++') prostataText.push('Obsahuje okrsky T1+ po zakrvácení (biopsii).');
 
             if (prDesc) prostataText.push(prDesc);
 
-            reportOut.push({ type: 'frame', text: prostataText.join(' '), tableId: 'prostate_prostata_main', dimmed: !prSize && !prHem && !prDesc && (!prOp || prOp === '0') });
+            reportOut.push({ type: 'frame', text: prostataText.join(' '), tableId: 'prostate_prostata_main', dimmed: !prSize && !prHem && !prDesc && (!prOp || prOp === '0') && (!prHyp || prHyp === '0') });
         }
 
         if (prConcRaw) {
@@ -1814,19 +1825,29 @@ const RegionProstate = {
         }
 
         if (prOp !== 'RAPE' && lesInsts.length > 0) {
-            let tStageStr = 'Tx';
-            if (maxTLevel === 5) tStageStr = 'T4';
-            else if (maxTLevel === 4) tStageStr = 'T3b';
-            else if (maxTLevel === 3) tStageStr = 'T3a';
-            else if (maxTLevel === 2) tStageStr = 'T2';
+            let maxPirads = 0;
+            lesInsts.forEach((instId) => {
+                const p = `pl_${instId}`;
+                const globalBtnId = `${examId}_prostate_${p}_pirads`;
+                const pi = Store.buttonStates[globalBtnId] || 0;
+                maxPirads = Math.max(maxPirads, pi);
+            });
 
-            let nStageStr = regionalPositive ? 'N1' : 'N0';
-            let tnmPrefix = examId.toLowerCase().includes('psma') ? 'mi' : 'c';
+            if (maxPirads >= 3 || regionalPositive || nonRegionalPositive) {
+                let tStageStr = 'Tx';
+                if (maxTLevel === 5) tStageStr = 'T4';
+                else if (maxTLevel === 4) tStageStr = 'T3b';
+                else if (maxTLevel === 3) tStageStr = 'T3a';
+                else if (maxTLevel === 2) tStageStr = 'T2';
 
-            let tnmParts = [`${tnmPrefix}${tStageStr}`, `${tnmPrefix}${nStageStr}`];
-            if (nonRegionalPositive) tnmParts.push(`${tnmPrefix}M1a`);
+                let nStageStr = regionalPositive ? 'N1' : 'N0';
+                let tnmPrefix = examId.toLowerCase().includes('psma') ? 'mi' : 'c';
 
-            concMain.push({ type: 'frame', text: `${tnmPrefix}TNM: ${tnmParts.join(', ')}.`, tableId: 'prostate_prostata_main' });
+                let tnmParts = [`${tnmPrefix}${tStageStr}`, `${tnmPrefix}${nStageStr}`];
+                if (nonRegionalPositive) tnmParts.push(`${tnmPrefix}M1a`);
+
+                concMain.push({ type: 'frame', text: `${tnmPrefix}TNM: ${tnmParts.join(', ')}.`, tableId: 'prostate_prostata_main' });
+            }
         }
 
         return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };

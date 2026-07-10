@@ -19,10 +19,6 @@
         code = code
             .replace(/Zadní stabilizace/g, 'Přední stabilizace')
             .replace(/agregací kaudy/g, 'útlakem míchy')
-            // Medicínská přesnost: přidání unkovertebrálního skloubení i pro pozitivní stavy
-            .replace(/facetových artróz/g, 'facetových a unkovertebrálních artróz')
-            .replace(/facetová artróza/g, 'facetová a unkovertebrální artróza')
-            .replace(/degenerace facetového skloubení/g, 'degenerace facetového a unkovertebrálního skloubení');
 
         // 4. Přesměrování foraminálních kořenů na novou proměnnou fRoot
         code = code

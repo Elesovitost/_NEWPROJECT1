@@ -32,7 +32,7 @@ const RegionKnee = {
                 ])
             ]),
             
-            // --- KONDYLY A MENISKY (Factory vzor pro DRY kód) ---
+            // --- KONDYLY A MENISKY ---
             ...(() => {
                 const makeCondyleTable = (title, prefix) => helpers.Table2colNormal(`${prefix}_table`, title, [
                     [ 'Chrupavka:', [ { btn: `${prefix}_chr_gr`, states: ['GR 0', 'GR 1', 'GR 2', 'GR 3', 'GR 4'] }, { btn: `${prefix}_chr_lez`, states: ['Léze 0', 'Fisura', 'Fisury', 'Defekt', 'Defekty', 'Delaminace'] }, { btn: `${prefix}_chr_edem`, states: ['edém 0', 'edém +', 'edém ++'] } ] ],
@@ -42,11 +42,12 @@ const RegionKnee = {
 
                 const makeMeniscus = (id, title, prefix) => helpers.TableMain(id, title, [
                     helpers.Table2colNormal(`${prefix}_table`, '', [
-                        [ 'Ruptura:', [ 
-                            { btn: `${prefix}_rupt`, states: ['0', 'horizontální', 'longitudinální', 'radiální part', 'radiální full', 'komplexní', 'bucket-handle', 'flap', 'parrot-beak', 'macerace', 'inkompletní'] }, 
-                            { btn: `${prefix}_loc`, states: ['lokace 0', 'přední úpon', 'přední roh', 'tělo', 'zadní roh', 'zadní úpon'] },
-                            { btn: `${prefix}_cyst`, states: ['cysta 0', 'cysta +', 'cysta ++'] }
+                        [ 'Léze:', [ 
+                            { btn: `${prefix}_base`, states: ['0', 'ruptura', 'degenerace'] }, 
+                            { btn: `${prefix}_typ`, states: ['typ...', 'horizontální', 'longitudinální', 'radiální part', 'radiální full', 'komplexní', 'bucket-handle', 'flap', 'parrot-beak', 'macerace'] },
+                            { btn: `${prefix}_loc`, states: ['lokace...', 'přední úpon', 'přední roh', 'tělo', 'zadní roh', 'zadní úpon'] }
                         ] ],
+                        [ 'Cysta:', { btn: `${prefix}_cyst`, states: ['0', 'malá', 'střední', 'výrazná'] } ],
                         [ 'Extruze:', { btn: `${prefix}_extr`, states: ['0', '< 50 %', '> 50 %'] } ],
                         [ 'Operace:', { btn: `${prefix}_oper`, states: ['0', 'parciální', 'subtotální', 'totální'] } ]
                     ])
@@ -56,7 +57,7 @@ const RegionKnee = {
                     helpers.Table2colNormal(`${prefix}_table`, '', [
                         [ 'Ruptura:', [ 
                             { btn: `${prefix}_rupt`, states: ['0', 'low-grade', 'parciální', 'high-grade', 'kompletní', 'po starší'] },
-                            { btn: `${prefix}_loc`, states: ['lokace 0', 'femorálně', 'střed', 'tibiálně'] }
+                            { btn: `${prefix}_loc`, states: ['lokace...', 'femorálně', 'střed', 'tibiálně'] }
                         ] ]
                     ])
                 ]);
@@ -136,10 +137,9 @@ const RegionKnee = {
         const cap = (s) => s && s.charAt(0).toUpperCase() + s.slice(1);
         const examId = ctx.examId || 'default';
         
-        // ═══ KLOUBNÍ DUTINA (Náplň, cysty, synovitida, tělíska) ═══
+        // ═══ KLOUBNÍ DUTINA ═══
         let jointRep = [];
         
-        // --- Náplň ---
         let napln = ctx.text('kn_napln');
         if (napln && napln !== '0') {
             if (napln === '+') { jointRep.push('mírně zvýšené množství kloubní tekutiny'); concMain.push({ type: 'frame', text: 'Mírně zvýšená kloubní náplň.', tableId: 'knee_joint_main' }); }
@@ -147,7 +147,6 @@ const RegionKnee = {
             else if (napln === '+++') { jointRep.push('výrazně zvýšené množství kloubní tekutiny'); concMain.push({ type: 'frame', text: 'Výrazně zvýšená kloubní náplň.', tableId: 'knee_joint_main' }); }
         }
 
-        // --- Bakerova cysta ---
         let baker = ctx.text('kn_baker');
         if (baker && baker !== '0') {
             if (baker === '+') { jointRep.push('drobná pseudocysta mediodorzálně v typické lokalizaci'); concMain.push({ type: 'frame', text: 'Drobná Bakerova pseudocysta.', tableId: 'knee_joint_main' }); }
@@ -155,7 +154,6 @@ const RegionKnee = {
             else if (baker === '+++') { jointRep.push('výrazná pseudocysta mediodorzálně v typické lokalizaci'); concMain.push({ type: 'frame', text: 'Výrazná Bakerova pseudocysta.', tableId: 'knee_joint_main' }); }
         }
 
-        // --- Synovitida ---
         let synov = ctx.text('kn_synov');
         if (synov && synov !== '0') {
             if (synov === '+') { jointRep.push('mírně prominentní synovie'); concMain.push({ type: 'frame', text: 'Mírná synoviální hypertrofie.', tableId: 'knee_joint_main' }); }
@@ -163,7 +161,6 @@ const RegionKnee = {
             else if (synov === 'PVS') { jointRep.push('difuzní vilózně-nodulární zbytnění synovie s nízkým signálem v T1W i T2W'); concMain.push({ type: 'frame', text: 'Pigmentovaná vilonodulární synovitida.', tableId: 'knee_joint_main' }); }
         }
 
-        // --- Volná tělíska ---
         let telIdx = Store.buttonStates[`${examId}_knee_kn_teliska`] || 0;
         let telLoc = ctx.field('kn_teliska_loc');
         let telLocStr = telLoc ? ` ${telLoc}` : '';
@@ -174,7 +171,6 @@ const RegionKnee = {
             else if (telIdx === 3) { jointRep.push('mnohočetná volná tělíska různé velikosti, převážně chondroidního signálu'); concMain.push({ type: 'frame', text: 'Synoviální chondromatóza.', tableId: 'knee_joint_main' }); }
         }
 
-        // --- Výsledná kompilace řádku pro kloubní dutinu ---
         if (jointRep.length === 0) {
             reportOut.push({ type: 'frame', text: 'Normální množství nitrokloubní tekutiny.', tableId: 'knee_joint_main', dimmed: true });
         } else {
@@ -183,7 +179,7 @@ const RegionKnee = {
             reportOut.push({ type: 'frame', text: finalJointText, tableId: 'knee_joint_main' });
         }
 
-        // --- PATELLA A FP SKLOUBENÍ ---
+        // ═══ PATELLA A FP SKLOUBENÍ ═══
         let patRep = [];
         let fpRep = [];
         let antRep = [];
@@ -277,7 +273,6 @@ const RegionKnee = {
             fpConc.push(`FP artróza ${art}.st.`);
         }
 
-        // ═══ OSTATNÍ PŘEDNÍ KOMPARTMENT COMPILATION ═══
         let jump = ctx.text('kn_ant_jump');
         if (jump && jump !== '0') {
             hasPatellaPathology = true;
@@ -339,7 +334,7 @@ const RegionKnee = {
             patConc.forEach(c => concMain.push({ type: 'frame', text: c + '.', tableId: 'knee_patella_main' }));
             antConc.forEach(c => concMain.push({ type: 'frame', text: c + '.', tableId: 'knee_patella_main' }));
             
-            // ═══ KOMBINOVANÁ LOGIKA PRO NÁLEZ CHONDROPATIE V ZÁVĚRU ═══
+            // FP chondropatie kompilátor
             const patChpVal = ctx.text('kn_fp_pat_chp');
             const femChpVal = ctx.text('kn_fp_fem_chp');
             const patLezVal = ctx.text('kn_fp_pat_lez');
@@ -359,31 +354,21 @@ const RegionKnee = {
 
             if (hasPatChp || hasFemChp || hasPatPath || hasFemPath) {
                 let concText = '';
-                
-                // Helper pro gramaticky správnou předložku "s" / "se"
                 const formatS = (arr) => {
                     if (arr.length === 0) return '';
                     const joined = arr.join(' a ');
                     return joined.startsWith('subchondrálním') ? `se ${joined}` : `s ${joined}`;
                 };
 
-                // Pokud mají obě chrupavky shodný patologický stupeň snížení
                 if (hasPatChp && hasFemChp && patChpVal === femChpVal) {
                     concText = `${gradeMapAdj[patChpVal]} FP chondropatie`;
-                    
-                    // Zjištění absolutní identity doprovodných nálezů (shodná léze i shodný edém)
                     if (patLezVal === femLezVal && patEdemVal === femEdemVal) {
                         let commonAdd = [];
                         if (patLezVal && patLezVal !== 'Léze 0') commonAdd.push(lezMapConc[patLezVal]);
                         if (patEdemVal && patEdemVal !== 'bez edému') commonAdd.push(edemMapConc[patEdemVal]);
-                        
-                        if (commonAdd.length > 0) {
-                            concText += `, ${formatS(commonAdd)}`;
-                        }
+                        if (commonAdd.length > 0) concText += `, ${formatS(commonAdd)}`;
                     } else {
-                        // Shodný stupeň, ale rozdílné doprovodné nálezy -> rozepíšeme stranově
                         let specs = [];
-
                         let patAdd = [];
                         if (patLezVal && patLezVal !== 'Léze 0') patAdd.push(lezMapConc[patLezVal]);
                         if (patEdemVal && patEdemVal !== 'bez edému') patAdd.push(edemMapConc[patEdemVal]);
@@ -397,10 +382,8 @@ const RegionKnee = {
                         if (specs.length > 0) concText += `, ${specs.join(', ')}`;
                     }
                 } else {
-                    // Pokud jsou stupně rozdílné nebo postižení postihuje pouze jednu stranu
                     concText = 'FP chondropatie: ';
                     let parts = [];
-
                     if (hasPatChp || hasPatPath) {
                         let pStr = hasPatChp ? gradeMap[patChpVal] : 'lokální';
                         pStr += ' patelárně';
@@ -410,7 +393,6 @@ const RegionKnee = {
                         if (patAdd.length > 0) pStr += ` ${formatS(patAdd)}`;
                         parts.push(pStr);
                     }
-
                     if (hasFemChp || hasFemPath) {
                         let fStr = hasFemChp ? gradeMap[femChpVal] : 'lokální';
                         fStr += ' femorálně';
@@ -420,7 +402,6 @@ const RegionKnee = {
                         if (femAdd.length > 0) fStr += ` ${formatS(femAdd)}`;
                         parts.push(fStr);
                     }
-
                     concText += parts.join(', ');
                 }
                 concMain.push({ type: 'frame', text: concText + '.', tableId: 'knee_patella_main' });
@@ -435,7 +416,6 @@ const RegionKnee = {
             let pathologies = [];
             let struct = { frac: '', sifk: '', ocl: '', chrBase: '', chrGrade: '', chrLez: '', edem: '' };
 
-            // --- Sekce Chrupavka (Outerbridge & Morfologie) ---
             const chrGr = ctx.text(`${prefix}_chr_gr`);
             const chrLez = ctx.text(`${prefix}_chr_lez`);
             const chrEdem = ctx.text(`${prefix}_chr_edem`);
@@ -487,7 +467,6 @@ const RegionKnee = {
                 }
             }
 
-            // --- Sekce Subchondrální nálezy (SIFK a OCL) ---
             const bml = ctx.text(`${prefix}_sub_bml`);
             const sifk = ctx.text(`${prefix}_sub_sifk`);
             const ocl = ctx.text(`${prefix}_sub_ocl`);
@@ -511,24 +490,14 @@ const RegionKnee = {
                 const bmlMapRep = { 'BML +': 'mírný edém kostní dřeně', 'BML ++': 'střední edém kostní dřeně', 'BML +++': 'výrazný edém kostní dřeně' };
                 const bmlMapConc = { 'BML +': 'mírným subchondrálním edémem', 'BML ++': 'středním subchondrálním edémem', 'BML +++': 'výrazným subchondrálním edémem' };
                 repParts.push(bmlMapRep[bml]);
-                
                 if (!struct.edem) struct.edem = bmlMapConc[bml];
             }
 
-            // --- Sekce Fraktura ---
             const frac = ctx.text(`${prefix}_frac`);
             if (frac && frac !== '0') {
                 hasPathology = true;
-                const fracMapRep = {
-                    'impakční': 'impakční fraktura',
-                    'vertikální': 'vertikální fraktura',
-                    'komin.': 'kominutivní fraktura'
-                };
-                const fracMapConc = {
-                    'impakční': 'impakční frakturou',
-                    'vertikální': 'vertikální frakturou',
-                    'komin.': 'kominutivní frakturou'
-                };
+                const fracMapRep = { 'impakční': 'impakční fraktura', 'vertikální': 'vertikální fraktura', 'komin.': 'kominutivní fraktura' };
+                const fracMapConc = { 'impakční': 'impakční frakturou', 'vertikální': 'vertikální frakturou', 'komin.': 'kominutivní frakturou' };
                 repParts.unshift(fracMapRep[frac]);
                 struct.frac = fracMapConc[frac];
             }
@@ -544,7 +513,6 @@ const RegionKnee = {
             }
             if (struct.edem) pathologies.push(struct.edem);
 
-            // --- Sestavení a formátování výstupů ---
             let repText = "";
             let concsToPush = [];
             
@@ -569,16 +537,17 @@ const RegionKnee = {
 
         // ═══ KOMPILÁTOR PRO MENISKY (LM, MM) ═══
         const parseMeniscus = (prefix, nameTitle, nameTitleGen, nameConc, tableId) => {
-            const mRupt = ctx.text(`${prefix}_rupt`);
+            const mBase = ctx.text(`${prefix}_base`);
+            const mTyp = ctx.text(`${prefix}_typ`);
             const mLoc = ctx.text(`${prefix}_loc`);
             const mCyst = ctx.text(`${prefix}_cyst`);
             const mExtr = ctx.text(`${prefix}_extr`);
             const mOper = ctx.text(`${prefix}_oper`);
 
-            const isMNormal = (!mRupt || mRupt === '0') && (!mCyst || mCyst === 'cysta 0') && (!mExtr || mExtr === '0') && (!mOper || mOper === '0');
+            const isMNormal = (!mBase || mBase === '0') && (!mCyst || mCyst === '0') && (!mExtr || mExtr === '0') && (!mOper || mOper === '0');
 
             if (isMNormal) {
-                reportOut.push({ type: 'frame', text: `${nameTitle} přiměřeného vzhledu bez patrné ruptury.`, tableId: tableId, dimmed: true });
+                reportOut.push({ type: 'frame', text: `${nameTitle} přiměřeného vzhledu bez patrné léze.`, tableId: tableId, dimmed: true });
             } else if (mOper === 'totální') {
                 reportOut.push({ type: 'frame', text: `Stav po totální resekci ${nameTitleGen}.`, tableId: tableId });
                 concMain.push({ type: 'frame', text: `${nameTitle} chybí susp. po totální menisektomii.`, tableId: tableId });
@@ -586,8 +555,8 @@ const RegionKnee = {
                 const locMapGen = { 'přední úpon': 'předního úponu', 'přední roh': 'předního rohu', 'tělo': 'těla', 'zadní roh': 'zadního rohu', 'zadní úpon': 'zadního úponu' };
                 const locMapLoc = { 'přední úpon': 'v oblasti předního úponu', 'přední roh': 'v předním rohu', 'tělo': 'v oblasti těla', 'zadní roh': 'v zadním rohu', 'zadní úpon': 'v oblasti zadního úponu' };
 
-                let locGen = (mLoc && mLoc !== 'lokace 0') ? ` ${locMapGen[mLoc]}` : '';
-                let locLoc = (mLoc && mLoc !== 'lokace 0') ? ` ${locMapLoc[mLoc]}` : '';
+                let locGen = (mLoc && mLoc !== 'lokace...') ? ` ${locMapGen[mLoc]}` : '';
+                let locLoc = (mLoc && mLoc !== 'lokace...') ? ` ${locMapLoc[mLoc]}` : '';
 
                 let operRep = '';
                 let operConc = '';
@@ -600,26 +569,34 @@ const RegionKnee = {
 
                 let ruptRep = '';
                 let ruptConc = '';
-                if (mRupt && mRupt !== '0') {
-                    const rRep = {
-                        'horizontální': 'horizontální vysokou SI', 'longitudinální': 'longitudinální vysokou SI',
-                        'radiální part': 'parciálním radiálním přerušením', 'radiální full': 'kompletní radiálním přerušením',
-                        'komplexní': 'komplexní trhlinou', 'bucket-handle': 'obrazem luxace fragmentu typu bucket-handle',
-                        'flap': 'dislokovanou flap rupturou', 'parrot-beak': 'parrot-beak rupturou volného okraje',
-                        'macerace': 'macerací a destrukcí tkáně', 'inkompletní': 'vysokou SI'
-                    };
-                    const rConc = {
-                        'horizontální': 'horizontální rupturou', 'longitudinální': 'longitudinální rupturou',
-                        'radiální part': 'parciální radiální rupturou', 'radiální full': 'kompletní radiální rupturou',
-                        'komplexní': 'komplexní rupturou', 'bucket-handle': 'bucket-handle rupturou',
-                        'flap': 'flap rupturou', 'parrot-beak': 'parrot-beak rupturou',
-                        'macerace': 'pokročilou macerací', 'inkompletní': 'degenerací / inkompletní lézí'
-                    };
 
-                    ruptRep = `s ${rRep[mRupt]}${locLoc}`;
-                    if (['horizontální', 'longitudinální'].includes(mRupt)) ruptRep += ' v kontaktu s artik. plochou';
-                    else if (mRupt === 'inkompletní') ruptRep += ' bez kontaktu s artik. plochou';
-                    ruptConc = `s ${rConc[mRupt]}${locLoc}`;
+                if (mBase && mBase !== '0') {
+                    if (mBase === 'degenerace') {
+                        ruptRep = `s intrameniskální vysokou SI${locLoc} bez kontaktu s artikulární plochou`;
+                        ruptConc = `s degenerací${locLoc}`;
+                    } else if (mBase === 'ruptura') {
+                        const rRep = {
+                            'horizontální': 'horizontální trhlinou', 'longitudinální': 'longitudinální trhlinou',
+                            'radiální part': 'parciálním radiálním přerušením', 'radiální full': 'kompletním radiálním přerušením',
+                            'komplexní': 'komplexní trhlinou', 'bucket-handle': 'obrazem luxace fragmentu typu bucket-handle',
+                            'flap': 'dislokovanou flap rupturou', 'parrot-beak': 'parrot-beak rupturou volného okraje',
+                            'macerace': 'macerací a destrukcí tkáně'
+                        };
+                        const rConc = {
+                            'horizontální': 'horizontální rupturou', 'longitudinální': 'longitudinální rupturou',
+                            'radiální part': 'parciální radiální rupturou', 'radiální full': 'kompletní radiální rupturou',
+                            'komplexní': 'komplexní rupturou', 'bucket-handle': 'bucket-handle rupturou',
+                            'flap': 'flap rupturou', 'parrot-beak': 'parrot-beak rupturou',
+                            'macerace': 'pokročilou macerací'
+                        };
+
+                        let tRep = (mTyp && mTyp !== 'typ...' && rRep[mTyp]) ? rRep[mTyp] : 'trhlinou';
+                        let tConc = (mTyp && mTyp !== 'typ...' && rConc[mTyp]) ? rConc[mTyp] : 'rupturou';
+
+                        ruptRep = `s ${tRep}${locLoc}`;
+                        if (['horizontální', 'longitudinální'].includes(mTyp)) ruptRep += ' v kontaktu s artik. plochou';
+                        ruptConc = `s ${tConc}${locLoc}`;
+                    }
                 } else if (mOper && mOper !== '0') {
                     ruptRep = 'přiměřeného postoperačního vzhledu bez přesvědčivé recidivy ruptury';
                 }
@@ -634,11 +611,11 @@ const RegionKnee = {
                     extraConcParts.push(`s ${extrConcStr}`);
                 }
 
-                if (mCyst && mCyst !== 'cysta 0') {
-                    let cystStr = mCyst === 'cysta +' ? 'parameniskální cystickou lézí' : 'parameniskální výraznou cystickou lézí';
-                    extraRepParts.push(`s ${cystStr}`);
-                    let cystConcStr = mCyst === 'cysta +' ? 'parameniskální cystou' : 'parameniskální výraznou cystou';
-                    extraConcParts.push(`s ${cystConcStr}`);
+                if (mCyst && mCyst !== '0') {
+                    const cRepStr = mCyst === 'malá' ? 'drobnou parameniskální cystickou lézí' : (mCyst === 'střední' ? 'parameniskální cystickou lézí' : 'výraznou parameniskální cystickou lézí');
+                    extraRepParts.push(`s ${cRepStr}`);
+                    const cConcStr = mCyst === 'malá' ? 'drobnou parameniskální cystou' : (mCyst === 'střední' ? 'parameniskální cystou' : 'výraznou parameniskální cystou');
+                    extraConcParts.push(`s ${cConcStr}`);
                 }
 
                 const joinWithA = (arr) => {
@@ -656,7 +633,6 @@ const RegionKnee = {
                 repSentence = repSentence.replace(/\s+/g, ' ').trim() + '.';
                 reportOut.push({ type: 'frame', text: repSentence, tableId });
 
-                // Upravená definice baseConc pro samostatnou menisektomii
                 let baseConc = (mOper !== '0' && !ruptConc) ? `${nameTitle} s redukcí objemu${locGen} susp. po ${mOper === 'parciální' ? 'parc.' : 'subtot.'} menisektomii` : `${nameTitle}${operConc}`;
                 
                 let concSentence = baseConc;
@@ -675,15 +651,14 @@ const RegionKnee = {
             if (!lRupt || lRupt === '0') {
                 reportOut.push({ type: 'frame', text: `${nameTitle} přiměřeného vzhledu bez známek léze.`, tableId: tableId, dimmed: true });
             } else {
-                // Medicínská korekce úponu: LCL = fibula, MCL = tibie
                 const distalRep = prefix === 'kn_lcl' ? 'při fibulárním úponu' : 'při tibiálním úponu';
                 const distalConc = prefix === 'kn_lcl' ? 'fibulárního úponu' : 'tibiálního úponu';
 
                 const locMapRep = { 'femorálně': 'při femorálním úponu', 'střed': 'v průběhu vazu', 'tibiálně': distalRep };
                 const locMapConc = { 'femorálně': 'femorálního úponu', 'střed': 'v průběhu vazu', 'tibiálně': distalConc };
                 
-                let locRep = (lLoc && lLoc !== 'lokace 0') ? ` ${locMapRep[lLoc]}` : '';
-                let locConc = (lLoc && lLoc !== 'lokace 0') ? ` ${locMapConc[lLoc]}` : '';
+                let locRep = (lLoc && lLoc !== 'lokace...') ? ` ${locMapRep[lLoc]}` : '';
+                let locConc = (lLoc && lLoc !== 'lokace...') ? ` ${locMapConc[lLoc]}` : '';
 
                 let repStr = '';
                 let concStr = '';
@@ -723,7 +698,6 @@ const RegionKnee = {
                 return;
             }
 
-            // --- Logika pro report (textová část) ---
             const femTextClean = fem.text.replace(/\.$/, '');
             const tibTextClean = tib.text.replace(/\.$/, '');
 
@@ -736,7 +710,6 @@ const RegionKnee = {
                 reportOut.push({ type: 'frame', text: `${compName}: ${parts.join(', ')}.`, tableId: tableId });
             }
 
-            // --- Logika pro conclusion (závěr) ---
             const normalizeArr = (arr) => arr.map(i => i.startsWith('s ') ? i.substring(2) : (i.startsWith('se ') ? i.substring(3) : i));
 
             const joinWithS = (arr) => {
@@ -853,7 +826,6 @@ const RegionKnee = {
         const isNativNormal = (!aclRupt || aclRupt === '0') && (!aclMorf || aclMorf === '0');
 
         if (isAclPlastika) {
-            // --- LOGIKA: PLASTIKA (ŠTĚP) ---
             let pRep = [];
             let pConc = [];
 
@@ -885,15 +857,12 @@ const RegionKnee = {
             concMain.push({ type: 'frame', text: pConc.join(', ') + '.', tableId: 'knee_acl_main' });
 
         } else {
-            // --- LOGIKA: NATIVNÍ VAZ ---
             if (isNativNormal && (!aclBml || aclBml === 'skelet 0')) {
                 reportOut.push({ type: 'frame', text: 'Přední zkřížený vaz přiměřeného vzhledu.', tableId: 'knee_acl_main', dimmed: true });
             } else {
                 let nRep = [];
                 let concParts = [];
 
-                // 1. Ruptura
-                // 1. Ruptura
                 let isRuptured = aclRupt && aclRupt !== '0';
                 if (isRuptured) {
                     if (aclRupt === 'low-grade') {
@@ -911,7 +880,6 @@ const RegionKnee = {
                     }
                 }
 
-                // 2. Skelet & Bone Marrow Lesions (BML)
                 if (aclBml && aclBml !== 'skelet 0') {
                     let bmlRepMap = {
                         'kont. edém': 'edém dorzálního plata tibie a ventrálního LFC',
@@ -937,7 +905,6 @@ const RegionKnee = {
                     concParts.push(bmlConcMap[aclBml]);
                 }
 
-                // 3. Morfologie
                 if (aclMorf && aclMorf !== '0') {
                     if (aclMorf === 'zvlnění') { 
                         nRep.push('průběh vazu je ochablý a zvlněný'); 
@@ -986,8 +953,6 @@ const RegionKnee = {
             let nRepPcl = [];
             let concPartsPcl = [];
 
-            // 1. Ruptura
-            // 1. Ruptura
             let isPclRuptured = pclRupt && pclRupt !== '0';
             if (isPclRuptured) {
                 if (pclRupt === 'low-grade') {
@@ -1005,7 +970,6 @@ const RegionKnee = {
                 }
             }
 
-            // 2. Skelet & BML (Přizpůsobeno pro PCL)
             if (pclBml && pclBml !== 'skelet 0') {
                 let bmlRepMapPcl = {
                     'BML +': 'edém ventrální části kondylu femuru i plata tibie',
@@ -1029,7 +993,6 @@ const RegionKnee = {
                 concPartsPcl.push(bmlConcMapPcl[pclBml]);
             }
 
-            // 3. Morfologie
             if (pclMorf && pclMorf !== '0') {
                 if (pclMorf === 'elongace') { 
                     nRepPcl.push('vaz vykazuje elongovaný a ochablý průběh'); 
@@ -1043,13 +1006,11 @@ const RegionKnee = {
                 }
             }
 
-            // Sestavení finálního stringu pro nálezový blok
             let finalReportTextPcl = `Zadní zkřížený vaz: ${nRepPcl.join(', ')}.`;
             finalReportTextPcl = finalReportTextPcl.replace('Zadní zkřížený vaz: vaz je', 'Zadní zkřížený vaz je');
 
             reportOut.push({ type: 'frame', text: finalReportTextPcl.charAt(0).toUpperCase() + finalReportTextPcl.slice(1), tableId: 'knee_pcl_main' });
             
-            // Sestavení závěru (Vždy začíná "Zadní zkřížený vaz...")
             let concSentencePcl = 'Zadní zkřížený vaz';
             if (concPartsPcl.length === 1) {
                 concSentencePcl += ` ${concPartsPcl[0]}`;
@@ -1069,8 +1030,6 @@ const RegionKnee = {
         const stItb = ctx.text('kn_st_itb');
         const stPlc = ctx.text('kn_st_plc');
         const stPmc = ctx.text('kn_st_pmc');
-        
-        // Nové proměnné pro svaly a burzy
         const mGastro = ctx.text('kn_m_gastro');
         const mPopl = ctx.text('kn_m_popl');
         const mBiceps = ctx.text('kn_m_biceps');
@@ -1098,46 +1057,39 @@ const RegionKnee = {
         } else {
             let stRepParts = [];
             
-            // Šlacha quadricepsu
             if (stQuad && stQuad !== '0') {
                 if (stQuad === 'tendinopatie') { stRepParts.push('šlacha m. quadriceps femoris je ztluštělá se zvýšeným signálem, bez přerušení vláken'); concMain.push({ type: 'frame', text: 'Tendinopatie šlachy m. quadriceps femoris.', tableId: 'knee_soft_main' }); }
                 else if (stQuad === 'parc. ruptura') { stRepParts.push('parciální defekt a edém vláken šlachy m. quadriceps femoris'); concMain.push({ type: 'frame', text: 'Parciální ruptura šlachy m. quadriceps femoris.', tableId: 'knee_soft_main' }); }
                 else if (stQuad === 'kompl. ruptura') { stRepParts.push('kompletní diskontinuita šlachy m. quadriceps femoris s retrakcí proximálního pahýlu'); concMain.push({ type: 'frame', text: 'Kompletní ruptura šlachy m. quadriceps femoris.', tableId: 'knee_soft_main' }); }
             }
 
-            // Pes anserinus
             if (stPes && stPes !== '0') {
                 if (stPes === 'edém/bursitida') { stRepParts.push('tekutinová kolekce a edém podél úponu pes anserinus superficialis'); concMain.push({ type: 'frame', text: 'Pes anserinus bursitida.', tableId: 'knee_soft_main' }); }
                 else if (stPes === 'tendinopatie') { stRepParts.push('ztluštění a hyperintenzita úponových šlach pes anserinus'); concMain.push({ type: 'frame', text: 'Tendinopatie úponu pes anserinus.', tableId: 'knee_soft_main' }); }
             }
 
-            // IT Trakt
             if (stItb && stItb !== '0') {
                 if (stItb === 'friction syndrom') { stRepParts.push('ložiskový edém měkkých tkání interponovaných mezi IT traktem a laterálním epikondylem femuru'); concMain.push({ type: 'frame', text: 'Iliotibial band (ITB) friction syndrom.', tableId: 'knee_soft_main' }); }
                 else if (stItb === 'tendinopatie') { stRepParts.push('ztluštění IT traktu při tibiálním úponu na Gerdyho hrbolek'); concMain.push({ type: 'frame', text: 'Entezopatie úponu IT traktu.', tableId: 'knee_soft_main' }); }
                 else if (stItb === 'parc. léze') { stRepParts.push('parciální rozvláknění IT traktu s okolním edémem'); concMain.push({ type: 'frame', text: 'Parciální léze iliotibiálního traktu.', tableId: 'knee_soft_main' }); }
             }
 
-            // PLC
             if (stPlc && stPlc !== '0') {
                 if (stPlc === 'edém/distenze') { stRepParts.push('periligamentózní edém a distenze struktur posterolaterálního rohu'); concMain.push({ type: 'frame', text: 'Low-grade léze (distenze) struktur posterolaterálního rohu (PLC).', tableId: 'knee_soft_main' }); }
                 else if (stPlc === 'parc. léze') { stRepParts.push('nehomogenita a částečný defekt struktur posterolaterálního rohu vč. šlachy m. popliteus'); concMain.push({ type: 'frame', text: 'High-grade parciální léze struktur posterolaterálního rohu (PLC).', tableId: 'knee_soft_main' }); }
                 else if (stPlc === 'kompl. léze') { stRepParts.push('zřetelná diskontinuita struktur posterolaterálního rohu s masivním edémem'); concMain.push({ type: 'frame', text: 'Kompletní léze struktur posterolaterálního rohu (PLC).', tableId: 'knee_soft_main' }); }
             }
 
-            // PMC
             if (stPmc && stPmc !== '0') {
                 if (stPmc === 'edém/distenze') { stRepParts.push('edém a distenze tkání posteromediálního rohu (zejm. v průběhu POL a úponu semimembranosu)'); concMain.push({ type: 'frame', text: 'Low-grade léze (distenze) struktur posteromediálního rohu (PMC).', tableId: 'knee_soft_main' }); }
                 else if (stPmc === 'parc. léze') { stRepParts.push('parciální defekt a vysoká SI struktur posteromediálního rohu'); concMain.push({ type: 'frame', text: 'High-grade parciální léze struktur posteromediálního rohu (PMC).', tableId: 'knee_soft_main' }); }
                 else if (stPmc === 'kompl. léze') { stRepParts.push('kompletní diskontinuita struktur posteromediálního rohu'); concMain.push({ type: 'frame', text: 'Kompletní léze struktur posteromediálního rohu (PMC).', tableId: 'knee_soft_main' }); }
             }
 
-            // Svaly
             if (mGastro === '+') { stRepParts.push('edém a ložisková trhlina myotendinózní junkce caput mediale m. gastrocnemius s okolní tekutinou'); concMain.push({ type: 'frame', text: 'Parciální ruptura caput mediale m. gastrocnemius (Tennis leg).', tableId: 'knee_soft_main' }); }
             if (mPopl === '+') { stRepParts.push('intramuskulární edém a rozvláknění svalového bříška m. popliteus'); concMain.push({ type: 'frame', text: 'Parciální ruptura m. popliteus.', tableId: 'knee_soft_main' }); }
             if (mBiceps === '+') { stRepParts.push('edém a částečný defekt myotendinózní junkce distálního bicepsu femoris'); concMain.push({ type: 'frame', text: 'Parciální ruptura svalového bříška / úponu m. biceps femoris.', tableId: 'knee_soft_main' }); }
 
-            // Burzy a ganglia
             if (bPrepat === '+') { stRepParts.push('ohraničená kolekce tekutiny s reaktivním edémem stěny v prepatelární burze'); concMain.push({ type: 'frame', text: 'Prepatelární bursitida.', tableId: 'knee_soft_main' }); }
             if (bInfrapDeep === '+') { stRepParts.push('tekutina v hluboké infrapatelární burze mezi tibií a distální patelární šlachou'); concMain.push({ type: 'frame', text: 'Hluboká infrapatelární bursitida.', tableId: 'knee_soft_main' }); }
             if (bInfrapSub === '+') { stRepParts.push('kolekce tekutiny v podkoží před distální patelární šlachou a tuberositas tibiae'); concMain.push({ type: 'frame', text: 'Subkutánní infrapatelární bursitida.', tableId: 'knee_soft_main' }); }
@@ -1145,14 +1097,13 @@ const RegionKnee = {
             if (gTf === '+') { stRepParts.push('laločnatá cystická formace vycházející z proximálního tibiofibulárního skloubení'); concInc.push({ type: 'frame', text: 'Gangliová cysta tibiofibulárního skloubení.', tableId: 'knee_soft_main' }); }
 
             if (stRepParts.length > 0) {
-                // Převod prvního písmene na velké pro celistvost věty a spojení čárkami
                 let finalStRep = stRepParts.join(', ');
                 finalStRep = finalStRep.charAt(0).toUpperCase() + finalStRep.slice(1) + '.';
                 finalSoftText = `Měkké tkáně: ${finalStRep}`;
             }
         }
 
-        // ═══ KOMPILÁTOR PRO SKELET A LÉZE (STATE OF THE ART) ═══
+        // ═══ KOMPILÁTOR PRO SKELET A LÉZE ═══
         const bnTyp = ctx.text('kn_bn_typ');
         const bnLoc = ctx.text('kn_bn_loc');
         const bnSize = ctx.field('kn_bn_size');
@@ -1160,8 +1111,6 @@ const RegionKnee = {
 
         if (bnTyp && bnTyp !== '0') {
             let repText = "";
-            
-            // Gramatická korekce pro výstupní text
             const locMap = { 'femur': 've femuru', 'tibie': 'v tibii', 'fibuly': 've fibule', 'patella': 'v patelle' };
             let locText = (bnLoc && bnLoc !== '0') ? ` ${locMap[bnLoc] || bnLoc}` : "";
             
@@ -1175,7 +1124,6 @@ const RegionKnee = {
             if (bnEdema === 's edémem') edemaRep = ' s reaktivním edémem v okolí';
             else if (bnEdema === 'bez edému') edemaRep = ' bez reaktivního edému';
             
-            // Zkrácená specifická popisná morfologie
             if (bnTyp === 'Enchondrom') {
                 repText = `Laločnaté ložisko s vysokým T2/PD signálem a okrsky výpadků${locText}${sizeText}${edemaRep}.`;
             } else if (bnTyp === 'NOF / FCD') {
@@ -1192,7 +1140,6 @@ const RegionKnee = {
 
             finalBoneText = repText;
             
-            // Formátování závěru
             let concLoc = (bnLoc && bnLoc !== '0') ? `${locMap[bnLoc] || bnLoc}` : "ve skeletu";
             let concEdema = bnEdema === 's edémem' ? 's edémem' : 'bez edému';
             
@@ -1206,7 +1153,6 @@ const RegionKnee = {
             
             let concText = `Ložisko ${concLoc} ${concEdema} charakteru ${typGenitive[bnTyp] || bnTyp.toLowerCase()}.`;
             
-            // Logika směrování: s edémem -> Main, klidové -> Incidental
             if (bnEdema === 's edémem') {
                 concMain.push({ type: 'frame', text: concText, tableId: 'knee_bones_main' });
             } else {
