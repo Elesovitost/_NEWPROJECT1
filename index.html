@@ -275,6 +275,7 @@
 <script src="Region_knee.js"></script>
 <script src="Region_ankle.js"></script>
 <script src="Region_rectum.js"></script>
+<script src="Region_tmk.js"></script>
 
 <script>
 
@@ -651,7 +652,8 @@ const EXAMS = {
         { id: 'mr_hlezna', title: 'MR hlezna', regs: ['ankle'] },
         { id: 'mr_c_patere', title: 'MR C páteře', regs: ['c_spine'] },
         { id: 'mr_t_patere', title: 'MR T páteře', regs: ['t_spine'] },
-        { id: 'mr_ls_patere', title: 'MR L páteře', regs: ['ls_spine'] }
+        { id: 'mr_ls_patere', title: 'MR L páteře', regs: ['ls_spine'] },
+        { id: 'mr_tmk', title: 'MR TMK', regs: ['tmk'] }
     ]
 };
 
@@ -1878,7 +1880,8 @@ const REGIONS = {
     ankle: RegionAnkle,
     ls_spine: RegionLSp,
     prostate: RegionProstate,
-    rectum: RegionRectum
+    rectum: RegionRectum,
+    tmk: RegionTmk
 
 }; // <-- Tohle už je uzavření celého REGIONS objektu
         
