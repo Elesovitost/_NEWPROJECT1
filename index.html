@@ -276,6 +276,7 @@
 <script src="Region_ankle.js"></script>
 <script src="Region_rectum.js"></script>
 <script src="Region_tmk.js"></script>
+<script src="Region_wrist.js"></script>
 
 <script>
 
@@ -647,6 +648,7 @@ const EXAMS = {
         { id: 'mr_prostata', title: 'MR prostaty', regs: ['prostate'] },
         { id: 'mr_rekta', title: 'MR rekta', regs: ['rectum'] },
         { id: 'mr_bricho', title: 'MR břicha', regs: ['abdomen'] },
+        { id: 'mr_zapesti', title: 'MR zápěstí', regs: ['wrist'] },
         { id: 'mr_ramene', title: 'MR ramene', regs: ['shoulder'] },
         { id: 'mr_kolene', title: 'MR kolene', regs: ['knee'] },
         { id: 'mr_hlezna', title: 'MR hlezna', regs: ['ankle'] },
@@ -1875,6 +1877,7 @@ const REGIONS = {
     thorax: RegionThorax,
     abdomen: RegionAbdomen,
     skeleton: RegionSkeleton,
+    wrist: RegionWrist,
     shoulder: RegionShoulder,
     knee: RegionKnee,
     ankle: RegionAnkle,
@@ -2827,6 +2830,13 @@ const UI = {
                 tabEl.appendChild(el('span', { textContent: 'MR ' }));
                 tabEl.appendChild(btnSide);
                 tabEl.appendChild(el('span', { textContent: ' hlezna' }));
+            } else if (examId === 'mr_zapesti') {
+                const side = Store.fields['wrist_side'];
+                const sideText = side === 'R' ? 'pravého' : (side === 'L' ? 'levého' : 'P / L ?');
+                const btnSide = el('button', { className: 'btn btn-side-toggle', textContent: sideText, 'data-action': 'cycle-wrist-side' });
+                tabEl.appendChild(el('span', { textContent: 'MR ' }));
+                tabEl.appendChild(btnSide);
+                tabEl.appendChild(el('span', { textContent: ' zápěstí' }));
             } else {
                 tabEl.appendChild(el('span', { textContent: exam.title }));
             }
@@ -2854,12 +2864,14 @@ const UI = {
         const isKnee = activeRegions.includes('knee');
         const isShoulder = activeRegions.includes('shoulder');
         const isAnkle = activeRegions.includes('ankle');
+        const isWrist = activeRegions.includes('wrist');
         const isLsSpine = activeRegions.includes('ls_spine');
         const isProstate = activeRegions.includes('prostate');
         const isRectum = activeRegions.includes('rectum');
         const kneeSide = Store.fields['knee_side'];
         const shoulderSide = Store.fields['shoulder_side'];
         const ankleSide = Store.fields['ankle_side'];
+        const wristSide = Store.fields['wrist_side'];
 
         if (usesSvg) {
             /* ═════════ ZASTAVENÍ VYKRESLENÍ DO VÝBĚRU STRANY ═════════ */
@@ -2869,6 +2881,7 @@ const UI = {
                 if (isKnee) msg = 'Zvol stranu kolene (P/L) v tlačítku záložky nahoře.';
                 if (isShoulder) msg = 'Zvol stranu ramene (P/L) v tlačítku záložky nahoře.';
                 if (isAnkle) msg = 'Zvol stranu hlezna (P/L) v tlačítku záložky nahoře.';
+                if (isWrist) msg = 'Zvol stranu zápěstí (P/L) v tlačítku záložky nahoře.';
                 
                 wrapper.appendChild(el('div', { className: 'label', style: 'font-size: 14px; text-align: center;', textContent: msg }));
                 content.appendChild(wrapper);
@@ -3676,6 +3689,10 @@ const ActionHandlers = {
                     const side = Store.fields['ankle_side'];
                     return side === 'R' ? "MR pravého hlezna" : (side === 'L' ? "MR levého hlezna" : exam.title);
                 }
+                if (id === 'mr_zapesti') {
+                    const side = Store.fields['wrist_side'];
+                    return side === 'R' ? "MR pravého zápěstí" : (side === 'L' ? "MR levého zápěstí" : exam.title);
+                }
                 return exam ? exam.title : "";
             }).filter(Boolean);
             title = titles.join(', ');
@@ -3688,6 +3705,12 @@ const ActionHandlers = {
             } else if (Store.activeTab === 'mr_ramene') {
                 const side = Store.fields['shoulder_side'];
                 title = side === 'R' ? "MR pravého ramene" : (side === 'L' ? "MR levého ramene" : title);
+            } else if (Store.activeTab === 'mr_hlezna') {
+                const side = Store.fields['ankle_side'];
+                title = side === 'R' ? "MR pravého hlezna" : (side === 'L' ? "MR levého hlezna" : title);
+            } else if (Store.activeTab === 'mr_zapesti') {
+                const side = Store.fields['wrist_side'];
+                title = side === 'R' ? "MR pravého zápěstí" : (side === 'L' ? "MR levého zápěstí" : title);
             }
         }
         
@@ -3772,6 +3795,10 @@ const ActionHandlers = {
     },
     'cycle-ankle-side': () => {
         Store.fields = { ...Store.fields, 'ankle_side': Store.fields['ankle_side'] === 'R' ? 'L' : 'R' };
+        UI.renderDetails(); 
+    },
+    'cycle-wrist-side': () => {
+        Store.fields = { ...Store.fields, 'wrist_side': Store.fields['wrist_side'] === 'R' ? 'L' : 'R' };
         UI.renderDetails(); 
     },
     'toggle-exam': (target, dataset) => {
