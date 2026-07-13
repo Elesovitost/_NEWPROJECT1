@@ -667,6 +667,7 @@ const RADIOFARM_CONFIG = {
     fdg: { defaultSuvJater: '3.0', showGroups: ['jatra', 'jatra_minule'], defaults: { suv_jater_minule: '3.0' } }
 };
 
+
 /* ═══════════════════════════════════════════════
    GRAMMAR DICTIONARY
 ═══════════════════════════════════════════════ */
@@ -1870,23 +1871,41 @@ const RegionProstate = {
     }
 };
 
-const REGIONS = {
-    brain: RegionBrain,
-    br_angiography: RegionBrAngiography,
-    neck: RegionNeck,
-    thorax: RegionThorax,
-    abdomen: RegionAbdomen,
-    skeleton: RegionSkeleton,
-    wrist: RegionWrist,
-    shoulder: RegionShoulder,
-    knee: RegionKnee,
-    ankle: RegionAnkle,
-    ls_spine: RegionLSp,
-    prostate: RegionProstate,
-    rectum: RegionRectum,
-    tmk: RegionTmk
+const APP_MANIFEST = {
+    examsWithSides: {
+        'mr_kolene': { field: 'knee_side', label: 'kolene' },
+        'mr_ramene': { field: 'shoulder_side', label: 'ramene' },
+        'mr_hlezna': { field: 'ankle_side', label: 'hlezna' },
+        'mr_zapesti': { field: 'wrist_side', label: 'zápěstí' }
+    },
+    regions: {
+        'shoulder': { svgFile: 'Organs_shoulder_cor.svg', svgHeight: '35vh', svgMode: 'mirrored' },
+        'knee':     { svgFile: 'Organs_knee_cor.svg', svgHeight: '35vh', svgMode: 'mirrored' },
+        'ankle':    { svgFile: 'Organs_ankle_tra.svg', svgHeight: '50vh', svgMode: 'mirrored' },
+        'prostate': { svgFile: 'Organs_prostate.svg', svgHeight: '30vh', svgMode: 'normal' },
+        'rectum':   { svgFile: 'Organs_rectum.svg', svgHeight: '30vh', svgMode: 'normal' }
+    }
+};
 
-}; // <-- Tohle už je uzavření celého REGIONS objektu
+const REGIONS = {
+    brain: typeof RegionBrain !== 'undefined' ? RegionBrain : null,
+    br_angiography: typeof RegionBrAngiography !== 'undefined' ? RegionBrAngiography : null,
+    neck: typeof RegionNeck !== 'undefined' ? RegionNeck : null,
+    thorax: typeof RegionThorax !== 'undefined' ? RegionThorax : null,
+    abdomen: typeof RegionAbdomen !== 'undefined' ? RegionAbdomen : null,
+    skeleton: typeof RegionSkeleton !== 'undefined' ? RegionSkeleton : null,
+    wrist: typeof RegionWrist !== 'undefined' ? RegionWrist : null,
+    shoulder: typeof RegionShoulder !== 'undefined' ? RegionShoulder : null,
+    knee: typeof RegionKnee !== 'undefined' ? RegionKnee : null,
+    ankle: typeof RegionAnkle !== 'undefined' ? RegionAnkle : null,
+    ls_spine: typeof RegionLSp !== 'undefined' ? RegionLSp : null,
+    prostate: typeof RegionProstate !== 'undefined' ? RegionProstate : null,
+    rectum: typeof RegionRectum !== 'undefined' ? RegionRectum : null,
+    tmk: typeof RegionTmk !== 'undefined' ? RegionTmk : null,
+    c_spine: typeof RegionCp !== 'undefined' ? RegionCp : null,
+    t_spine: typeof RegionTp !== 'undefined' ? RegionTp : null,
+    l_spine: typeof RegionTp !== 'undefined' ? RegionTp : null
+};
         
 
 /* ═══════════════════════════════════════════════
@@ -2809,34 +2828,19 @@ const UI = {
                 'data-payload': examId
             });
             
-            if (examId === 'mr_kolene') {
-                const side = Store.fields['knee_side'];
+            const sideConfig = APP_MANIFEST.examsWithSides[examId];
+            if (sideConfig) {
+                const side = Store.fields[sideConfig.field];
                 const sideText = side === 'R' ? 'pravého' : (side === 'L' ? 'levého' : 'P / L ?');
-                const btnSide = el('button', { className: 'btn btn-side-toggle', textContent: sideText, 'data-action': 'cycle-knee-side' });
+                const btnSide = el('button', {
+                    className: 'btn btn-side-toggle',
+                    textContent: sideText,
+                    'data-action': 'cycle-side',
+                    'data-payload': sideConfig.field
+                });
                 tabEl.appendChild(el('span', { textContent: 'MR ' }));
                 tabEl.appendChild(btnSide);
-                tabEl.appendChild(el('span', { textContent: ' kolene' }));
-            } else if (examId === 'mr_ramene') {
-                const side = Store.fields['shoulder_side'];
-                const sideText = side === 'R' ? 'pravého' : (side === 'L' ? 'levého' : 'P / L ?');
-                const btnSide = el('button', { className: 'btn btn-side-toggle', textContent: sideText, 'data-action': 'cycle-shoulder-side' });
-                tabEl.appendChild(el('span', { textContent: 'MR ' }));
-                tabEl.appendChild(btnSide);
-                tabEl.appendChild(el('span', { textContent: ' ramene' }));
-            } else if (examId === 'mr_hlezna') {
-                const side = Store.fields['ankle_side'];
-                const sideText = side === 'R' ? 'pravého' : (side === 'L' ? 'levého' : 'P / L ?');
-                const btnSide = el('button', { className: 'btn btn-side-toggle', textContent: sideText, 'data-action': 'cycle-ankle-side' });
-                tabEl.appendChild(el('span', { textContent: 'MR ' }));
-                tabEl.appendChild(btnSide);
-                tabEl.appendChild(el('span', { textContent: ' hlezna' }));
-            } else if (examId === 'mr_zapesti') {
-                const side = Store.fields['wrist_side'];
-                const sideText = side === 'R' ? 'pravého' : (side === 'L' ? 'levého' : 'P / L ?');
-                const btnSide = el('button', { className: 'btn btn-side-toggle', textContent: sideText, 'data-action': 'cycle-wrist-side' });
-                tabEl.appendChild(el('span', { textContent: 'MR ' }));
-                tabEl.appendChild(btnSide);
-                tabEl.appendChild(el('span', { textContent: ' zápěstí' }));
+                tabEl.appendChild(el('span', { textContent: ` ${sideConfig.label}` }));
             } else {
                 tabEl.appendChild(el('span', { textContent: exam.title }));
             }
@@ -2860,28 +2864,27 @@ const UI = {
         if (!activeExam) return;
 
         const activeRegions = activeExam.regs;
-        const usesSvg = activeRegions.some(r => ['brain', 'neck', 'thorax', 'abdomen', 'knee', 'shoulder', 'ankle', 'prostate', 'rectum'].includes(r));
-        const isKnee = activeRegions.includes('knee');
-        const isShoulder = activeRegions.includes('shoulder');
-        const isAnkle = activeRegions.includes('ankle');
-        const isWrist = activeRegions.includes('wrist');
-        const isLsSpine = activeRegions.includes('ls_spine');
-        const isProstate = activeRegions.includes('prostate');
-        const isRectum = activeRegions.includes('rectum');
-        const kneeSide = Store.fields['knee_side'];
-        const shoulderSide = Store.fields['shoulder_side'];
-        const ankleSide = Store.fields['ankle_side'];
-        const wristSide = Store.fields['wrist_side'];
+        
+        let activeRegionConfig = null;
+        for (const reg of activeRegions) {
+            if (APP_MANIFEST.regions[reg]) {
+                activeRegionConfig = APP_MANIFEST.regions[reg];
+                break;
+            }
+        }
+        
+        const hasWBSvg = activeRegions.some(r => ['brain', 'neck', 'thorax', 'abdomen'].includes(r));
+        const usesSvg = activeRegionConfig !== null || hasWBSvg;
+
+        const sideConfig = APP_MANIFEST.examsWithSides[Store.activeTab];
+        const requiresSide = sideConfig !== undefined;
+        const selectedSide = requiresSide ? Store.fields[sideConfig.field] : null;
 
         if (usesSvg) {
             /* ═════════ ZASTAVENÍ VYKRESLENÍ DO VÝBĚRU STRANY ═════════ */
-            if ((isKnee && !kneeSide) || (isShoulder && !shoulderSide) || (isAnkle && !ankleSide)) {
+            if (requiresSide && !selectedSide && activeRegionConfig) {
                 const wrapper = el('div', { className: 'organ-wrapper', style: 'justify-content: center; align-items: center; width: 100%; min-height: 200px;' });
-                let msg = 'Zvol stranu (P/L) v tlačítku záložky nahoře.';
-                if (isKnee) msg = 'Zvol stranu kolene (P/L) v tlačítku záložky nahoře.';
-                if (isShoulder) msg = 'Zvol stranu ramene (P/L) v tlačítku záložky nahoře.';
-                if (isAnkle) msg = 'Zvol stranu hlezna (P/L) v tlačítku záložky nahoře.';
-                if (isWrist) msg = 'Zvol stranu zápěstí (P/L) v tlačítku záložky nahoře.';
+                const msg = `Zvol stranu ${sideConfig.label} (P/L) v tlačítku záložky nahoře.`;
                 
                 wrapper.appendChild(el('div', { className: 'label', style: 'font-size: 14px; text-align: center;', textContent: msg }));
                 content.appendChild(wrapper);
@@ -2902,38 +2905,21 @@ const UI = {
 
             content.appendChild(wrapper);
 
-            const svgFiles = isKnee ? ['Organs_knee_cor.svg'] : (isAnkle ? ['Organs_ankle_tra.svg'] : (isLsSpine ? ['Organs_LS_sag.svg'] : (isShoulder ? ['Organs_shoulder_cor.svg'] : (isProstate ? ['Organs_prostate.svg'] : (isRectum ? ['Organs_rectum.svg'] : ['Organs_schematic_WB.svg'])))));
-            
-            const svgHeights = {
-                'Organs_knee_cor.svg': '35vh',
-                'Organs_shoulder_cor.svg': '35vh',
-                'Organs_ankle_tra.svg': '50vh',
-                'Organs_LS_sag.svg': '60vh',
-                'Organs_prostate.svg': '30vh',
-                'Organs_rectum.svg': '30vh',
-                'Organs_schematic_WB.svg': '70vh'
-            };
+            const svgFile = activeRegionConfig ? activeRegionConfig.svgFile : 'Organs_schematic_WB.svg';
+            const svgHeight = activeRegionConfig ? activeRegionConfig.svgHeight : '70vh';
+            const svgMode = activeRegionConfig ? activeRegionConfig.svgMode : 'normal';
 
-            Promise.all(svgFiles.map(file => fetch(file).then(r => r.text()).then(text => ({ file, text }))))
+            Promise.all([fetch(svgFile).then(r => r.text()).then(text => ({ file: svgFile, text }))])
                 .then(results => {
                     const container = document.getElementById('organ-svg-container');
                     if (container) {
                         container.replaceChildren(); 
-                        if (isKnee) {
-                            container.classList.add('multi-svg');
-                            if (kneeSide === 'L') container.classList.add('svg-mirrored');
-                            else container.classList.remove('svg-mirrored');
-                        } else if (isShoulder) {
-                            container.classList.remove('multi-svg');
-                            if (shoulderSide === 'L') container.classList.add('svg-mirrored');
-                            else container.classList.remove('svg-mirrored');
-                        } else if (isAnkle) {
-                            container.classList.remove('multi-svg');
-                            if (ankleSide === 'L') container.classList.add('svg-mirrored');
-                            else container.classList.remove('svg-mirrored');
-                        } else {
-                            container.classList.remove('multi-svg');
-                            container.classList.remove('svg-mirrored');
+                        
+                        container.className = 'organ-svg';
+                        if (svgMode === 'multi-mirrored') container.classList.add('multi-svg');
+                        
+                        if ((svgMode === 'mirrored' || svgMode === 'multi-mirrored') && selectedSide === 'L') {
+                            container.classList.add('svg-mirrored');
                         }
 
                         results.forEach((item, index) => {
@@ -2943,10 +2929,7 @@ const UI = {
                             
                             const scopeId = `svg-scope-${index}`;
                             svgEl.id = scopeId;
-                            
-                            if (svgHeights[item.file]) {
-                                svgEl.style.maxHeight = svgHeights[item.file];
-                            }
+                            svgEl.style.maxHeight = svgHeight;
 
                             svgEl.querySelectorAll('style').forEach(style => {
                                 style.textContent = style.textContent.replace(/(^|\})([^{]+)(\{)/g, (match, pre, selector, brace) => {
@@ -3673,45 +3656,23 @@ const ActionHandlers = {
         executeCopyFlow(textToCopy, target, false);
     },
     'copy-all': () => {
+        const getExamTitle = (id) => {
+            const exam = getExamById(id);
+            if (!exam) return "";
+            const sideConfig = APP_MANIFEST.examsWithSides[id];
+            if (sideConfig) {
+                const side = Store.fields[sideConfig.field];
+                if (side === 'R') return `MR pravého ${sideConfig.label}`;
+                if (side === 'L') return `MR levého ${sideConfig.label}`;
+            }
+            return exam.title;
+        };
+
         let title = "";
         if (Store.exams.size >= 2) {
-            const titles = Array.from(Store.exams).map(id => {
-                const exam = getExamById(id);
-                if (id === 'mr_kolene') {
-                    const side = Store.fields['knee_side'];
-                    return side === 'R' ? "MR pravého kolene" : (side === 'L' ? "MR levého kolene" : exam.title);
-                }
-                if (id === 'mr_ramene') {
-                    const side = Store.fields['shoulder_side'];
-                    return side === 'R' ? "MR pravého ramene" : (side === 'L' ? "MR levého ramene" : exam.title);
-                }
-                if (id === 'mr_hlezna') {
-                    const side = Store.fields['ankle_side'];
-                    return side === 'R' ? "MR pravého hlezna" : (side === 'L' ? "MR levého hlezna" : exam.title);
-                }
-                if (id === 'mr_zapesti') {
-                    const side = Store.fields['wrist_side'];
-                    return side === 'R' ? "MR pravého zápěstí" : (side === 'L' ? "MR levého zápěstí" : exam.title);
-                }
-                return exam ? exam.title : "";
-            }).filter(Boolean);
-            title = titles.join(', ');
+            title = Array.from(Store.exams).map(getExamTitle).filter(Boolean).join(', ');
         } else {
-            const activeExam = getExamById(Store.activeTab);
-            title = activeExam ? activeExam.title : "Lékařský nález";
-            if (Store.activeTab === 'mr_kolene') {
-                const side = Store.fields['knee_side'];
-                title = side === 'R' ? "MR pravého kolene" : (side === 'L' ? "MR levého kolene" : title);
-            } else if (Store.activeTab === 'mr_ramene') {
-                const side = Store.fields['shoulder_side'];
-                title = side === 'R' ? "MR pravého ramene" : (side === 'L' ? "MR levého ramene" : title);
-            } else if (Store.activeTab === 'mr_hlezna') {
-                const side = Store.fields['ankle_side'];
-                title = side === 'R' ? "MR pravého hlezna" : (side === 'L' ? "MR levého hlezna" : title);
-            } else if (Store.activeTab === 'mr_zapesti') {
-                const side = Store.fields['wrist_side'];
-                title = side === 'R' ? "MR pravého zápěstí" : (side === 'L' ? "MR levého zápěstí" : title);
-            }
+            title = getExamTitle(Store.activeTab) || "Lékařský nález";
         }
         
         const report = ClipboardService.formatReport(true);
@@ -3785,21 +3746,19 @@ const ActionHandlers = {
             UI.renderReport();
         }
     },
-    'cycle-knee-side': () => {
-        Store.fields = { ...Store.fields, 'knee_side': Store.fields['knee_side'] === 'R' ? 'L' : 'R' };
-        UI.renderDetails(); 
-    },
-    'cycle-shoulder-side': () => {
-        Store.fields = { ...Store.fields, 'shoulder_side': Store.fields['shoulder_side'] === 'R' ? 'L' : 'R' };
-        UI.renderDetails(); 
-    },
-    'cycle-ankle-side': () => {
-        Store.fields = { ...Store.fields, 'ankle_side': Store.fields['ankle_side'] === 'R' ? 'L' : 'R' };
-        UI.renderDetails(); 
-    },
-    'cycle-wrist-side': () => {
-        Store.fields = { ...Store.fields, 'wrist_side': Store.fields['wrist_side'] === 'R' ? 'L' : 'R' };
-        UI.renderDetails(); 
+    'cycle-side': (target, dataset, dir = 1) => {
+        const field = dataset.payload;
+        const current = Store.fields[field];
+        const states = ['R', 'L'];
+        
+        let idx = states.indexOf(current);
+        if (idx === -1) {
+            Store.fields = { ...Store.fields, [field]: dir > 0 ? 'R' : 'L' };
+        } else {
+            idx = (idx + dir + states.length) % states.length;
+            Store.fields = { ...Store.fields, [field]: states[idx] };
+        }
+        UI.renderDetails();
     },
     'toggle-exam': (target, dataset) => {
         const next = new Set(Store.exams);
@@ -3982,6 +3941,7 @@ document.addEventListener('contextmenu', e => {
     if (action === 'cycle-state')         cycleState(id, -1);
     if (action === 'toggle-basic')        toggleBasic(id, false);
     if (action === 'toggle-basic-custom') toggleBasicCustom(id, false);
+    if (action === 'cycle-side')          ActionHandlers['cycle-side'](btn, btn.dataset, -1);
 });
 
 document.addEventListener('wheel', e => {
@@ -4075,6 +4035,7 @@ document.addEventListener('wheel', e => {
     if (action === 'cycle-state')         cycleState(id, dir);
     if (action === 'toggle-basic')        toggleBasic(id, dir > 0);
     if (action === 'toggle-basic-custom') toggleBasicCustom(id, dir > 0);
+    if (action === 'cycle-side')          ActionHandlers['cycle-side'](btn, btn.dataset, dir);
 
 }, { passive: false });
 
