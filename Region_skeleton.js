@@ -60,7 +60,7 @@ const RegionSkeleton = {
             layoutNodes.push(
                 helpers.TableMain('skeleton_marrow', 'Kostní dřeň', [
                     helpers.Table2colNormal('sk_marrow_table', [
-                        [ 'RF+ difuzně', { btn: 'sk_md_akt', states: ['0', '+'] } ],
+                        [ 'RF+ difuzně', { btn: 'sk_md_akt', states: ['0', '+', '++'] } ],
                         [ 'RF- lokální', { btn: 'sk_md_neakt', states: ['0', '+'] } ],
                         [ 'Enostózy', { btn: 'sk_md_enost', states: ['0', '1', 'více'] } ]
                     ]),
@@ -269,7 +269,13 @@ const RegionSkeleton = {
 
             // --- KOSTNÍ DŘEŇ ---
             let marrow = [];
-            if (ctx.isActive('sk_md_akt')) marrow.push("difuzně zvýšená akumulace RF při aktivaci");
+            let mdAkt = ctx.text('sk_md_akt');
+            if (mdAkt === '+') marrow.push("difuzně zvýšená akumulace RF při aktivaci");
+            else if (mdAkt === '++') {
+                marrow.push("difuzně výrazně zvýšená akumulace RF při aktivaci");
+                concInc.push({ type: 'frame', text: "Difuzní hypermetabolismus kostní dřeně při její aktivaci.", tableId: 'skeleton_marrow' });
+            }
+            
             if (ctx.isActive('sk_md_neakt')) marrow.push("lokálně snížená akumulace RF po ozáření");
             let enost = ctx.text('sk_md_enost');
             if (enost === '1') marrow.push("drobný sklerotický okrsek (enostóza)");
