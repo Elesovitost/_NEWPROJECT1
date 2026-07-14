@@ -546,8 +546,7 @@ const ORGAN_MAP = {
     "Testes": { name: "Testes", table: "abdomen_testes_main", regions: ['abdomen', 'prostate'] },
     "Prostata": { name: "Prostata", table: "abdomen_prostata_main", regions: ['abdomen', 'prostate', 'rectum'] },
     "Skelet": { name: "Kosti / Klouby", table: "region:skeleton", regions: ['skeleton',] },
-    "Sval": { name: "Svaly / Měkké tkáně", table: null, regions: ['skeleton'] },
-    "Svaly": { name: "Svaly / Měkké tkáně", table: null, regions: ['skeleton'] },
+    "Svaly": { name: "Svaly / Měkké tkáně", table: "skeleton_soft_main", regions: ['skeleton'] },
     "Aorta": { name: "Velké cévy", table: "abdomen_velke_cevy_main", regions: ['thorax', 'abdomen'] },
     "Cévy": { name: "Velké cévy", table: "abdomen_velke_cevy_main", regions: ['abdomen'] },
     "Jícen": { name: "Jícen", table: "thorax_jicen_main", regions: ['thorax'] },
@@ -3249,6 +3248,23 @@ const UI = {
                 }
             }
 
+            let prefixes = [];
+            const pR = Store.buttonStates[`${examId}_skeleton_sk_soft_parav_r`] === 1;
+            const pL = Store.buttonStates[`${examId}_skeleton_sk_soft_parav_l`] === 1;
+            
+            if (pR || pL) {
+                let sideStr = pR && pL ? "PHK a LHK" : (pR ? "PHK" : "LHK");
+                prefixes.push(`Zvýšená akumulace RF v průběhu lymfatik ${sideStr} na podkladě parciální paravazace RF při aplikaci.`);
+            }
+
+            if (Store.buttonStates[`${examId}_skeleton_sk_soft_dif`]) {
+                prefixes.push("Difuzně vysoká akumulace RF v kosterním svalstvu při zátěži po aplikaci či nedodrženém lačnění.");
+            }
+
+            if (prefixes.length > 0) {
+                physioText = prefixes.join(' ') + (physioText ? ' ' + physioText : '');
+            }
+
             if (physioText) {
                 examRepBlocks.push({ type: 'frame', text: physioText, tableId: null, examId, hidden: true });
             }
@@ -3499,7 +3515,7 @@ const ClipboardService = {
                 }
             } else if (el.classList.contains('report-frame') || el.classList.contains('report-frame-hidden')) {
                 const cleanText = text.replace(/^- /, '');
-                if (currentLayout === 'block' || text.startsWith('Neložisková')) {
+                if (currentLayout === 'block' || el.classList.contains('report-frame-hidden') || text.startsWith('Neložisková')) {
                     if (currentLine) { lines.push(currentLine.trim()); currentLine = ""; }
                     lines.push(cleanText);
                 } else {

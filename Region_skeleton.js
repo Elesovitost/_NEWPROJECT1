@@ -152,6 +152,19 @@ const RegionSkeleton = {
                 ])
             );
 
+            layoutNodes.push(
+                helpers.TableMain('skeleton_soft_main', 'Svaly a měkké tkáně', [
+                    helpers.Table3colRCL('sk_soft_table', [
+                        [ '', { btn: 'sk_soft_dif', type: 'basic', text: 'RF+ difuzně' }, '' ],
+                        [ { btn: 'sk_soft_parav_r', states: ['0', '+'] }, 'Paravazace', { btn: 'sk_soft_parav_l', states: ['0', '+'] } ]
+                    ]),
+                    helpers.Table1col('sk_soft_add', [
+                        { field: 'text', id: 'sk_soft_custom_desc', placeholder: 'vlastní popis...' },
+                        { field: 'text', id: 'sk_soft_custom_conc', placeholder: 'vlastní závěr...' }
+                    ])
+                ])
+            );
+
             return layoutNodes;
         },
         compile: (ctx) => {
@@ -518,6 +531,12 @@ const RegionSkeleton = {
             
             let skConc = ctx.field('sk_custom_conc'); 
             if (skConc) concInc.push({ type: 'frame', text: skConc, tableId: 'skeleton_ostatni' });
+
+            let skSoftDesc = ctx.field('sk_soft_custom_desc'); 
+            if (skSoftDesc) reportOut.push({ type: 'frame', text: cap(skSoftDesc), tableId: 'skeleton_soft_main' });
+            
+            let skSoftConc = ctx.field('sk_soft_custom_conc'); 
+            if (skSoftConc) concInc.push({ type: 'frame', text: skSoftConc, tableId: 'skeleton_soft_main' });
 
             return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
         }
