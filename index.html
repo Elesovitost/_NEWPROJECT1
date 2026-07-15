@@ -54,6 +54,7 @@
         #exams-container .btn { text-align: left; justify-content: flex-start; }
         .report-content { display: flex; flex-direction: column; gap: 3px; padding-bottom: 8px; }
         .report-heading { font-weight: 700; color: var(--accent-hi); font-size: 10px; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .report-heading.heading-gray { color: var(--dim); }
         .report-heading[data-action="open-region"] { cursor: pointer; transition: all 0.2s; }
         .report-heading[data-action="open-region"]:hover { color: #fff; text-shadow: 0 0 4px var(--accent-hi); }
         .report-frame { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-family: Consolas, monospace; font-size: 12px; color: #d1d5db; line-height: 1.3; white-space: pre-wrap; transition: border-color 0.2s, background 0.2s; }
@@ -3251,6 +3252,11 @@ const UI = {
             }
 
             let prefixes = [];
+
+            if (Store.buttonStates[`${examId}_skeleton_sk_soft_fat`]) {
+                prefixes.push("Zvýšená akumulace RF v oblasti metabolicky aktivního tuku krku a trupu symetricky bilat.");
+            }
+
             const pR = Store.buttonStates[`${examId}_skeleton_sk_soft_parav_r`] === 1;
             const pL = Store.buttonStates[`${examId}_skeleton_sk_soft_parav_l`] === 1;
             
@@ -3268,7 +3274,8 @@ const UI = {
             }
 
             if (physioText) {
-                examRepBlocks.push({ type: 'frame', text: physioText, tableId: null, examId, hidden: true });
+                examRepBlocks.push({ type: 'heading-gray', text: 'OSTATNÍ:' });
+                examRepBlocks.push({ type: 'frame', text: physioText, tableId: null, examId, dimmed: true });
             }
             /* ════════════════════════════════════════════════ */
 
@@ -3285,8 +3292,8 @@ const UI = {
 
         const buildNodes = (blocks) => {
             return blocks.map(b => {
-                if (b.type === 'heading') {
-                    const node = el('div', { className: 'report-heading', textContent: b.text });
+                if (b.type === 'heading' || b.type === 'heading-gray') {
+                    const node = el('div', { className: b.type === 'heading-gray' ? 'report-heading heading-gray' : 'report-heading', textContent: b.text });
                     if (b.action) {
                         node.dataset.action = b.action;
                         if (b.regionId) node.dataset.region = b.regionId;

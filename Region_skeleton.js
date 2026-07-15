@@ -155,6 +155,7 @@ const RegionSkeleton = {
             layoutNodes.push(
                 helpers.TableMain('skeleton_soft_main', 'Svaly a měkké tkáně', [
                     helpers.Table3colRCL('sk_soft_table', [
+                        [ '', { btn: 'sk_soft_fat', type: 'basic', text: 'RF+ tuk' }, '' ],
                         [ '', { btn: 'sk_soft_dif', type: 'basic', text: 'RF+ difuzně' }, '' ],
                         [ { btn: 'sk_soft_parav_r', states: ['0', '+'] }, 'Paravazace', { btn: 'sk_soft_parav_l', states: ['0', '+'] } ]
                     ]),
