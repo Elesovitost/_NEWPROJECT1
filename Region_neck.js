@@ -34,14 +34,14 @@ const RegionNeck = {
                         ...LESIONS_DEFINITION.getLymphNodeRowsPre(helpers, p),
                         helpers.Table3colRL(`${p}_r3`, 'Lokalizace', [
                             [ { btn: `${p}_p_krk_r`, type: 'basic', text: 'Krk' },'\u00A0', { btn: `${p}_p_krk_l`, type: 'basic', text: 'Krk' } ],
-                            [ { btn: `${p}_p_1A_r`, type: 'basic', text: '1A' },'', { btn: `${p}_p_1A_l`, type: 'basic', text: '1A' } ],
-                            [ { btn: `${p}_p_1B_r`, type: 'basic', text: '1B' },'', { btn: `${p}_p_1B_l`, type: 'basic', text: '1B' } ],
-                            [ { btn: `${p}_p_2A_r`, type: 'basic', text: '2A' },'', { btn: `${p}_p_2A_l`, type: 'basic', text: '2A' } ],
-                            [ { btn: `${p}_p_2B_r`, type: 'basic', text: '2B' },'', { btn: `${p}_p_2B_l`, type: 'basic', text: '2B' } ],
-                            [ { btn: `${p}_p_3_r`, type: 'basic', text: '3' },'', { btn: `${p}_p_3_l`, type: 'basic', text: '3' } ],
-                            [ { btn: `${p}_p_4_r`, type: 'basic', text: '4' },'', { btn: `${p}_p_4_l`, type: 'basic', text: '4' } ],
-                            [ { btn: `${p}_p_5_r`, type: 'basic', text: '5' },'', { btn: `${p}_p_5_l`, type: 'basic', text: '5' } ],
-                            [ { btn: `${p}_p_6_r`, type: 'basic', text: '6' },'', { btn: `${p}_p_6_l`, type: 'basic', text: '6' } ]
+                            [ { btn: `${p}_p_IA_r`, type: 'basic', text: 'IA' },'', { btn: `${p}_p_IA_l`, type: 'basic', text: 'IA' } ],
+                            [ { btn: `${p}_p_IB_r`, type: 'basic', text: 'IB' },'', { btn: `${p}_p_IB_l`, type: 'basic', text: 'IB' } ],
+                            [ { btn: `${p}_p_IIA_r`, type: 'basic', text: 'IIA' },'', { btn: `${p}_p_IIA_l`, type: 'basic', text: 'IIA' } ],
+                            [ { btn: `${p}_p_IIB_r`, type: 'basic', text: 'IIB' },'', { btn: `${p}_p_IIB_l`, type: 'basic', text: 'IIB' } ],
+                            [ { btn: `${p}_p_III_r`, type: 'basic', text: 'III' },'', { btn: `${p}_p_III_l`, type: 'basic', text: 'III' } ],
+                            [ { btn: `${p}_p_IV_r`, type: 'basic', text: 'IV' },'', { btn: `${p}_p_IV_l`, type: 'basic', text: 'IV' } ],
+                            [ { btn: `${p}_p_V_r`, type: 'basic', text: 'V' },'', { btn: `${p}_p_V_l`, type: 'basic', text: 'V' } ],
+                            [ { btn: `${p}_p_VI_r`, type: 'basic', text: 'VI' },'', { btn: `${p}_p_VI_l`, type: 'basic', text: 'VI' } ]
                         ]),
                         ...LESIONS_DEFINITION.getLymphNodeRowsPost(helpers, p, `${p}_met`, `${p}_e`)
                     ])
@@ -180,7 +180,7 @@ const RegionNeck = {
                     else if (krk_l) lokaceLN.push("na krku vlevo");
 
                     let levelsR = [], levelsL = [];
-                    ['1A', '1B', '2A', '2B', '3', '4', '5', '6'].forEach(lvl => {
+                    ['IA', 'IB', 'IIA', 'IIB', 'III', 'IV', 'V', 'VI'].forEach(lvl => {
                         if (ctx.isActive(`${p}_p_${lvl}_r`)) levelsR.push(lvl);
                         if (ctx.isActive(`${p}_p_${lvl}_l`)) levelsL.push(lvl);
                     });

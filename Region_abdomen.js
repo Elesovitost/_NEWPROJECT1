@@ -58,10 +58,12 @@ const RegionAbdomen = {
                     helpers.LesionMain(`abdomen_lymphnode_main__${instId}`, `Lymfadenopatie (${idx + 1})`, [
                         ...LESIONS_DEFINITION.getLymphNodeRowsPre(helpers, p),
                         helpers.Table3colRCL(`${p}_loc1`, 'Lokalizace', [
-                            [ '', { btn: `${p}_p_hil_c`, type: 'basic', text: 'hilus' }, '' ], [ '', { btn: `${p}_p_por_c`, type: 'basic', text: 'portokaválně' }, '' ],
                             [ '', { btn: `${p}_p_cel_c`, type: 'basic', text: 'celiakálně' }, '' ], [ '', { btn: `${p}_p_per_c`, type: 'basic', text: 'perigastricky' }, '' ],
+                            [ '', { btn: `${p}_p_hil_c`, type: 'basic', text: 'jat. hilus' }, '' ], [ '', { btn: `${p}_p_por_c`, type: 'basic', text: 'portokaválně' }, '' ],
+                            [ '', { btn: `${p}_p_ppa_c`, type: 'basic', text: 'peripankreat.' }, '' ],
                             [ '', [ { btn: `${p}_p_mes_r`, type: 'basic', text: 'mesent.' }, { btn: `${p}_p_mes_l`, type: 'basic', text: 'mesent.' } ], '' ], [ '', { btn: `${p}_p_ret_c`, type: 'basic', text: 'retroperit.' }, '' ],
-                            [ '', [ { btn: `${p}_p_par_r`, type: 'basic', text: 'para-Ao' }, { btn: `${p}_p_par_l`, type: 'basic', text: 'para-Ao' } ], '' ], [ { btn: `${p}_p_cia_r`, type: 'basic', text: 'AIC' }, '', { btn: `${p}_p_cia_l`, type: 'basic', text: 'AIC' } ],
+                            [ '', [ { btn: `${p}_p_par_r`, type: 'basic', text: 'para-Ao' }, { btn: `${p}_p_par_l`, type: 'basic', text: 'para-Ao' } ], '' ], [ '', { btn: `${p}_p_pan_c`, type: 'basic', text: 'pánevní' }, '' ],
+                            [ { btn: `${p}_p_cia_r`, type: 'basic', text: 'AIC' }, '', { btn: `${p}_p_cia_l`, type: 'basic', text: 'AIC' } ],
                             [ { btn: `${p}_p_eia_r`, type: 'basic', text: 'AIE' }, '', { btn: `${p}_p_eia_l`, type: 'basic', text: 'AIE' } ], [ { btn: `${p}_p_iia_r`, type: 'basic', text: 'AII' }, '', { btn: `${p}_p_iia_l`, type: 'basic', text: 'AII' } ],
                             [ { btn: `${p}_p_obt_r`, type: 'basic', text: 'obturátor' }, '', { btn: `${p}_p_obt_l`, type: 'basic', text: 'obturátor' } ], [ '', [ { btn: `${p}_p_pre_r`, type: 'basic', text: 'presakr.' }, { btn: `${p}_p_pre_l`, type: 'basic', text: 'presakr.' } ], '' ],
                             [ '', [ { btn: `${p}_p_mez_r`, type: 'basic', text: 'mezorekt.' }, { btn: `${p}_p_mez_l`, type: 'basic', text: 'mezorekt.' } ], '' ], [ { btn: `${p}_p_ing_r`, type: 'basic', text: 'inguinálně' }, '', { btn: `${p}_p_ing_l`, type: 'basic', text: 'inguinálně' } ]
@@ -471,7 +473,9 @@ const RegionAbdomen = {
                     if (ctx.isActive(`${p}_p_por_c`)) lokaceLN.push('portokaválně');
                     if (ctx.isActive(`${p}_p_cel_c`)) lokaceLN.push('celiakálně');
                     if (ctx.isActive(`${p}_p_per_c`)) lokaceLN.push('perigastricky');
-                    if (ctx.isActive(`${p}_p_ret_c`)) lokaceLN.push('retroperitoneálně');
+                    if (ctx.isActive(`${p}_p_ppa_c`)) lokaceLN.push('peripankreaticky');
+                    if (ctx.isActive(`${p}_p_ret_c`)) lokaceLN.push('v retroperitoneu');
+                    if (ctx.isActive(`${p}_p_pan_c`)) lokaceLN.push('v pánvi');
 
                     const noBilatNodes = [
                         { id: 'mes', name: 'mesenteriálně' },

@@ -41,7 +41,7 @@ const RegionThorax = {
                             [ '', { btn: `${p}_p_5_c`, type: 'basic', text: '5' }, '' ],
                             [ '', { btn: `${p}_p_6_c`, type: 'basic', text: '6' }, '' ],
                             [ '', { btn: `${p}_p_7_c`, type: 'basic', text: '7' }, '' ],
-                            [ { btn: `${p}_p_8_r`, type: 'basic', text: '8R' }, '', { btn: `${p}_p_8_l`, type: 'basic', text: '8L' } ],
+                            [ '', { btn: `${p}_p_8_c`, type: 'basic', text: '8' }, '' ],
                             [ { btn: `${p}_p_hil_r`, type: 'basic', text: 'Hilus' }, '', { btn: `${p}_p_hil_l`, type: 'basic', text: 'Hilus' } ],
                             [ { btn: `${p}_p_10_r`, type: 'basic', text: '10R' }, '', { btn: `${p}_p_10_l`, type: 'basic', text: '10L' } ],
                             [ { btn: `${p}_p_11_r`, type: 'basic', text: '11-14R' }, '', { btn: `${p}_p_11_l`, type: 'basic', text: '11-14L' } ],
@@ -276,8 +276,7 @@ const RegionThorax = {
                     if (ctx.isActive(`${p}_p_5_c`)) activeRegs.push('5');
                     if (ctx.isActive(`${p}_p_6_c`)) activeRegs.push('6');
                     if (ctx.isActive(`${p}_p_7_c`)) activeRegs.push('7');
-                    if (ctx.isActive(`${p}_p_8_r`)) activeRegs.push('8R');
-                    if (ctx.isActive(`${p}_p_8_l`)) activeRegs.push('8L');
+                    if (ctx.isActive(`${p}_p_8_c`)) activeRegs.push('8');
                     if (ctx.isActive(`${p}_p_10_r`)) activeRegs.push('10R');
                     if (ctx.isActive(`${p}_p_10_l`)) activeRegs.push('10L');
                     if (ctx.isActive(`${p}_p_11_r`)) activeRegs.push('11-14R');
