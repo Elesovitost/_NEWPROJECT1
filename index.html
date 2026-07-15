@@ -2077,7 +2077,7 @@ function createContext(regionId, examId) {
    METRICS HELPER
 ═══════════════════════════════════════════════ */
 const MetricsEngine = {
-    getSuvText: function(suvStr) {
+       getSuvText: function(suvStr) {
         if (!APP_SETTINGS.suvWord) return `se SUVmax = ${suvStr}`;
         const suv = parseFloat(String(suvStr).replace(',', '.'));
         if (isNaN(suv)) return `se SUVmax = ${suvStr}`;
@@ -2106,14 +2106,16 @@ const MetricsEngine = {
             const pctStr = suv / refStr;
             if (pctStr <= 0.2) return "bez patrné akumulace RF";
             if (pctStr >= 0.8 && pctStr <= 1.2) return "s akumulací RF obdobnou jako ref. striatum";
-            const multiplier = (Math.round(pctStr * 10) / 10).toString().replace('.', ',');
-            return `s akumulací RF ${multiplier}násobku ref. kontralaterálního striata`;
+            if (pctStr < 0.8) return `s akumulací RF ${Math.round(pctStr * 10) * 10}% úrovně ref. kontralaterálního striata`;
+            if (pctStr <= 3.0) return `s akumulací RF ${(Math.round(pctStr * 10) / 10).toString().replace('.', ',')}násobku ref. kontralaterálního striata`;
+            return `s akumulací RF ${(Math.round(pctStr * 2) / 2).toString().replace('.', ',')}násobku ref. kontralaterálního striata`;
         } else {
             const pctLiv = suv / refLiv;
             if (pctLiv <= 0.2) return "bez patrné akumulace RF";
             if (pctLiv >= 0.8 && pctLiv <= 1.2) return "s akumulací RF obdobnou jako ref. játra";
-            const multiplier = (Math.round(pctLiv * 10) / 10).toString().replace('.', ',');
-            return `s akumulací RF ${multiplier}násobku ref. jaterního parenchymu`;
+            if (pctLiv < 0.8) return `s akumulací RF ${Math.round(pctLiv * 10) * 10}% úrovně ref. jaterního parenchymu`;
+            if (pctLiv <= 3.0) return `s akumulací RF ${(Math.round(pctLiv * 10) / 10).toString().replace('.', ',')}násobku ref. jaterního parenchymu`;
+            return `s akumulací RF ${(Math.round(pctLiv * 2) / 2).toString().replace('.', ',')}násobku ref. jaterního parenchymu`;
         }
     },
 
