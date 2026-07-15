@@ -3514,7 +3514,12 @@ const ClipboardService = {
                     lines.push("");
                 }
             } else if (el.classList.contains('report-heading')) {
-                if (currentLine) lines.push(currentLine.trim());
+                if (currentLine) { lines.push(currentLine.trim()); currentLine = ""; }
+                if (text === 'OSTATNÍ:') {
+                    currentLayout = 'block';
+                    return; 
+                }
+
                 const regionId = el.dataset.region;
                 currentLayout = (regionId && REGIONS[regionId] && REGIONS[regionId].reportLayout) ? REGIONS[regionId].reportLayout : 'inline';
                 if (hasMultipleHeadings) {
