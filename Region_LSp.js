@@ -14,6 +14,11 @@ const RegionLSp = {
         disc_surgery: { states: ['disku', 'náhrada'] },
         modic: { states: ['Modic', 'Modic I', 'Modic II', 'Modic III', 'destrukce'] },
         protrusion: { states: ['protruze', 'bulging', 'herniace', 'spondylofyty', 'kombinace'] },
+        dir_f_r: { type: 'basic', text: 'F' },
+        dir_p_r: { type: 'basic', text: 'P' },
+        dir_c: { type: 'basic', text: 'C' },
+        dir_p_l: { type: 'basic', text: 'P' },
+        dir_f_l: { type: 'basic', text: 'F' },
         migration: { states: ['M0', 'M↑', 'M↓'] },
         arthrosis: { states: ['facets', 'I', 'II', 'III', 'edém'] },
         arthro_r: { type: 'basic', text: 'R' },
@@ -42,21 +47,44 @@ const RegionLSp = {
             [ '', '', '', '', '', '', '', '' ], 
         ]);
 
+        const pGroup = (id) => {
+            const val = Store.buttonStates[`${examId}_ls_spine_${id}_protrusion`];
+            const isActive = val !== undefined && val !== 0;
+            
+            const group = [
+                { btn: 'protrusion', id: `${id}_protrusion` }
+            ];
+            
+            if (isActive) {
+                group.push(
+                    { field: 'mm', id: `${id}_protrusion_mm`, placeholder: 'mm' },
+                    { btn: 'dir_f_r', id: `${id}_d_f_r` },
+                    { btn: 'dir_p_r', id: `${id}_d_p_r` },
+                    { btn: 'dir_c', id: `${id}_d_c` },
+                    { btn: 'dir_p_l', id: `${id}_d_p_l` },
+                    { btn: 'dir_f_l', id: `${id}_d_f_l` },
+                    { btn: 'migration', id: `${id}_migration` }
+                );
+            }
+            
+            return group;
+        };
+
         const table = helpers.TableGrid('spine_lumbar_main', [
             [ 'T11', { btn: 'shape', id: 't11_shape' }, { btn: 'lesion', id: 't11_lesion' }, [ { btn: 'shift', id: 't11_shift' }, { field: 'mm', id: 't11_shift_mm', placeholder: 'mm' } ], '', '', '', opV('t11_surgery') ],
-            [ 'T11/12', { btn: 'degen', id: 't11_12_degen' }, { btn: 'modic', id: 't11_12_modic' }, [ { btn: 'protrusion', id: 't11_12_protrusion' }, { field: 'mm', id: 't11_12_protrusion_mm', placeholder: 'mm' } ], [ { btn: 'sten_f', id: 't11_12_f_r' }, { btn: 'sten_p', id: 't11_12_p_r' }, { btn: 'sten_c', id: 't11_12_c' }, { btn: 'sten_p', id: 't11_12_p_l' }, { btn: 'sten_f', id: 't11_12_f_l' } ], [ { btn: 'migration', id: 't11_12_migration' }, { field: 'size', id: 't11_12_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 't11_12_arthro' }, { btn: 'arthro_r', id: 't11_12_arthro_r' }, { btn: 'arthro_l', id: 't11_12_arthro_l' } ], opD('t11_12_disc_surgery', 't11_12_lamin') ],
+            [ 'T11/12', { btn: 'degen', id: 't11_12_degen' }, { btn: 'modic', id: 't11_12_modic' }, pGroup('t11_12'), [ { btn: 'sten_f', id: 't11_12_f_r' }, { btn: 'sten_p', id: 't11_12_p_r' }, { btn: 'sten_c', id: 't11_12_c' }, { btn: 'sten_p', id: 't11_12_p_l' }, { btn: 'sten_f', id: 't11_12_f_l' } ], [ { field: 'size', id: 't11_12_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 't11_12_arthro' }, { btn: 'arthro_r', id: 't11_12_arthro_r' }, { btn: 'arthro_l', id: 't11_12_arthro_l' } ], opD('t11_12_disc_surgery', 't11_12_lamin') ],
             [ 'T12', { btn: 'shape', id: 't12_shape' }, { btn: 'lesion', id: 't12_lesion' }, [ { btn: 'shift', id: 't12_shift' }, { field: 'mm', id: 't12_shift_mm', placeholder: 'mm' } ], '', '', '', opV('t12_surgery') ],
-            [ 'T12/L1', { btn: 'degen', id: 't12_l1_degen' }, { btn: 'modic', id: 't12_l1_modic' }, [ { btn: 'protrusion', id: 't12_l1_protrusion' }, { field: 'mm', id: 't12_l1_protrusion_mm', placeholder: 'mm' } ], [ { btn: 'sten_f', id: 't12_l1_f_r' }, { btn: 'sten_p', id: 't12_l1_p_r' }, { btn: 'sten_c', id: 't12_l1_c' }, { btn: 'sten_p', id: 't12_l1_p_l' }, { btn: 'sten_f', id: 't12_l1_f_l' } ], [ { btn: 'migration', id: 't12_l1_migration' }, { field: 'size', id: 't12_l1_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 't12_l1_arthro' }, { btn: 'arthro_r', id: 't12_l1_arthro_r' }, { btn: 'arthro_l', id: 't12_l1_arthro_l' } ], opD('t12_l1_disc_surgery', 't12_l1_lamin') ],
+            [ 'T12/L1', { btn: 'degen', id: 't12_l1_degen' }, { btn: 'modic', id: 't12_l1_modic' }, pGroup('t12_l1'), [ { btn: 'sten_f', id: 't12_l1_f_r' }, { btn: 'sten_p', id: 't12_l1_p_r' }, { btn: 'sten_c', id: 't12_l1_c' }, { btn: 'sten_p', id: 't12_l1_p_l' }, { btn: 'sten_f', id: 't12_l1_f_l' } ], [ { field: 'size', id: 't12_l1_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 't12_l1_arthro' }, { btn: 'arthro_r', id: 't12_l1_arthro_r' }, { btn: 'arthro_l', id: 't12_l1_arthro_l' } ], opD('t12_l1_disc_surgery', 't12_l1_lamin') ],
             [ 'L1', { btn: 'shape', id: 'l1_shape' }, { btn: 'lesion', id: 'l1_lesion' }, [ { btn: 'shift', id: 'l1_shift' }, { field: 'mm', id: 'l1_shift_mm', placeholder: 'mm' } ], '', '', '', opV('l1_surgery') ],
-            [ 'L1/2', { btn: 'degen', id: 'l1_2_degen' }, { btn: 'modic', id: 'l1_2_modic' }, [ { btn: 'protrusion', id: 'l1_2_protrusion' }, { field: 'mm', id: 'l1_2_protrusion_mm', placeholder: 'mm' } ], [ { btn: 'sten_f', id: 'l1_2_f_r' }, { btn: 'sten_p', id: 'l1_2_p_r' }, { btn: 'sten_c', id: 'l1_2_c' }, { btn: 'sten_p', id: 'l1_2_p_l' }, { btn: 'sten_f', id: 'l1_2_f_l' } ], [ { btn: 'migration', id: 'l1_2_migration' }, { field: 'size', id: 'l1_2_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 'l1_2_arthro' }, { btn: 'arthro_r', id: 'l1_2_arthro_r' }, { btn: 'arthro_l', id: 'l1_2_arthro_l' } ], opD('l1_2_disc_surgery', 'l1_2_lamin') ],
+            [ 'L1/2', { btn: 'degen', id: 'l1_2_degen' }, { btn: 'modic', id: 'l1_2_modic' }, pGroup('l1_2'), [ { btn: 'sten_f', id: 'l1_2_f_r' }, { btn: 'sten_p', id: 'l1_2_p_r' }, { btn: 'sten_c', id: 'l1_2_c' }, { btn: 'sten_p', id: 'l1_2_p_l' }, { btn: 'sten_f', id: 'l1_2_f_l' } ], [ { field: 'size', id: 'l1_2_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 'l1_2_arthro' }, { btn: 'arthro_r', id: 'l1_2_arthro_r' }, { btn: 'arthro_l', id: 'l1_2_arthro_l' } ], opD('l1_2_disc_surgery', 'l1_2_lamin') ],
             [ 'L2', { btn: 'shape', id: 'l2_shape' }, { btn: 'lesion', id: 'l2_lesion' }, [ { btn: 'shift', id: 'l2_shift' }, { field: 'mm', id: 'l2_shift_mm', placeholder: 'mm' } ], '', '', '', opV('l2_surgery') ],
-            [ 'L2/3', { btn: 'degen', id: 'l2_3_degen' }, { btn: 'modic', id: 'l2_3_modic' }, [ { btn: 'protrusion', id: 'l2_3_protrusion' }, { field: 'mm', id: 'l2_3_protrusion_mm', placeholder: 'mm' } ], [ { btn: 'sten_f', id: 'l2_3_f_r' }, { btn: 'sten_p', id: 'l2_3_p_r' }, { btn: 'sten_c', id: 'l2_3_c' }, { btn: 'sten_p', id: 'l2_3_p_l' }, { btn: 'sten_f', id: 'l2_3_f_l' } ], [ { btn: 'migration', id: 'l2_3_migration' }, { field: 'size', id: 'l2_3_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 'l2_3_arthro' }, { btn: 'arthro_r', id: 'l2_3_arthro_r' }, { btn: 'arthro_l', id: 'l2_3_arthro_l' } ], opD('l2_3_disc_surgery', 'l2_3_lamin') ],
+            [ 'L2/3', { btn: 'degen', id: 'l2_3_degen' }, { btn: 'modic', id: 'l2_3_modic' }, pGroup('l2_3'), [ { btn: 'sten_f', id: 'l2_3_f_r' }, { btn: 'sten_p', id: 'l2_3_p_r' }, { btn: 'sten_c', id: 'l2_3_c' }, { btn: 'sten_p', id: 'l2_3_p_l' }, { btn: 'sten_f', id: 'l2_3_f_l' } ], [ { field: 'size', id: 'l2_3_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 'l2_3_arthro' }, { btn: 'arthro_r', id: 'l2_3_arthro_r' }, { btn: 'arthro_l', id: 'l2_3_arthro_l' } ], opD('l2_3_disc_surgery', 'l2_3_lamin') ],
             [ 'L3', { btn: 'shape', id: 'l3_shape' }, { btn: 'lesion', id: 'l3_lesion' }, [ { btn: 'shift', id: 'l3_shift' }, { field: 'mm', id: 'l3_shift_mm', placeholder: 'mm' } ], '', '', '', opV('l3_surgery') ],
-            [ 'L3/4', { btn: 'degen', id: 'l3_4_degen' }, { btn: 'modic', id: 'l3_4_modic' }, [ { btn: 'protrusion', id: 'l3_4_protrusion' }, { field: 'mm', id: 'l3_4_protrusion_mm', placeholder: 'mm' } ], [ { btn: 'sten_f', id: 'l3_4_f_r' }, { btn: 'sten_p', id: 'l3_4_p_r' }, { btn: 'sten_c', id: 'l3_4_c' }, { btn: 'sten_p', id: 'l3_4_p_l' }, { btn: 'sten_f', id: 'l3_4_f_l' } ], [ { btn: 'migration', id: 'l3_4_migration' }, { field: 'size', id: 'l3_4_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 'l3_4_arthro' }, { btn: 'arthro_r', id: 'l3_4_arthro_r' }, { btn: 'arthro_l', id: 'l3_4_arthro_l' } ], opD('l3_4_disc_surgery', 'l3_4_lamin') ],
+            [ 'L3/4', { btn: 'degen', id: 'l3_4_degen' }, { btn: 'modic', id: 'l3_4_modic' }, pGroup('l3_4'), [ { btn: 'sten_f', id: 'l3_4_f_r' }, { btn: 'sten_p', id: 'l3_4_p_r' }, { btn: 'sten_c', id: 'l3_4_c' }, { btn: 'sten_p', id: 'l3_4_p_l' }, { btn: 'sten_f', id: 'l3_4_f_l' } ], [ { field: 'size', id: 'l3_4_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 'l3_4_arthro' }, { btn: 'arthro_r', id: 'l3_4_arthro_r' }, { btn: 'arthro_l', id: 'l3_4_arthro_l' } ], opD('l3_4_disc_surgery', 'l3_4_lamin') ],
             [ 'L4', { btn: 'shape', id: 'l4_shape' }, { btn: 'lesion', id: 'l4_lesion' }, [ { btn: 'shift', id: 'l4_shift' }, { field: 'mm', id: 'l4_shift_mm', placeholder: 'mm' } ], '', '', '', opV('l4_surgery') ],
-            [ 'L4/5', { btn: 'degen', id: 'l4_5_degen' }, { btn: 'modic', id: 'l4_5_modic' }, [ { btn: 'protrusion', id: 'l4_5_protrusion' }, { field: 'mm', id: 'l4_5_protrusion_mm', placeholder: 'mm' } ], [ { btn: 'sten_f', id: 'l4_5_f_r' }, { btn: 'sten_p', id: 'l4_5_p_r' }, { btn: 'sten_c', id: 'l4_5_c' }, { btn: 'sten_p', id: 'l4_5_p_l' }, { btn: 'sten_f', id: 'l4_5_f_l' } ], [ { btn: 'migration', id: 'l4_5_migration' }, { field: 'size', id: 'l4_5_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 'l4_5_arthro' }, { btn: 'arthro_r', id: 'l4_5_arthro_r' }, { btn: 'arthro_l', id: 'l4_5_arthro_l' } ], opD('l4_5_disc_surgery', 'l4_5_lamin') ],
+            [ 'L4/5', { btn: 'degen', id: 'l4_5_degen' }, { btn: 'modic', id: 'l4_5_modic' }, pGroup('l4_5'), [ { btn: 'sten_f', id: 'l4_5_f_r' }, { btn: 'sten_p', id: 'l4_5_p_r' }, { btn: 'sten_c', id: 'l4_5_c' }, { btn: 'sten_p', id: 'l4_5_p_l' }, { btn: 'sten_f', id: 'l4_5_f_l' } ], [ { field: 'size', id: 'l4_5_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 'l4_5_arthro' }, { btn: 'arthro_r', id: 'l4_5_arthro_r' }, { btn: 'arthro_l', id: 'l4_5_arthro_l' } ], opD('l4_5_disc_surgery', 'l4_5_lamin') ],
             [ 'L5', { btn: 'shape', id: 'l5_shape' }, { btn: 'lesion', id: 'l5_lesion' }, [ { btn: 'shift', id: 'l5_shift' }, { field: 'mm', id: 'l5_shift_mm', placeholder: 'mm' } ], '', '', '', opV('l5_surgery') ],
-            [ 'L5/S1', { btn: 'degen', id: 'l5_s1_degen' }, { btn: 'modic', id: 'l5_s1_modic' }, [ { btn: 'protrusion', id: 'l5_s1_protrusion' }, { field: 'mm', id: 'l5_s1_protrusion_mm', placeholder: 'mm' } ], [ { btn: 'sten_f', id: 'l5_s1_f_r' }, { btn: 'sten_p', id: 'l5_s1_p_r' }, { btn: 'sten_c', id: 'l5_s1_c' }, { btn: 'sten_p', id: 'l5_s1_p_l' }, { btn: 'sten_f', id: 'l5_s1_f_l' } ], [ { btn: 'migration', id: 'l5_s1_migration' }, { field: 'size', id: 'l5_s1_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 'l5_s1_arthro' }, { btn: 'arthro_r', id: 'l5_s1_arthro_r' }, { btn: 'arthro_l', id: 'l5_s1_arthro_l' } ], opD('l5_s1_disc_surgery', 'l5_s1_lamin') ],
+            [ 'L5/S1', { btn: 'degen', id: 'l5_s1_degen' }, { btn: 'modic', id: 'l5_s1_modic' }, pGroup('l5_s1'), [ { btn: 'sten_f', id: 'l5_s1_f_r' }, { btn: 'sten_p', id: 'l5_s1_p_r' }, { btn: 'sten_c', id: 'l5_s1_c' }, { btn: 'sten_p', id: 'l5_s1_p_l' }, { btn: 'sten_f', id: 'l5_s1_f_l' } ], [ { field: 'size', id: 'l5_s1_size', placeholder: 'dur.vak mm' } ], [ { btn: 'arthrosis', id: 'l5_s1_arthro' }, { btn: 'arthro_r', id: 'l5_s1_arthro_r' }, { btn: 'arthro_l', id: 'l5_s1_arthro_l' } ], opD('l5_s1_disc_surgery', 'l5_s1_lamin') ],
             [ 'S1', { btn: 'shape', id: 's1_shape' }, { btn: 'lesion', id: 's1_lesion' }, [ { }, {  } ], '', '', '', opV('s1_surgery') ],
         ]);
 
@@ -201,10 +229,10 @@ const RegionLSp = {
 
         segments.forEach(seg => {
             let sentences = [];
-            let causesNom = [];
-            let causesGen = [];
-            let effectsNom = [];
-            let effectsDat = [];
+            let activeCauses = [];
+            let mappedEffects = [];
+            let fibrosisArr = [];
+            let adhesionArr = [];
 
             const shape = ctx.text(`${seg.vPfx}_shape`);
             if (shape && shape !== 'obr. tělo') {
@@ -287,49 +315,38 @@ const RegionLSp = {
 
                 sentences.push(formatSentence(`${typeStr}${mmStr} ${shift.includes('lýza') ? 's lýzou oblouku' : ''}`));
                 
-                causesNom.push(`${typeStr}${gradeStr} ${lStr}`);
-                causesGen.push(`${typeStr.replace('listéza', 'listézy')}${gradeStr} ${lStr}`);
+                activeCauses.push({
+                    type: 'other',
+                    nom: `${typeStr}${gradeStr} ${lStr}`.trim(),
+                    gen: `${typeStr.replace('listéza', 'listézy')}${gradeStr} ${lStr}`.trim()
+                });
             }
 
-            const valFR = ctx.text(`${seg.sPfx}_f_r`);
-            const valPR = ctx.text(`${seg.sPfx}_p_r`);
-            const valC  = ctx.text(`${seg.sPfx}_c`);
-            const valPL = ctx.text(`${seg.sPfx}_p_l`);
-            const valFL = ctx.text(`${seg.sPfx}_f_l`);
+            const dFR = ctx.isActive(`${seg.sPfx}_d_f_r`);
+            const dPR = ctx.isActive(`${seg.sPfx}_d_p_r`);
+            const dC  = ctx.isActive(`${seg.sPfx}_d_c`);
+            const dPL = ctx.isActive(`${seg.sPfx}_d_p_l`);
+            const dFL = ctx.isActive(`${seg.sPfx}_d_f_l`);
 
-            const hasZero = (valFR === '0' || valPR === '0' || valC === '0' || valPL === '0' || valFL === '0');
+            const dirsArr = [];
+            if (dFR) dirsArr.push({ id: 'F_R', name: 'foraminálně vpravo' });
+            if (dPR) dirsArr.push({ id: 'P_R', name: 'paracentrálně vpravo' });
+            if (dC)  dirsArr.push({ id: 'C',   name: 'centrálně' });
+            if (dPL) dirsArr.push({ id: 'P_L', name: 'paracentrálně vlevo' });
+            if (dFL) dirsArr.push({ id: 'F_L', name: 'foraminálně vlevo' });
 
-            let locStates = [];
-            
-            if (valFR === valFL && valFR && valFR !== 'F' && valFR !== '0') {
-                locStates.push({ type: 'F', val: valFR, isAct: true, name: 'foraminálně bilat.', t1: 'mírné zúžení obou foramin', t2: 'zúžení obou foramin', t3: `výrazné zúžení obou foramin s útlakem kořenů ${seg.vLabel} bilat.` });
-            } else {
-                locStates.push({ type: 'F', val: valFR, isAct: valFR && valFR !== 'F', zeroTxt: 'bez zúžení foramina vpravo', name: 'foraminálně vpravo', t1: 'mírné zúžení foramina vpravo', t2: 'zúžení foramina vpravo', t3: `výrazné zúžení foramina vpravo s útlakem kořene ${seg.vLabel} vpravo` });
-                locStates.push({ type: 'F', val: valFL, isAct: valFL && valFL !== 'F', zeroTxt: 'bez zúžení foramina vlevo', name: 'foraminálně vlevo', t1: 'mírné zúžení foramina vlevo', t2: 'zúžení foramina vlevo', t3: `výrazné zúžení foramina vlevo s útlakem kořene ${seg.vLabel} vlevo` });
+            let dirLocStr = '';
+            if (dirsArr.length === 1) {
+                dirLocStr = ` ${dirsArr[0].name}`;
+            } else if (dirsArr.length > 1) {
+                if (dirsArr.length === 2 && dirsArr[0].id === 'F_R' && dirsArr[1].id === 'F_L') {
+                    dirLocStr = ' foraminálně bilaterálně';
+                } else if (dirsArr.length === 2 && dirsArr[0].id === 'P_R' && dirsArr[1].id === 'P_L') {
+                    dirLocStr = ' paracentrálně bilaterálně';
+                } else {
+                    dirLocStr = ` ${dirsArr[0].name} až ${dirsArr[dirsArr.length - 1].name}`;
+                }
             }
-
-            if (valPR === valPL && valPR && valPR !== 'P' && valPR !== '0') {
-                locStates.push({ type: 'P', val: valPR, isAct: true, name: 'paracentrálně bilat.', t1: `kontakt s kořeny ${seg.root} bilat.`, t2: `útlak kořenů ${seg.root} bilat.`, t3: `komprese kořenů ${seg.root} bilat.`, tS: 'stenóza laterálních recesů bilat.' });
-            } else {
-                locStates.push({ type: 'P', val: valPR, isAct: valPR && valPR !== 'P', zeroTxt: `bez tlaku na kořen ${seg.root} vpravo`, name: 'paracentrálně vpravo', t1: `kontakt s kořenem ${seg.root} vpravo`, t2: `útlak kořene ${seg.root} vpravo`, t3: `komprese kořene ${seg.root} vpravo`, tS: 'stenóza laterálního recesu vpravo' });
-                locStates.push({ type: 'P', val: valPL, isAct: valPL && valPL !== 'P', zeroTxt: `bez tlaku na kořen ${seg.root} vlevo`, name: 'paracentrálně vlevo', t1: `kontakt s kořenem ${seg.root} vlevo`, t2: `útlak kořene ${seg.root} vlevo`, t3: `komprese kořene ${seg.root} vlevo`, tS: 'stenóza laterálního recesu vlevo' });
-            }
-
-            const c_size = ctx.field(`${seg.sPfx}_size`);
-            let c_t1 = 'mírná imprese durálního vaku';
-            let c_t2 = 'útlak durálního vaku';
-            let c_t3 = 'výrazný útlak durálního vaku s agregací kaudy';
-
-            if (c_size && ['1', '2', '3'].includes(valC)) {
-                const sizeText = c_size.includes('x') ? `(který rozměrů ${c_size} mm)` : `(který diametru ${c_size} mm AP)`;
-                c_t1 = `mírná imprese durálního vaku ${sizeText}`;
-                c_t2 = `útlak durálního vaku ${sizeText}`;
-                c_t3 = `výrazný útlak durálního vaku ${sizeText} s agregací kaudy`;
-            }
-
-            locStates.push({ type: 'C', val: valC,  isAct: valC && valC !== 'C', zeroTxt: 'bez tlaku na durální vak', name: 'centrálně', t1: c_t1, t2: c_t2, t3: c_t3 });
-            
-            const activeLocs = locStates.filter(l => l.isAct);
 
             const protr = ctx.text(`${seg.sPfx}_protrusion`);
             const protrMm = ctx.field(`${seg.sPfx}_protrusion_mm`);
@@ -342,8 +359,7 @@ const RegionLSp = {
                 if (protr === 'spondylofyty' && degenDesc) {
                     sentences.push(formatSentence(degenDesc));
                     if (degen === 'DDD III') {
-                        causesNom.push('pokročilá diskopatie');
-                        causesGen.push('pokročilé diskopatie');
+                        activeCauses.push({ type: 'other', nom: 'pokročilá diskopatie', gen: 'pokročilé diskopatie' });
                     }
                 }
 
@@ -352,22 +368,14 @@ const RegionLSp = {
                 const protrMapConc = { 'bulging': 'bulging disku', 'herniace': 'herniace disku', 'spondylofyty': 'spondylofyty', 'kombinace': 'kombinace spondylofytů a protruze disku' };
                 let pTxt = protrMapConc[protr] || protr;
 
-                let locNames = activeLocs.map(l => l.name);
-                let locStr = '';
-                if (locNames.length === 1) locStr = ` ${locNames[0]}`;
-                else if (locNames.length > 1) locStr = ` ${locNames[0]} až ${locNames[locNames.length - 1]}`;
-
-                const isAsym = activeLocs.length > 0;
-
-                if (locStr) {
+                if (dirLocStr) {
                     if (['bulging', 'spondylofyty', 'kombinace'].includes(protr)) {
-                        if (isAsym) {
-                            baseProtr += ` s akcentací${locStr}`;
-                            pTxt += ` s akcentací${locStr}`;
-                        }
+                        let verb = protr === 'spondylofyty' ? 'akcentovány' : (protr === 'kombinace' ? 'akcentována' : 'akcentován');
+                        baseProtr += ` ${verb}${dirLocStr}`;
+                        pTxt += ` ${verb}${dirLocStr}`;
                     } else {
-                        baseProtr += locStr;
-                        pTxt += locStr;
+                        baseProtr += dirLocStr;
+                        pTxt += dirLocStr;
                     }
                 }
 
@@ -379,13 +387,27 @@ const RegionLSp = {
 
                 sentences.push(formatSentence(baseProtr));
 
-                causesNom.push(pTxt);
-                causesGen.push(pTxt.replace('bulging', 'bulgingu').replace('spondylofyty', 'spondylofytů'));
+                activeCauses.push({
+                    type: 'specific',
+                    nom: pTxt,
+                    gen: pTxt.replace('bulging', 'bulgingu').replace('spondylofyty', 'spondylofytů'),
+                    match: (eff) => {
+                        if (dirsArr.length === 0) return true; 
+                        const m = dirsArr.map(d => d.id);
+                        if (eff.id === 'F_R' && m.includes('F_R')) return true;
+                        if (eff.id === 'P_R' && m.includes('P_R')) return true;
+                        if (eff.id === 'C' && m.includes('C')) return true;
+                        if (eff.id === 'P_L' && m.includes('P_L')) return true;
+                        if (eff.id === 'F_L' && m.includes('F_L')) return true;
+                        if (eff.id === 'bilat_F' && (m.includes('F_R') || m.includes('F_L'))) return true;
+                        if (eff.id === 'bilat_P' && (m.includes('P_R') || m.includes('P_L'))) return true;
+                        return false;
+                    }
+                });
             } else if (degenDesc) {
                 sentences.push(formatSentence(degenDesc));
                 if (degen === 'DDD III') {
-                    causesNom.push('pokročilá diskopatie');
-                    causesGen.push('pokročilé diskopatie');
+                    activeCauses.push({ type: 'other', nom: 'pokročilá diskopatie', gen: 'pokročilé diskopatie' });
                 }
             }
 
@@ -411,26 +433,11 @@ const RegionLSp = {
                 sentences.push(formatSentence(sentence));
 
                 let aTxt = `${modConc}facetová artróza ${sConc}${edemConc}`.trim();
-                causesNom.push(aTxt);
-                causesGen.push(aTxt.replace('artróza', 'artrózy').replace('mírná', 'mírné').replace('střední', 'střední').replace('výrazná', 'výrazné').replace('pokročilá', 'pokročilé').replace('facetová', 'facetové'));
-            }
-
-            const activeCount = activeLocs.length;
-            const popisOrderMap = { 'C': 1, 'P': 2, 'F': 3 };
-            let stenosisLocs = [...activeLocs].sort((a, b) => popisOrderMap[a.type] - popisOrderMap[b.type]);
-            
-            stenosisLocs.forEach(loc => {
-                if (loc.val === '0') { if (activeCount === 1) sentences.push(formatSentence(loc.zeroTxt)); }
-                else if (loc.val === '1') sentences.push(formatSentence(loc.t1));
-                else if (loc.val === '2') sentences.push(formatSentence(loc.t2));
-                else if (loc.val === '3') sentences.push(formatSentence(loc.t3));
-                else if (loc.val === 'S') sentences.push(formatSentence(loc.tS));
-            });
-
-            const size = ctx.field(`${seg.sPfx}_size`);
-            if (size && !(['1', '2', '3'].includes(valC))) {
-                if (size.includes('x')) sentences.push(formatSentence(`durální vak rozměrů cca ${size} mm`));
-                else sentences.push(formatSentence(`durální vak šíře ${size} mm`));
+                activeCauses.push({
+                    type: 'other',
+                    nom: aTxt,
+                    gen: aTxt.replace('artróza', 'artrózy').replace('mírná', 'mírné').replace('střední', 'střední').replace('výrazná', 'výrazné').replace('pokročilá', 'pokročilé').replace('facetová', 'facetové')
+                });
             }
 
             const globalExpSeg = ctx.text('exp_segment');
@@ -462,37 +469,50 @@ const RegionLSp = {
                     const sideMap = { 'R': 'vpravo', 'L': 'vlevo', 'C': 'centrálně' };
                     eTxt += ` ${sideMap[expSide] || expSide}`;
                 }
-                causesNom.push(eTxt);
-                causesGen.push(eTxt.replace('cysta', 'cysty').replace('intradurální ložisko', 'intradurálního ložiska').replace('ložisko', 'ložiska'));
+                activeCauses.push({
+                    type: 'specific',
+                    nom: eTxt,
+                    gen: eTxt.replace('cysta', 'cysty').replace('intradurální ložisko', 'intradurálního ložiska').replace('ložisko', 'ložiska'),
+                    match: (eff) => {
+                        if (eff.id === 'C') return true;
+                        if (eff.id.includes('R') && expSide === 'R') return true;
+                        if (eff.id.includes('L') && expSide === 'L') return true;
+                        return false;
+                    }
+                });
             }
 
-            if (valC && valC !== '0' && valC !== 'C') hasSpinalStenosis = true;
-            if (valPR && valPR !== '0' && valPR !== 'P' && valPR !== 'F') hasSpinalStenosis = true;
-            if (valPL && valPL !== '0' && valPL !== 'P' && valPL !== 'F') hasSpinalStenosis = true;
-            if (valFR && valFR !== '0' && valFR !== 'F') hasForaminalStenosis = true;
-            if (valFL && valFL !== '0' && valFL !== 'F') hasForaminalStenosis = true;
+            const valFR = ctx.text(`${seg.sPfx}_f_r`);
+            const valPR = ctx.text(`${seg.sPfx}_p_r`);
+            const valC  = ctx.text(`${seg.sPfx}_c`);
+            const valPL = ctx.text(`${seg.sPfx}_p_l`);
+            const valFL = ctx.text(`${seg.sPfx}_f_l`);
 
-            let fibrosisArr = [];
-            let adhesionArr = [];
-            
-            const getEffect = (val, type, side) => {
+            const hasZero = (valFR === '0' || valPR === '0' || valC === '0' || valPL === '0' || valFL === '0');
+
+            const getEffect = (val, type, side, id) => {
                 let nom = '', dat = '';
                 let sev = val === '3' ? 3 : (val === '2' || val === 'S' ? 2 : 1);
                 let typeOrder = type === 'C' ? 1 : (type === 'P' ? 2 : 3);
+                let reportStr = '';
 
                 if (type === 'F') {
-                    if (val === '3') { 
+                    if (val === '0') reportStr = `bez zúžení foramina ${side}`;
+                    else if (val === '3') { 
                         nom = `výrazná stenóza foramina ${side} s útlakem kořene ${seg.vLabel} ${side}`; 
                         dat = `výrazné stenóze foramina ${side} s útlakem kořene ${seg.vLabel} ${side}`; 
+                        reportStr = nom;
                     } else { 
                         nom = val === '1' ? `mírná stenóza foramina ${side}` : `stenóza foramina ${side}`; 
-                        dat = val === '1' ? `mírné stenóze foramina ${side}` : `stenóze foramina ${side}`; 
+                        dat = val === '1' ? `mírné stenóze foramina ${side}` : `stenóze foramina ${side}`;
+                        reportStr = nom;
                     }
                 } else if (type === 'P') {
-                    if (val === '1') { nom = `kontakt s kořenem ${seg.root} ${side}`; dat = `kontaktu s kořenem ${seg.root} ${side}`; }
-                    else if (val === '2') { nom = `útlak kořene ${seg.root} ${side}`; dat = `útlaku kořene ${seg.root} ${side}`; }
-                    else if (val === '3') { nom = `útlak kořene ${seg.root} ${side}`; dat = `kompresi kořene ${seg.root} ${side}`; }
-                    else if (val === 'S') { nom = `stenóza laterálního recesu ${side}`; dat = `stenóze laterálního recesu ${side}`; }
+                    if (val === '0') reportStr = `bez tlaku na kořen ${seg.root} ${side}`;
+                    else if (val === '1') { nom = `kontakt s kořenem ${seg.root} ${side}`; dat = `kontaktu s kořenem ${seg.root} ${side}`; reportStr = nom; }
+                    else if (val === '2') { nom = `útlak kořene ${seg.root} ${side}`; dat = `útlaku kořene ${seg.root} ${side}`; reportStr = nom; }
+                    else if (val === '3') { nom = `útlak kořene ${seg.root} ${side}`; dat = `kompresi kořene ${seg.root} ${side}`; reportStr = `komprese kořene ${seg.root} ${side}`; }
+                    else if (val === 'S') { nom = `stenóza laterálního recesu ${side}`; dat = `stenóze laterálního recesu ${side}`; reportStr = nom; }
                     else if (val === 'F') { 
                         fibrosisArr.push(`epidurální fibróza ${side}`);
                         sentences.push(formatSentence(`okrsek nízké SI epidurálně ${side}`));
@@ -504,31 +524,50 @@ const RegionLSp = {
                         return null;
                     }
                 } else if (type === 'C') {
-                    if (val === '1') { nom = `mírná spinální stenóza`; dat = `mírné spinální stenóze`; }
-                    else if (val === '2') { nom = `spinální stenóza`; dat = `spinální stenóze`; }
-                    else if (val === '3') { nom = `výrazná spinální stenóza s agregací kaudy`; dat = `výrazné spinální stenóze s agregací kaudy`; }
+                    const c_size = ctx.field(`${seg.sPfx}_size`);
+                    let sizeText = '';
+                    if (c_size && val !== '0') sizeText = c_size.includes('x') ? `(který rozměrů ${c_size} mm)` : `(který diametru ${c_size} mm AP)`;
+                    
+                    if (val === '0') reportStr = 'bez tlaku na durální vak';
+                    else if (val === '1') { nom = `mírná spinální stenóza`; dat = `mírné spinální stenóze`; reportStr = `mírná imprese durálního vaku ${sizeText}`.trim(); }
+                    else if (val === '2') { nom = `spinální stenóza`; dat = `spinální stenóze`; reportStr = `útlak durálního vaku ${sizeText}`.trim(); }
+                    else if (val === '3') { nom = `výrazná spinální stenóza s agregací kaudy`; dat = `výrazné spinální stenóze s agregací kaudy`; reportStr = `výrazný útlak durálního vaku ${sizeText} s agregací kaudy`.trim(); }
                 }
-                return { nom, dat, sev, typeOrder };
+                
+                if (reportStr) {
+                    if (val === '0') {
+                        let activeCount = [valFR, valPR, valC, valPL, valFL].filter(v => v && !['0','F','P','C'].includes(v)).length;
+                        if (activeCount === 0) sentences.push(formatSentence(reportStr));
+                    } else {
+                        sentences.push(formatSentence(reportStr));
+                    }
+                }
+                
+                if (['0', 'F', 'P', 'C'].includes(val)) return null;
+                return { nom, dat, sev, typeOrder, id };
             };
 
-            const getBilatEffect = (val, type) => {
+            const getBilatEffect = (val, type, id) => {
                 let nom = '', dat = '';
                 let sev = val === '3' ? 3 : (val === '2' || val === 'S' ? 2 : 1);
                 let typeOrder = type === 'C' ? 1 : (type === 'P' ? 2 : 3);
+                let reportStr = '';
 
                 if (type === 'F') {
                     if (val === '3') { 
                         nom = `výrazná stenóza obou foramin s útlakem kořenů ${seg.vLabel} bilat.`; 
                         dat = `výrazné stenóze obou foramin s útlakem kořenů ${seg.vLabel} bilat.`; 
+                        reportStr = nom;
                     } else { 
                         nom = val === '1' ? `mírná stenóza obou foramin` : `stenóza obou foramin`; 
                         dat = val === '1' ? `mírné stenóze obou foramin` : `stenóze obou foramin`; 
+                        reportStr = val === '1' ? `mírné zúžení obou foramin` : `zúžení obou foramin`;
                     }
                 } else if (type === 'P') {
-                    if (val === '1') { nom = `kontakt s kořeny ${seg.root} bilat.`; dat = `kontaktu s kořeny ${seg.root} bilat.`; }
-                    else if (val === '2') { nom = `útlak kořenů ${seg.root} bilat.`; dat = `útlaku kořenů ${seg.root} bilat.`; }
-                    else if (val === '3') { nom = `útlak kořenů ${seg.root} bilat.`; dat = `kompresi kořenů ${seg.root} bilat.`; }
-                    else if (val === 'S') { nom = `stenóza laterálních recesů bilat.`; dat = `stenóze laterálních recesů bilat.`; }
+                    if (val === '1') { nom = `kontakt s kořeny ${seg.root} bilat.`; dat = `kontaktu s kořeny ${seg.root} bilat.`; reportStr = nom; }
+                    else if (val === '2') { nom = `útlak kořenů ${seg.root} bilat.`; dat = `útlaku kořenů ${seg.root} bilat.`; reportStr = nom; }
+                    else if (val === '3') { nom = `útlak kořenů ${seg.root} bilat.`; dat = `kompresi kořenů ${seg.root} bilat.`; reportStr = `komprese kořenů ${seg.root} bilat.`; }
+                    else if (val === 'S') { nom = `stenóza laterálních recesů bilat.`; dat = `stenóze laterálních recesů bilat.`; reportStr = nom; }
                     else if (val === 'F') { 
                         fibrosisArr.push(`epidurální fibróza bilat.`);
                         sentences.push(formatSentence(`okrsky nízké SI epidurálně bilat.`));
@@ -540,30 +579,34 @@ const RegionLSp = {
                         return null;
                     }
                 }
-                return { nom, dat, sev, typeOrder };
+                
+                if (reportStr) sentences.push(formatSentence(reportStr));
+                if (['0', 'F', 'P', 'C'].includes(val)) return null;
+                return { nom, dat, sev, typeOrder, id };
             };
 
-            let mappedEffects = [];
-            
             if (valC && valC !== '0' && valC !== 'C') {
-                let eff = getEffect(valC, 'C', '');
+                let eff = getEffect(valC, 'C', '', 'C');
                 if (eff) mappedEffects.push(eff);
+                hasSpinalStenosis = true;
             }
 
             if (valPR === valPL && valPR && valPR !== '0' && valPR !== 'P') {
-                let eff = getBilatEffect(valPR, 'P');
+                let eff = getBilatEffect(valPR, 'P', 'bilat_P');
                 if (eff) mappedEffects.push(eff);
+                hasSpinalStenosis = true;
             } else {
-                if (valPR && valPR !== '0' && valPR !== 'P') { let e = getEffect(valPR, 'P', 'vpravo'); if (e) mappedEffects.push(e); }
-                if (valPL && valPL !== '0' && valPL !== 'P') { let e = getEffect(valPL, 'P', 'vlevo'); if (e) mappedEffects.push(e); }
+                if (valPR && valPR !== '0' && valPR !== 'P') { let e = getEffect(valPR, 'P', 'l.dx.', 'P_R'); if (e) mappedEffects.push(e); hasSpinalStenosis = true; }
+                if (valPL && valPL !== '0' && valPL !== 'P') { let e = getEffect(valPL, 'P', 'l.sin.', 'P_L'); if (e) mappedEffects.push(e); hasSpinalStenosis = true; }
             }
 
             if (valFR === valFL && valFR && valFR !== '0' && valFR !== 'F') {
-                let eff = getBilatEffect(valFR, 'F');
+                let eff = getBilatEffect(valFR, 'F', 'bilat_F');
                 if (eff) mappedEffects.push(eff);
+                hasForaminalStenosis = true;
             } else {
-                if (valFR && valFR !== '0' && valFR !== 'F') { let e = getEffect(valFR, 'F', 'vpravo'); if (e) mappedEffects.push(e); }
-                if (valFL && valFL !== '0' && valFL !== 'F') { let e = getEffect(valFL, 'F', 'vlevo'); if (e) mappedEffects.push(e); }
+                if (valFR && valFR !== '0' && valFR !== 'F') { let e = getEffect(valFR, 'F', 'l.dx.', 'F_R'); if (e) mappedEffects.push(e); hasForaminalStenosis = true; }
+                if (valFL && valFL !== '0' && valFL !== 'F') { let e = getEffect(valFL, 'F', 'l.sin.', 'F_L'); if (e) mappedEffects.push(e); hasForaminalStenosis = true; }
             }
 
             mappedEffects.sort((a, b) => {
@@ -571,61 +614,87 @@ const RegionLSp = {
                 return a.typeOrder - b.typeOrder;
             });
 
-            mappedEffects.forEach(eff => {
-                effectsNom.push(eff.nom);
-                effectsDat.push(eff.dat);
-            });
+            const size = ctx.field(`${seg.sPfx}_size`);
+            if (size && !(['1', '2', '3'].includes(valC))) {
+                if (size.includes('x')) sentences.push(formatSentence(`durální vak rozměrů cca ${size} mm`));
+                else sentences.push(formatSentence(`durální vak šíře ${size} mm`));
+            }
 
             if (sentences.length > 0) {
                 hasSegmentPathology = true;
                 segmentBlocks.push({ type: 'frame', text: `${seg.label}: ${sentences.join(' ')}` });
             }
 
-            let concLine = "";
+            let linkedPairs = [];
+            let unlinkedEffects = [...mappedEffects];
+            let specificCauses = activeCauses.filter(c => c.type === 'specific');
+            let otherCauses = activeCauses.filter(c => c.type === 'other');
+            let specificUnlinked = [];
+
+            specificCauses.forEach(cause => {
+                let matchedEffs = unlinkedEffects.filter(eff => cause.match(eff));
+                if (matchedEffs.length > 0) {
+                    linkedPairs.push({ causes: [cause], effects: matchedEffs });
+                    unlinkedEffects = unlinkedEffects.filter(eff => !cause.match(eff));
+                } else {
+                    specificUnlinked.push(cause);
+                }
+            });
+
+            let remainingCauses = [...otherCauses, ...specificUnlinked];
+
+            if (unlinkedEffects.length > 0 && remainingCauses.length > 0) {
+                linkedPairs.push({ causes: remainingCauses, effects: unlinkedEffects });
+                unlinkedEffects = [];
+                remainingCauses = [];
+            }
+
+            let concLines = [];
             const isStenosisFirst = Store.fields['ls_spine_conc_mode'] === 'stenosis';
 
-            if (causesNom.length > 0 || effectsNom.length > 0) {
-                let causeStrNom = joinCzech(causesNom);
-                let causeStrGen = joinCzech(causesGen);
-                let effectStrNom = joinCzech(effectsNom);
-                let effectStrDat = joinCzech(effectsDat);
-
+            linkedPairs.forEach(pair => {
+                let causeStrNom = joinCzech(pair.causes.map(c => c.nom));
+                let causeStrGen = joinCzech(pair.causes.map(c => c.gen));
+                let effectStrNom = joinCzech(pair.effects.map(e => e.nom));
+                let effectStrDat = joinCzech(pair.effects.map(e => e.dat));
                 let prep = /^(s[bcdfghjklmnpqrstvwxz]|z[bcdfghjklmnpqrstvwxz]|š[bcdfghjklmnpqrstvwxz]|ž[bcdfghjklmnpqrstvwxz]|k|g)/i.test(effectStrDat) ? 'ke' : 'k';
 
                 if (!isStenosisFirst) {
-                    if (causeStrNom && effectStrDat) concLine = `${causeStrNom} vedoucí ${prep} ${effectStrDat}.`;
-                    else if (causeStrNom) {
-                        if (hasZero) concLine = `${causeStrNom} bez útlaku nervových struktur.`;
-                        else concLine = `${causeStrNom}.`;
-                    }
-                    else if (effectStrNom) concLine = `${effectStrNom}.`;
+                    concLines.push(`${causeStrNom} vedoucí ${prep} ${effectStrDat}.`);
                 } else {
-                    if (effectStrNom && causeStrGen) concLine = `${effectStrNom} na podkladě ${causeStrGen}.`;
-                    else if (effectStrNom) concLine = `${effectStrNom}.`;
-                    else if (causeStrNom) {
-                        if (hasZero) concLine = `${causeStrNom} bez útlaku nervových struktur.`;
-                        else concLine = `${causeStrNom}.`;
-                    }
+                    concLines.push(`${effectStrNom} na podkladě ${causeStrGen}.`);
                 }
-            }
+            });
+
+            remainingCauses.forEach(cause => {
+                if (hasZero) concLines.push(`${cause.nom} bez útlaku nervových struktur.`);
+                else concLines.push(`${cause.nom}.`);
+            });
+
+            unlinkedEffects.forEach(eff => {
+                let str = eff.nom.charAt(0).toUpperCase() + eff.nom.slice(1);
+                concLines.push(`Současně ${str.toLowerCase()}.`);
+            });
 
             if (fibrosisArr.length > 0) {
                 let fStr = joinCzech(fibrosisArr);
-                fStr = fStr.charAt(0).toUpperCase() + fStr.slice(1) + '.';
-                if (concLine) concLine += ' ' + fStr;
-                else concLine = fStr;
+                concLines.push(fStr.charAt(0).toUpperCase() + fStr.slice(1) + '.');
             }
 
             if (adhesionArr.length > 0) {
                 let aStr = joinCzech(adhesionArr);
-                aStr = aStr.charAt(0).toUpperCase() + aStr.slice(1) + '.';
-                if (concLine) concLine += ' ' + aStr;
-                else concLine = aStr;
+                concLines.push(aStr.charAt(0).toUpperCase() + aStr.slice(1) + '.');
             }
 
-            if (concLine) {
-                concLine = concLine.charAt(0).toUpperCase() + concLine.slice(1);
-                mainConc.push({ type: 'frame', text: `${seg.label}: ${concLine}` });
+            if (concLines.length > 0) {
+                let combined = concLines.map((line, idx) => {
+                    let str = line.trim();
+                    if (idx > 0 && str.length > 0) {
+                        str = str.charAt(0).toUpperCase() + str.slice(1);
+                    }
+                    return str;
+                }).join(' ');
+                mainConc.push({ type: 'frame', text: `${seg.label}: ${combined}` });
             }
 
             let iParts = [];
