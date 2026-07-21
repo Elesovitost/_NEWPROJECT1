@@ -3165,7 +3165,6 @@ const UI = {
                 const ctx = createContext(regionId, examId);
                 const compiled = region.compile(ctx);
                 
-                // --- SANITIZACE TEXTU PODLE MODALITY ---
                 const sanitizeText = (txt, isConclusion = false) => {
                     if (typeof txt !== 'string') return txt;
                     
@@ -3181,11 +3180,101 @@ const UI = {
                                  .replace(/\s*bez\s+(?:(?:nízké|intermediární|zvýšené|vysoké)\s+)?(akumulace\s+RF|aktivity)/gi, '');
                     }
                     
-                    out = out.replace(/^([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ])([^:.]+?):\s*charakteru tumoru([^.]*)/, (match, firstChar, middle, rest) => {
-                        return "Tumorózní " + firstChar.toLowerCase() + middle + rest;
-                    });
+                    const gramatikaHyper = (slovo) => {
+                        const s = slovo.toLowerCase();
+                        let rod = 'n';
+                        let isPlural = false;
+                        let found = false;
+
+                        for (const [key, val] of Object.entries(GRAMMAR_DICT.druh)) {
+                            const singularLast = key.split(' ').pop();
+                            const pluralLast = val.plural.split(' ').pop();
+
+                            if (s === key || s === singularLast) {
+                                rod = val.rod;
+                                isPlural = false;
+                                found = true;
+                                break;
+                            } else if (s === val.plural || s === pluralLast) {
+                                rod = val.rod;
+                                isPlural = true;
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found) {
+                            if (s.match(/a$/)) { rod = 'f'; isPlural = false; }
+                            else if (s.match(/y$/) || s === 'léze') { rod = 'f'; isPlural = true; }
+                            else if (s.match(/l$/)) { rod = 'm'; isPlural = false; }
+                        }
+
+                        if (rod === 'm') return isPlural ? 'hypermetabolické' : 'hypermetabolický';
+                        if (rod === 'f') return isPlural ? 'hypermetabolické' : 'hypermetabolická';
+                        return isPlural ? 'hypermetabolická' : 'hypermetabolické';
+                    };
+
+                    const aktivityPravidla = [
+                        { find: /\s*s nízkou metabolickou aktivitou/i, prefix: 'nízce metabolicky aktivní' },
+                        { find: /\s*s intermediární metabolickou aktivitou/i, prefix: 'středně metabolicky aktivní' },
+                        { find: /\s*se zvýšenou metabolickou aktivitou/i, prefix: 'zvýšeně metabolicky aktivní' },
+                        { find: /\s*s vysokou metabolickou aktivitou/i, prefix: '', dynamicky: true }
+                    ];
+
+                    const metaRegex = /\s*:\s*charakteru metastázy/i;
+
+                    out = out.split('. ').map(veta => {
+                        let upravena = veta;
+                        let maMetu = metaRegex.test(upravena);
+                        let nalezenaAkt = aktivityPravidla.find(p => p.find.test(upravena));
+
+                        if (nalezenaAkt) upravena = upravena.replace(nalezenaAkt.find, '');
+                        if (maMetu) upravena = upravena.replace(metaRegex, '');
+
+                        if (maMetu || nalezenaAkt) {
+                            const regexSubjekt = /^(.*?)(ložisk[oa]|expanze|infiltrace|defekt[y]?|kolekce|uzlin[ay]|paket[y]?|nodul[y]?|cyst[ay]|léze)(.*)/i;
+                            const match = upravena.match(regexSubjekt);
+
+                            if (match) {
+                                let pred = match[1];
+                                let subjekt = match[2];
+                                let zbytek = match[3];
+
+                                let vkladanyText = '';
+                                if (nalezenaAkt) {
+                                    vkladanyText += nalezenaAkt.dynamicky ? gramatikaHyper(subjekt) + ' ' : nalezenaAkt.prefix + ' ';
+                                }
+                                if (maMetu) {
+                                    vkladanyText += 'meta ';
+                                }
+
+                                if (pred.trim() === '') {
+                                    vkladanyText = vkladanyText.charAt(0).toUpperCase() + vkladanyText.slice(1);
+                                    subjekt = subjekt.toLowerCase();
+                                }
+
+                                upravena = pred + vkladanyText + subjekt + zbytek;
+                            } else {
+                                let vkladanyText = '';
+                                if (nalezenaAkt) {
+                                    vkladanyText += nalezenaAkt.dynamicky ? 'hypermetabolické ' : nalezenaAkt.prefix + ' ';
+                                }
+                                if (maMetu) {
+                                    vkladanyText += 'meta ';
+                                }
+                                vkladanyText = vkladanyText.charAt(0).toUpperCase() + vkladanyText.slice(1);
+                                upravena = vkladanyText + upravena.charAt(0).toLowerCase() + upravena.slice(1);
+                            }
+                        }
+
+                        upravena = upravena.replace(/^([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ])([^:.]+?):\s*charakteru tumoru([^.]*)/, (m, f, mid, rest) => {
+                            return "Tumorózní " + f.toLowerCase() + mid + rest;
+                        });
+
+                        return upravena;
+                    }).join('. ');
                     
-                    return out;
+                    return out.replace(/\s+/g, ' ').replace(/\s\./g, '.');
                 };
 
                 if (compiled.report) {
