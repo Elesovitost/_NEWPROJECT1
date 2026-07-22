@@ -3318,27 +3318,28 @@ const UI = {
             const isFdg = eIdLower.includes('fdg');
             const isPsma = eIdLower.includes('psma');
             const isDotatoc = eIdLower.includes('dotatoc');
+            const isDopa = eIdLower.includes('dopa'); // Nově přidána detekce DOPA
 
-            if (isFdg || isPsma || isDotatoc) {
+            if (isFdg || isPsma || isDotatoc || isDopa) { // Rozšířená podmínka
+                // 1. Detekce přes tlačítka: Hledá stav aktivity >= 3 (zvýšená, vysoká)
                 const hasHighActivity = Object.keys(Store.buttonStates).some(k => 
                     k.startsWith(examId) && k.endsWith('_act') && Store.buttonStates[k] >= 3
                 );
 
-                const repText = examRepBlocks.map(b => b.text).join(' ').toLowerCase();
-                const hasRepKeywords = repText.includes('hyperakumulující') || 
-                                       repText.includes('zvýšenou akumulací rf') || 
-                                       repText.includes('vysokou akumulací rf');
 
+                // 3. Detekce patologie v závěru (meta, tumor atd.)
                 const concText = [...examConcMainBlocks, ...examConcIncBlocks].map(b => b.text).join(' ').toLowerCase();
-                const hasConcKeywords = concText.includes('meta') || 
+                const hasConcKeywords = /\bmeta\b/.test(concText) || 
                                         concText.includes('tumor') || 
                                         concText.includes('maligní');
 
-                if (!hasHighActivity && !hasRepKeywords && !hasConcKeywords) {
+                // Vložení negativního textu, pokud není žádný z indikátorů patologie pozitivní
+                if (!(hasHighActivity && hasConcKeywords)) {
                     let autoText = '';
-                    if (isFdg) autoText = "Bez známek přítomnosti FDG-avidní neoplazie.";
+                    if (isFdg) autoText = "Bez známek přítomnosti FDG-avidní neoplázie.";
                     else if (isPsma) autoText = "Bez známek přítomnosti ložisek zvýšené exprese PSMA.";
                     else if (isDotatoc) autoText = "Bez známek přítomnosti ložisek se zvýšeným nakupením somatostatinových receptorů.";
+                    else if (isDopa) autoText = "Bez známek přítomnosti ložisek se zvýšenou konzumpcí aminokyseliny.";
                     
                     if (autoText) {
                         examConcMainBlocks.unshift({ type: 'frame', text: autoText, tableId: null, examId });

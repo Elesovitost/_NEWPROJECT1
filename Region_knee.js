@@ -1189,6 +1189,10 @@ const RegionKnee = {
             return orderA - orderB;
         };
 
+        if (concMain.length === 0) {
+            concMain.push({ type: 'frame', text: 'Přiměřený nález. Menisky, vazy, chrupavky bez signifikantní patologie.' });
+        }
+
         concMain.sort(sortConclusions);
         concInc.sort(sortConclusions);
 

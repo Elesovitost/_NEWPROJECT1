@@ -561,6 +561,10 @@ const RegionShoulder = {
             reportOut.push({ type: 'frame', text: 'Skelet a chrupavky: ' + cap(bnRep.join(', ')) + '.', tableId: 'shoulder_bones_main' });
         }
 
+        if (concMain.length === 0) {
+            concMain.push({ type: 'frame', text: 'Přiměřený nález, bez signifikantní patologie.' });
+        }
+
         return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
     }
 };

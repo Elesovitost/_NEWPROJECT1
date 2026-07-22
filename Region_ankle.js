@@ -428,6 +428,10 @@ const RegionAnkle = {
         }
         if (ptConc) concMain.push({ type: 'frame', text: cap(ptConc) + (ptConc.endsWith('.') ? '' : '.'), tableId: 'ankle_post_other_main' });
 
+        if (concMain.length === 0) {
+            concMain.push({ type: 'frame', text: 'Přiměřený nález, bez signifikantní patologie.' });
+        }
+
         return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
     }
 };
