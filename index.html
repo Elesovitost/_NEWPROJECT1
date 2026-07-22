@@ -209,7 +209,7 @@
             </label>
         </div>
         <div class="row" style="margin-bottom: 8px;">
-            <span class="label">Slovně místo SUVmax:</span>
+            <span class="label" title="Převádí číselné hodnoty SUVmax na slovní popis.">Slovně místo SUVmax:</span>
             <label class="switch">
                 <input type="checkbox" id="setting-suv-word" data-action="update-setting" data-setting="suvWord">
                 <span class="slider"></span>
@@ -229,10 +229,17 @@
                 <span class="slider"></span>
             </label>
         </div>
-        <div class="row">
+        <div class="row" style="margin-bottom: 8px;">
             <span class="label" title="Zobrazovat obrázkové nápovědy při najetí myší na vybraná tlačítka.">Zobrazovat tooltips:</span>
             <label class="switch">
                 <input type="checkbox" id="setting-show-tooltips" data-action="update-setting" data-setting="showTooltips">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="row">
+            <span class="label" title="Pokročilá textová optimalizace (skloňování a přesun modifikátorů).">Opt. text:</span>
+            <label class="switch">
+                <input type="checkbox" id="setting-opt-text" data-action="update-setting" data-setting="optText">
                 <span class="slider"></span>
             </label>
         </div>
@@ -298,7 +305,8 @@ const APP_SETTINGS = {
     suvWord: savedConfig.suvWord || false,
     hidePredefined: savedConfig.hidePredefined || false,
     previewReport: savedConfig.previewReport || false,
-    showTooltips: savedConfig.showTooltips !== undefined ? savedConfig.showTooltips : true
+    showTooltips: savedConfig.showTooltips !== undefined ? savedConfig.showTooltips : true,
+    optText: savedConfig.optText !== undefined ? savedConfig.optText : true
 };
 
 function saveSettings() {
@@ -307,7 +315,8 @@ function saveSettings() {
         suvWord: APP_SETTINGS.suvWord, 
         hidePredefined: APP_SETTINGS.hidePredefined,
         previewReport: APP_SETTINGS.previewReport,
-        showTooltips: APP_SETTINGS.showTooltips
+        showTooltips: APP_SETTINGS.showTooltips,
+        optText: APP_SETTINGS.optText
     }));
     document.body.classList.toggle('hide-predefined', APP_SETTINGS.hidePredefined);
     UI.renderReport();
@@ -3165,6 +3174,7 @@ const UI = {
                 const ctx = createContext(regionId, examId);
                 const compiled = region.compile(ctx);
                 
+                // --- SANITIZACE TEXTU PODLE MODALITY ---
                 const sanitizeText = (txt, isConclusion = false) => {
                     if (typeof txt !== 'string') return txt;
                     
@@ -3178,6 +3188,10 @@ const UI = {
                     } else {
                         out = out.replace(/\s*s[e]?\s+(nízkou|intermediární|zvýšenou|vysokou)\s+(akumulací\s+RF|aktivitou)/gi, '')
                                  .replace(/\s*bez\s+(?:(?:nízké|intermediární|zvýšené|vysoké)\s+)?(akumulace\s+RF|aktivity)/gi, '');
+                    }
+
+                    if (!APP_SETTINGS.optText) {
+                        return out;
                     }
                     
                     const gramatikaHyper = (slovo) => {
@@ -4307,6 +4321,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const tooltipsCheckbox = document.getElementById('setting-show-tooltips');
     if (tooltipsCheckbox) tooltipsCheckbox.checked = APP_SETTINGS.showTooltips;
+
+    const optTextCheckbox = document.getElementById('setting-opt-text');
+    if (optTextCheckbox) optTextCheckbox.checked = APP_SETTINGS.optText;
     
     document.body.classList.toggle('hide-predefined', APP_SETTINGS.hidePredefined);
     
