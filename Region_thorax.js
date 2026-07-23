@@ -150,6 +150,12 @@ const RegionThorax = {
                         { field: 'text', id: 'devices_custom_desc', placeholder: 'vlastní...popis...' },
                         { field: 'text', id: 'devices_custom_conc', placeholder: 'vlastní...závěr...' }
                     ])
+                ]),
+                helpers.TableMain('thorax_ostatni_main', 'Ostatní nálezy', [
+                    helpers.Table1col('ostatni_ost_add', [
+                        { field: 'text', id: 'ostatni_custom_desc', placeholder: 'vlastní...popis...' },
+                        { field: 'text', id: 'ostatni_custom_conc', placeholder: 'vlastní...závěr...' }
+                    ])
                 ])
             );
 
@@ -681,6 +687,21 @@ const RegionThorax = {
             
             let devConc = ctx.field('devices_custom_conc');
             if (devConc) concInc.push({ type: 'frame', text: devConc, tableId: 'thorax_devices_main' });
+
+            let ostDesc = ctx.field('ostatni_custom_desc');
+            if (ostDesc) {
+                let txt = ostDesc.trim();
+                if (txt) {
+                    txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+                    if (!txt.endsWith('.')) txt += '.';
+                    reportOut.push({ type: 'frame', text: txt, tableId: 'thorax_ostatni_main' });
+                }
+            }
+
+            let ostConc = ctx.field('ostatni_custom_conc');
+            if (ostConc) {
+                concInc.push({ type: 'frame', text: ostConc, tableId: 'thorax_ostatni_main' });
+            }
 
             return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
         }

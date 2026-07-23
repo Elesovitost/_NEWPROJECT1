@@ -300,6 +300,13 @@ const RegionAbdomen = {
                 helpers.Table1col('aw_ost_add', [ { field: 'text', id: 'aw_custom_desc', placeholder: 'vlastní popis...' }, { field: 'text', id: 'aw_custom_conc', placeholder: 'vlastní závěr...' } ])
             ]));
 
+            layoutNodes.push(helpers.TableMain('abdomen_ostatni_main', 'Ostatní nálezy', [
+                helpers.Table1col('ostatni_ost_add', [
+                    { field: 'text', id: 'ostatni_custom_desc', placeholder: 'vlastní popis...' },
+                    { field: 'text', id: 'ostatni_custom_conc', placeholder: 'vlastní závěr...' }
+                ])
+            ]));
+
             return layoutNodes;
         },
 
@@ -897,6 +904,21 @@ const RegionAbdomen = {
             let finalHasPastDate = !!document.body.classList.contains('has-past-date');
             if (!(finalAscCurr && finalAscCurr !== '0') && !(finalHasPastDate && finalAscMin && finalAscMin !== '0')) {
                 reportOut.push({ type: 'frame', text: 'Bez volné tekutiny.', tableId: 'abdomen_peritoneum_main', dimmed: true });
+            }
+
+            let ostDesc = ctx.field('ostatni_custom_desc');
+            if (ostDesc) {
+                let txt = ostDesc.trim();
+                if (txt) {
+                    txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+                    if (!txt.endsWith('.')) txt += '.';
+                    reportOut.push({ type: 'frame', text: txt, tableId: 'abdomen_ostatni_main' });
+                }
+            }
+
+            let ostConc = ctx.field('ostatni_custom_conc');
+            if (ostConc) {
+                concInc.push({ type: 'frame', text: ostConc, tableId: 'abdomen_ostatni_main' });
             }
 
             return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };

@@ -1157,6 +1157,10 @@ const RegionBrain = {
             dimmed: (isOrbDimmed && isSinusDimmed && isUchoDimmed)
         });
 
+        if (concMain.length === 0 && concInc.length === 0) {
+            concMain.push({ type: 'frame', text: 'Přiměřený nález bez patrné ložiskové patologie.' });
+        }
+
         return { report: reportOut, conclusion: { main: concMain, incidental: concInc } };
     }
 }
